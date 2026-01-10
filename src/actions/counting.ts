@@ -7,7 +7,11 @@ import {
   userMention,
 } from "discord.js";
 import { client } from "../index.js";
-import { getRandomFromArray, goThroughAllMessages } from "../utils/helpers.js";
+import {
+  convertToNumber,
+  getRandomFromArray,
+  goThroughAllMessages,
+} from "../utils/helpers.js";
 import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
 import { Mutex } from "async-mutex";
 
@@ -130,7 +134,7 @@ export class Counting {
 
       if (message.author.id == client.user?.id) return;
 
-      const value = parseInt(message.content);
+      const value = convertToNumber(message.content);
 
       if (
         (this.#event != COUNT_EVENT.BOOM && isNaN(value)) ||
@@ -248,7 +252,7 @@ export class Counting {
         async (messages) => {
           for (const message of messages) {
             const sent_by_bot = message.author.id == client.user?.id;
-            const is_number = !isNaN(parseInt(message.content));
+            const is_number = !isNaN(convertToNumber(message.content));
 
             if (sent_by_bot) {
               // sent by bot
@@ -293,7 +297,7 @@ export class Counting {
               this.#last_counter_id = null;
 
               return false;
-            } else this.#last_number = parseInt(message.content ?? "0");
+            } else this.#last_number = convertToNumber(message.content ?? "0");
 
             if (!is_trapped) this.#trapped_by = null;
 

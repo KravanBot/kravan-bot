@@ -47,3 +47,9 @@ export const diffInMinutes = (date1: Date, date2: Date) => {
 
   return Math.abs(diff_in_minutes);
 };
+
+export const convertToNumber = (str: string) => {
+  if (!/^\d+$/.test(str)) return NaN;
+
+  return parseInt(str);
+};
