@@ -130,6 +130,8 @@ export class Gamble {
       });
       interaction.deferUpdate();
 
+      console.log(interaction.id);
+
       if (interaction.id == "next") this.#revealed++;
       else this.#revealed = this.#sequence.length;
 
