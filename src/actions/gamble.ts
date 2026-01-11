@@ -97,9 +97,13 @@ export class Gamble {
         components: [
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
-              .setCustomId("reveal")
+              .setCustomId("next")
               .setLabel("Reveal Next")
-              .setStyle(ButtonStyle.Primary)
+              .setStyle(ButtonStyle.Primary),
+            new ButtonBuilder()
+              .setCustomId("all")
+              .setLabel("Reveal All")
+              .setStyle(ButtonStyle.Secondary)
           ),
         ],
       });
@@ -120,13 +124,14 @@ export class Gamble {
 
   async #checkRevealClicked(msg: Message<boolean>) {
     try {
-      const a = await msg.awaitMessageComponent({
+      const interaction = await msg.awaitMessageComponent({
         filter: (i) => i.user.id === this.#interaction.user.id,
         time: 60_000,
       });
-      a.deferUpdate();
+      interaction.deferUpdate();
 
-      this.#revealed++;
+      if (interaction.id == "next") this.#revealed++;
+      else this.#revealed = this.#sequence.length;
 
       return true;
     } catch (e) {
