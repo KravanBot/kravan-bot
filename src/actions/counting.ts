@@ -70,13 +70,14 @@ export class Counting {
     this.#trapped_by = null;
     this.#last_msg = message;
 
-    if (dir > 0 && this.#last_number == 7)
+    if (dir > 0 && this.#last_number == 7) {
       // last number was 6, send 6 7 gif
       await message.reply(
         "https://tenor.com/view/bosnov-67-bosnov-67-67-meme-gif-16727368109953357722"
       );
-    await message.react("6️⃣");
-    await message.react("7️⃣");
+      await message.react("6️⃣");
+      await message.react("7️⃣");
+    }
   }
 
   async #wrong(message: MessageT, sentence: string) {
