@@ -69,6 +69,12 @@ export class Counting {
     this.#last_number! += dir;
     this.#trapped_by = null;
     this.#last_msg = message;
+
+    if (dir > 0 && this.#last_number == 7)
+      // last number was 6, send 6 7 gif
+      message.reply(
+        "https://tenor.com/view/bosnov-67-bosnov-67-67-meme-gif-16727368109953357722"
+      );
   }
 
   async #wrong(message: MessageT, sentence: string) {

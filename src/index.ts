@@ -242,8 +242,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                 name: "Contributers ⛏️",
                 value: `${userMention("1260205513795174434")} ${userMention(
                   "133282052350017536"
-                )} ${userMention(
-                  "617091659758436516"
+                )} ${userMention("617091659758436516")} ${userMention(
+                  "756137226202513449"
                 )} (basically gambled too much)`,
               },
             ]),
