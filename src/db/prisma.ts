@@ -126,7 +126,7 @@ export const updateTheft = async (id: string) => {
       last_theft: date,
     },
     update: {
-      last_date: date,
+      last_theft: date,
     },
     where: {
       id,
