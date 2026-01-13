@@ -131,8 +131,9 @@ export class Steal {
 
       const full_victim_amount = await getUserCoins(this.#victim.id);
       const amount = Math.max(
-        Math.floor(Math.random() * (full_victim_amount / 8 + 1)) +
-          full_victim_amount / 8,
+        Math.floor(
+          Math.random() * (full_victim_amount / 8 + 1) + full_victim_amount / 8
+        ),
         1
       );
 
@@ -149,7 +150,7 @@ export class Steal {
                 this.#victim.id
               )}... 😬\n\nYou might want to consider buying an alarm 🚨 in the shop 🛍️`
             )
-            .setThumbnail(this.#theif.avatarURL())
+            .setThumbnail(this.#victim.avatarURL())
             .setImage(
               "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExMTFjdG1rZ2xqMmdjZDUxa3c4dTkzMjc4MzE4cTQ3b3JvMndwZzBzdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/l8vN5etR8DIoHA0qzV/giphy.gif"
             ),
