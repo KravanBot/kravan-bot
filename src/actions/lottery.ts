@@ -25,6 +25,7 @@ type QuestionT = {
 export class Lottery {
   static ANNOUNCEMENTS_CHANNEL_ID = "1311121693133246535";
   static LOTTERY_CHANNEL_ID = "1459659790417399960";
+  static BOT_ANNOUNCMENTS_CHANNEL_ID = "1460722368702976104";
   static COST = 5;
 
   #question: QuestionT | null;
@@ -240,7 +241,7 @@ export class Lottery {
     for (const user_id of Array.from(winners.keys()))
       await addCoins(user_id, prize_for_each_winner);
 
-    if (winners.size)
+    if (winners.size) {
       await this.#message?.edit({
         embeds: [
           new CustomEmbed()
@@ -276,6 +277,17 @@ export class Lottery {
             ),
         ],
       });
+
+      const results_in_msg = await this.#message?.reply(
+        `@everyone\n\nRESULTS ARE IN!!!!\n\nhttps://tenor.com/view/spongebob-results-day-nervous-nail-bite-gif-16891731`
+      );
+
+      await results_in_msg?.forward(
+        client.channels.cache.get(
+          Lottery.BOT_ANNOUNCMENTS_CHANNEL_ID
+        ) as TextChannel
+      );
+    }
 
     this.#question = null;
     this.#message = null;

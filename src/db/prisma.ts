@@ -102,4 +102,38 @@ export const updateAndReturnDaily = async (id: string) => {
   ).daily;
 };
 
+export const updateTheft = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    select: {
+      last_theft: true,
+    },
+    where: {
+      id,
+    },
+  });
+
+  const date = moment().utc().toDate();
+
+  if (
+    user?.last_theft?.toLocaleDateString("en-US") ==
+    date.toLocaleDateString("en-US")
+  )
+    return false;
+
+  await prisma.user.upsert({
+    create: {
+      id,
+      last_theft: date,
+    },
+    update: {
+      last_date: date,
+    },
+    where: {
+      id,
+    },
+  });
+
+  return true;
+};
+
 export { prisma };

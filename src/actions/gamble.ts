@@ -7,7 +7,7 @@ import {
   ChatInputCommandInteraction,
   Message,
 } from "discord.js";
-import { addCoins, getUserCoins } from "../db/prisma.js";
+import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import { CustomEmbed } from "../utils/embed.js";
 
@@ -138,6 +138,8 @@ export class Gamble {
         embeds: [],
         components: [],
       });
+
+      await takeCoins(this.#interaction.user.id, this.#bet);
 
       return false;
     }

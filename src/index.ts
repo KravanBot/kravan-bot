@@ -16,12 +16,14 @@ import {
   getUserCoins,
   takeCoins,
   updateAndReturnDaily,
+  updateTheft,
 } from "./db/prisma.js";
 import { Gamble } from "./actions/gamble.js";
 import { Lottery } from "./actions/lottery.js";
 import { CustomEmbed } from "./utils/embed.js";
 import { Leveling } from "./actions/leveling.js";
 import { configDotenv } from "dotenv";
+import { Steal } from "./actions/steal.js";
 
 configDotenv();
 
@@ -37,6 +39,8 @@ export const client = new Client({
     GatewayIntentBits.MessageContent,
   ],
 });
+
+const current_gambles: Map<string, Gamble> = new Map();
 
 const commands = [
   new SlashCommandBuilder()
@@ -125,6 +129,18 @@ const commands = [
   new SlashCommandBuilder()
     .setName("daily")
     .setDescription("Claim your daily reward"),
+
+  new SlashCommandBuilder()
+    .setName("steal")
+    .setDescription(
+      '"Borrow" from someone just a few coins... Be careful not to get caught...'
+    )
+    .addUserOption((option) =>
+      option
+        .setName("victim")
+        .setDescription("mention the person u wanna borrow from")
+        .setRequired(true)
+    ),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
@@ -311,7 +327,9 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       break;
 
     case "gamble":
-      new Gamble(interaction);
+      if (current_gambles.has(interaction.user.id)) return;
+
+      current_gambles.set(interaction.user.id, new Gamble(interaction));
 
       break;
 
@@ -383,6 +401,18 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       return await interaction.reply(
         `NICE! Streak is now ${result} days 🔥 You got +${result} coins 🪙`
       );
+    }
+
+    case "steal": {
+      const target = interaction.options.getUser("victim", true);
+
+      if (target.bot || target.id == interaction.user.id) return;
+
+      if ((await getUserCoins(target.id)) <= 0) return;
+
+      if (await updateTheft(interaction.user.id)) return;
+
+      new Steal(interaction.user, target, interaction);
     }
   }
 });
