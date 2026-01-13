@@ -15,6 +15,7 @@ import {
   getTop5Richest,
   getUserCoins,
   takeCoins,
+  updateAndReturnDaily,
 } from "./db/prisma.js";
 import { Gamble } from "./actions/gamble.js";
 import { Lottery } from "./actions/lottery.js";
@@ -120,6 +121,10 @@ const commands = [
         .setMinValue(1)
         .setRequired(true)
     ),
+
+  new SlashCommandBuilder()
+    .setName("daily")
+    .setDescription("Claim your daily reward"),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
@@ -363,6 +368,19 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       );
 
       break;
+    }
+
+    case "daily": {
+      const result = await updateAndReturnDaily(interaction.user.id);
+
+      if (result < 0)
+        return await interaction.reply(
+          "U ALREADY CLAIMED TODAYS REWARD U GREEDY MF"
+        );
+
+      return await interaction.reply(
+        `NICE! Streak is now ${result} days 🔥 You got +${result} coins 🪙`
+      );
     }
   }
 });

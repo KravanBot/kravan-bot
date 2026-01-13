@@ -1,5 +1,7 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
+import { diffInDays } from "../utils/helpers.js";
+import moment from "moment";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 
@@ -24,16 +26,7 @@ export const addCoins = async (id: string, amount: number) => {
 };
 
 export const takeCoins = async (id: string, amount: number) => {
-  await prisma.user.update({
-    data: {
-      coins: {
-        decrement: amount,
-      },
-    },
-    where: {
-      id,
-    },
-  });
+  await addCoins(id, -amount);
 };
 
 export const getUserCoins = async (id: string) => {
@@ -63,6 +56,50 @@ export const getTop5Richest = async () => {
       coins: "desc",
     },
   });
+};
+
+export const updateAndReturnDaily = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    select: {
+      last_date: true,
+    },
+    where: {
+      id,
+    },
+  });
+
+  const date = moment().utc().toDate();
+
+  if (
+    user?.last_date.toLocaleDateString("en-US") ==
+    date.toLocaleDateString("en-US")
+  )
+    return -1;
+
+  return (
+    await prisma.user.upsert({
+      select: {
+        daily: true,
+      },
+      create: {
+        id,
+        daily: 1,
+        last_date: date,
+      },
+      update: {
+        daily:
+          user?.last_date && Math.floor(diffInDays(date, user.last_date)) == 1
+            ? 1
+            : {
+                increment: 1,
+              },
+        last_date: date,
+      },
+      where: {
+        id,
+      },
+    })
+  ).daily;
 };
 
 export { prisma };
