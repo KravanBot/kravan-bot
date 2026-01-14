@@ -193,13 +193,13 @@ export class Gamble {
     let delta = winnings - losses;
     let attachment = undefined;
 
-    // if (Math.floor(Math.random() * 20) <= 0) {
+    if (Math.floor(Math.random() * 20) <= 0) {
       const lucky_sequence = this.#getLuckySequence(delta);
       attachment = lucky_sequence.attachment;
 
       winnings += lucky_sequence.additional;
       embeds.push(lucky_sequence.embed);
-    // }
+    }
 
     delta = winnings - losses;
 
@@ -258,8 +258,8 @@ export class Gamble {
       },
       {
         name: "Beanie Kisses 💋",
-        description: "Beanie smootches you with an additional 10 coins!",
-        additional: 10,
+        description: "Beanie smootches you with an additional 20 coins!",
+        additional: 20,
         thumbnail:
           "https://images-ext-1.discordapp.net/external/0m5FBCrNv_WBvk6pQ13Qm0G2uvylVYN3r4JmnRU4vFQ/https/cdn.discordapp.com/avatars/711280320066093077/30e97bc8175abc367207042f3474f0ec.webp?format=webp&width=141&height=141",
         img: "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExa204dHVvcDh0bHc4bnZjM2Jya2xxOWxuYTZhemQ2bWVmd2pkcXEzbCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/W1hd3uXRIbddu/giphy.gif",
@@ -267,8 +267,8 @@ export class Gamble {
       {
         name: "Goobie Incident 🚽",
         description:
-          "Goobie smashed his head against the toilet... again... u donate him 10 coins for his medication 💊",
-        additional: -10,
+          "Goobie smashed his head against the toilet... again... u donate him 20 coins for his medication 💊",
+        additional: -20,
         thumbnail:
           "https://images-ext-1.discordapp.net/external/kgMjqZhFstRqlg32jZNszMxlG14L5l0wlNqcLKYlTWQ/https/cdn.discordapp.com/guilds/1236751656331509967/users/508655899309506570/avatars/7efb04f6f79659b4e9dfc1ce0454e8cc.webp?format=webp&width=141&height=141",
         img: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExOGs0ZjZmNHg2OHk3cXg1aDE4cHFrazh1c2Q5YzkxajZoMnEwY2kyNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/bYOLaSoPdvy00/giphy.gif",
@@ -276,16 +276,16 @@ export class Gamble {
       {
         name: "Cant sleep with sleepy 😴",
         description:
-          "Sleepy says peek with me... you dont... you dont... he drops your wallet angrily, 10 coins arent with us anymore.",
-        additional: -10,
+          "Sleepy says peek with me... you dont... you dont... he drops your wallet angrily, 20 coins arent with us anymore.",
+        additional: -20,
         thumbnail:
           "https://cdn.discordapp.com/avatars/973969392146710568/702e0414a562e36dea4a4553b8c7e816.png",
         img: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZXBnOHBhaGtrN3d6c3U1czBiOGg1YzQzMmxtcTEzbG5vajc2M216dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/EzTyrBGeAmDSsToZxb/giphy.gif",
       },
       {
         name: "Boom Boom Boom 💥",
-        description: "Djevrek exploded in your room - you lose 10 coins",
-        additional: -10,
+        description: "Djevrek exploded in your room - you lose 20 coins",
+        additional: -20,
         thumbnail:
           "https://images-ext-1.discordapp.net/external/-9DhIh-pt4yrV3DHkV-xfAbY9pqdi5cxAIHtjREPTLw/https/cdn.discordapp.com/avatars/617091659758436516/a_452edccff6f1e7d6f05ffdf6610f4083.gif?width=141&height=141",
         img: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExYWJubndhazd4ODYwcjN6OWRwMHhoZGh1Njd2empiMTMxNHFldjRpaCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/14ceV8wMLIGO6Q/giphy.gif",
@@ -293,8 +293,8 @@ export class Gamble {
       {
         name: "Will never be the same... 😶",
         description:
-          "Zed said type shit, you are forced to play a game of league with him, you lost all your sanity and you are sent to an insistuation. You pay 10 coins for a psychology session.",
-        additional: -10,
+          "Zed said type shit, you are forced to play a game of league with him, you lost all your sanity and you are sent to an insistuation. You pay 20 coins for a psychology session.",
+        additional: -20,
         thumbnail:
           "https://images-ext-1.discordapp.net/external/wN38Q6t1nHa0xXycCaJqBUyVNcdIYF22Ggo7H2WeHSg/https/cdn.discordapp.com/avatars/133282052350017536/3dc22cb19049d7b675c9365f224cd565.webp?format=webp&width=141&height=141",
         img: "./assets/gifs/zed_sequence.gif",
@@ -302,16 +302,16 @@ export class Gamble {
       {
         name: "Drop ur pants 👖",
         description:
-          "Mayaya complimented with a 'Nice cock', u excitingly dropped ur pants and she tipped u 10 coins",
-        additional: 10,
+          "Mayaya complimented with a 'Nice cock', u excitingly dropped ur pants and she tipped u 20 coins",
+        additional: 20,
         thumbnail:
           "https://images-ext-1.discordapp.net/external/Wgiuq3nMi7tybLKo7BG_8BRtxNbeJ0ok7S5LXqeY2hc/https/cdn.discordapp.com/guilds/1236751656331509967/users/756137226202513449/avatars/d668a8acf3a50617434a25d176dcb3d1.webp?format=webp&width=141&height=141",
         img: "./assets/gifs/mayaya_sequence.gif",
       },
       {
         name: "TAKE COVER 🗡️",
-        description: "Teru invaded your country and took your loved ones captive. She spares their lives for 10 coins",
-        additional: -10,
+        description: "Teru invaded your country and took your loved ones captive. She spares their lives for 20 coins",
+        additional: -20,
         thumbnail: "https://images-ext-1.discordapp.net/external/e6jfZPmsfCN8z2FnCfSHHWhh6IZ2ojdJsw7FEk9pVEA/https/cdn.discordapp.com/avatars/709841153763180545/fa19a1f558640c92d4e2c52df61c12cd.webp?format=webp&width=141&height=141",
         img: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZm91d3Q1ZTU1YTR0d3poMXZyaWhvNXA0M2hkdjY0NGl6aHhzMjB2YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qBogOUbxKWN3WXm/giphy.gif"
       }
