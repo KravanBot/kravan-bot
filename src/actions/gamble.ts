@@ -193,13 +193,13 @@ export class Gamble {
     let delta = winnings - losses;
     let attachment = undefined;
 
-    if (Math.floor(Math.random() * 20) <= 0) {
+    // if (Math.floor(Math.random() * 20) <= 0) {
       const lucky_sequence = this.#getLuckySequence(delta);
       attachment = lucky_sequence.attachment;
 
       winnings += lucky_sequence.additional;
       embeds.push(lucky_sequence.embed);
-    }
+    // }
 
     delta = winnings - losses;
 
