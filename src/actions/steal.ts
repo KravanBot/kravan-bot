@@ -13,29 +13,12 @@ import { CustomEmbed } from "../utils/embed.js";
 import { ItemId } from "./store.js";
 
 export class Steal {
-  static CHANNELS_IDS = [
-    "1310738903061237820",
-    "1336326581915881593",
-    "1310737786843824278",
-    "1387347858835116042",
-    "1386878625290256516",
-    "1393182802601578536",
-    "1311104580628647939",
-    "1310737761275478036",
-    "1428100416784044174",
-    "1388117861658267718",
-    "1446229960741228647",
-    "1236751657086484587",
-    "1459659790417399960",
-    "1310738903061237820",
-    "1386937305855426671",
-  ];
+  static CHANNEL_ID = "1461421056299499672";
 
   #theif: User;
   #victim: User;
   #interaction: ChatInputCommandInteraction<CacheType>;
   #msg: Message<boolean> | null;
-  #channel_id: string;
 
   constructor(
     theif: User,
@@ -46,7 +29,6 @@ export class Steal {
     this.#victim = victim;
     this.#interaction = interaction;
     this.#msg = null;
-    this.#channel_id = getRandomFromArray(Steal.CHANNELS_IDS);
 
     (async () => {
       await this.#sendMsg();
@@ -63,7 +45,7 @@ export class Steal {
       this.#msg = await this.#getChannel().send(
         `BROOOO ${userMention(
           this.#victim.id
-        )} WAKE UPPPPP SOMEONE IS TRYING TO STEAL FROM UUUUUUU\nREPLY TO THIS MESSAGE WITHIN <t:${end_time}:R> TO CATCH THE MF\n\n${userMention(
+        )} WAKE UPPPPP SOMEONE IS TRYING TO STEAL FROM UUUUUUU\nREPLY TO THIS MESSAGE <t:${end_time}:R> TO CATCH THE MF\n\n${userMention(
           this.#victim.id
         )} ${userMention(this.#victim.id)} ${userMention(this.#victim.id)}`
       );
@@ -74,7 +56,7 @@ export class Steal {
       this.#msg = await this.#getChannel().send(
         `Someone is sneaking into ${this.#victim.displayName}'s place. if u r ${
           this.#victim.displayName
-        }, reply to this message within <t:${end_time}:R> to catch the filthy theif...`
+        }, reply to this message <t:${end_time}:R> to catch the filthy theif...`
       );
 
     await this.#interaction.deleteReply();
@@ -174,6 +156,6 @@ export class Steal {
   }
 
   #getChannel() {
-    return client.channels.cache.get(this.#channel_id) as TextChannel;
+    return client.channels.cache.get(Steal.CHANNEL_ID) as TextChannel;
   }
 }
