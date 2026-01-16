@@ -30,9 +30,9 @@ export class Gamble {
     this.#revealed = 0;
 
     (async () => {
-      if (!(await this.#canGamble())) return;
+      if (await this.#canGamble()) await this.#sendGambleMessage();
 
-      await this.#sendGambleMessage();
+      current_gambles.delete(interaction.user.id);
     })();
   }
 
@@ -123,8 +123,6 @@ export class Gamble {
     });
 
     await this.#sendResults();
-
-    current_gambles.delete(this.#interaction.user.id);
   }
 
   async #checkRevealClicked(msg: Message<boolean>) {

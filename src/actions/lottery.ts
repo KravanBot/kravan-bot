@@ -233,8 +233,10 @@ export class Lottery {
       this.#calcPrizePool() / winners.size
     );
 
-    for (const user_id of Array.from(winners.keys()))
+    for (const user_id of Array.from(winners.keys())) {
       await addCoins(user_id, prize_for_each_winner);
+      this.#entries.delete(user_id);
+    }
 
     if (winners.size) {
       await (this.#message?.channel as TextChannel).send({
@@ -264,6 +266,12 @@ export class Lottery {
                       .join("\n")
                   : "No one entered the lottery :(",
                 inline: true,
+              },
+              {
+                name: "😔 Losers",
+                value: Array.from(this.#entries.entries())
+                  .map(([id, answer]) => `${userMention(id)} (${answer})`)
+                  .join(", "),
               },
             ])
             .setColor(0xeb3455)
