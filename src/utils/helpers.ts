@@ -49,9 +49,6 @@ export const diffInMinutes = (date1: Date, date2: Date) => {
 };
 
 export const diffInDays = (date1: Date, date2: Date) => {
-  console.log(date1, date2);
-  console.log(diffInMinutes(date1, date2) / 60 / 24);
-
   return diffInMinutes(date1, date2) / 60 / 24;
 };
 

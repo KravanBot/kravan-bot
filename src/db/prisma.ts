@@ -70,11 +70,11 @@ export const updateAndReturnDaily = async (id: string) => {
 
   const date = moment().utc().toDate();
 
-  if (
-    user?.last_date?.toLocaleDateString("en-US") ==
-    date.toLocaleDateString("en-US")
-  )
-    return -1;
+  const diff = user?.last_date
+    ? Math.floor(diffInDays(date, user.last_date))
+    : 1;
+
+  if (diff <= 0) return -1;
 
   return (
     await prisma.user.upsert({
@@ -88,11 +88,11 @@ export const updateAndReturnDaily = async (id: string) => {
       },
       update: {
         daily:
-          user?.last_date && Math.floor(diffInDays(date, user.last_date)) == 1
-            ? 1
-            : {
+          diff == 1
+            ? {
                 increment: 1,
-              },
+              }
+            : 1,
         last_date: date,
       },
       where: {
