@@ -121,13 +121,10 @@ export class Counting {
   ): Promise<boolean> {
     let next_val = this.#last_number! + dir;
 
-    if (this.#trapped_by)
-      next_val +=
-        Math.floor(Math.random() * 2) *
-        (this.#event == COUNT_EVENT.REVERSE ? 1 : -1);
+    if (this.#trapped_by) next_val += Math.floor(Math.random() * 2) * -dir;
 
     if (value == next_val) {
-      this.#last_number = value;
+      this.#last_number = next_val - dir;
 
       if (this.#event != COUNT_EVENT.BOOM) await this.#right(message, dir);
 
