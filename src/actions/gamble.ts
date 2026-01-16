@@ -292,7 +292,7 @@ export class Gamble {
         additional: -value,
         thumbnail:
           "https://images-ext-1.discordapp.net/external/wN38Q6t1nHa0xXycCaJqBUyVNcdIYF22Ggo7H2WeHSg/https/cdn.discordapp.com/avatars/133282052350017536/3dc22cb19049d7b675c9365f224cd565.webp?format=webp&width=141&height=141",
-        img: "./assets/gifs/zed_sequence.gif",
+        img: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTV1eHNvczZxYjFhYWtxbjRqamNwZXZqcXpxb3FkNDNqbW85am14eiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIP73vEZmJjFNXtC/giphy.gif",
       },
       {
         name: "Drop ur pants 👖",
