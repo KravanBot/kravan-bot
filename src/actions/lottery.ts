@@ -105,11 +105,6 @@ export class Lottery {
 
     const default_questions: QuestionT[] = [
       {
-        question: "How many times will ranni get flashed this stream?",
-        allow_decimal: false,
-        allow_negative: false,
-      },
-      {
         question: `How many ${getRandomFromArray([
           "kills",
           "assists",

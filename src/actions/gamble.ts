@@ -229,8 +229,8 @@ export class Gamble {
   }
 
   #getLuckySequence(delta: number) {
-    // const value = Math.max(10, Math.floor(this.#bet / 2));
-    const value = 10;
+    const value = Math.max(10, Math.floor(this.#bet / 2));
+    // const value = 10;
 
     const sequences: {
       name: string;
