@@ -59,13 +59,13 @@ export class Lottery {
 
           let value = truncateNumber(
             interaction.options.getNumber("answer", true),
-            this.#question.allow_decimal ? 2 : 0
+            this.#question.allow_decimal ? 2 : 0,
           );
 
           value = this.#question.allow_negative ? value : Math.abs(value);
 
           if (
-            diffInMinutes(interaction.createdAt, this.#message.createdAt) > 10
+            diffInMinutes(interaction.createdAt, this.#message.createdAt) > 30
           ) {
             if (interaction.user.id != "609097048662343700") return; // id for me (maybe add a role to let reveal an answer)
 
@@ -152,7 +152,7 @@ export class Lottery {
     if (!this.#question) return;
 
     const channel = client.channels.cache.get(
-      Lottery.LOTTERY_CHANNEL_ID
+      Lottery.LOTTERY_CHANNEL_ID,
     ) as TextChannel;
 
     const options: MessageCreateOptions | MessageEditOptions = {
@@ -161,7 +161,7 @@ export class Lottery {
         new CustomEmbed()
           .setTitle(this.#question.question)
           .setDescription(
-            "Closest answer will get the entire prize pool!\nUse /lottery and have a chance to win it all!\n\n(If ur interaction gets deleted, you were added successfully to the lottery)"
+            "Closest answer will get the entire prize pool!\nUse /lottery and have a chance to win it all!\n\n(If ur interaction gets deleted, you were added successfully to the lottery)",
           )
           .setFields(
             {
@@ -194,11 +194,11 @@ export class Lottery {
                   ? "- Negative answers are allowed"
                   : "- Negative numbers will be considered positive"
               }`,
-            }
+            },
           )
           .setColor(0xeb3455)
           .setImage(
-            "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExMm9zdGU2eDNlMGZ0aTI4OXhqMGFtOGQwYjYzNDA2am01NzdleHNtZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT5LMHqCUIUtXyau7C/giphy.gif"
+            "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExMm9zdGU2eDNlMGZ0aTI4OXhqMGFtOGQwYjYzNDA2am01NzdleHNtZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT5LMHqCUIUtXyau7C/giphy.gif",
           ),
       ],
     };
@@ -230,7 +230,7 @@ export class Lottery {
     }
 
     const prize_for_each_winner = Math.ceil(
-      this.#calcPrizePool() / winners.size
+      this.#calcPrizePool() / winners.size,
     );
 
     for (const user_id of Array.from(winners.keys())) {
@@ -260,8 +260,8 @@ export class Lottery {
                       .map(
                         ([id, answer]) =>
                           `- ${userMention(
-                            id
-                          )}: ${answer} (🪙 +${prize_for_each_winner})`
+                            id,
+                          )}: ${answer} (🪙 +${prize_for_each_winner})`,
                       )
                       .join("\n")
                   : "No one entered the lottery :(",
@@ -276,7 +276,7 @@ export class Lottery {
             ])
             .setColor(0xeb3455)
             .setImage(
-              "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGw5cWVjZW9pczR2dTlhaml5MTJwNjhtOW45azlqNGJkMmd1aWRzdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3orif2Ux6bGxvgEGtO/giphy.gif"
+              "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaGw5cWVjZW9pczR2dTlhaml5MTJwNjhtOW45azlqNGJkMmd1aWRzdiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3orif2Ux6bGxvgEGtO/giphy.gif",
             ),
         ],
       });

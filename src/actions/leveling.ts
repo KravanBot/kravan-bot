@@ -37,9 +37,7 @@ export class Leveling {
       await addCoins(target_id, reward);
 
       await message.reply(
-        `Nice ${userMention(
-          target_id
-        )}! u got +${reward} coins 🪙 (go gamble what r u waiting for)`
+        `Nice! u got +${reward} coins 🪙 (go gamble what r u waiting for)`
       );
     });
   }
