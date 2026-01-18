@@ -9,7 +9,10 @@ const adapter = new PrismaPg({ connectionString });
 const prisma = new PrismaClient({ adapter });
 
 export const addCoins = async (id: string, amount: number) => {
-  await prisma.user.upsert({
+  const { coins } = await prisma.user.upsert({
+    select: {
+      coins: true,
+    },
     update: {
       coins: {
         increment: amount,
@@ -18,6 +21,17 @@ export const addCoins = async (id: string, amount: number) => {
     create: {
       id,
       coins: amount,
+    },
+    where: {
+      id,
+    },
+  });
+
+  if (coins >= 0) return;
+
+  await prisma.user.update({
+    data: {
+      coins: 0,
     },
     where: {
       id,

@@ -30,7 +30,7 @@ export class Store {
           name: `${id}) ${item.name} (🪙 ${item.amount})`,
           value: `- ${item.description}`,
           inline: true,
-        }))
+        })),
       );
   }
 }
