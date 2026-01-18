@@ -150,7 +150,7 @@ export const updateTheft = async (id: string) => {
   return true;
 };
 
-export const addItem = async (id: string, value: number) => {
+export const addItem = async (id: string, value: number, quantity: number) => {
   const existing = await prisma.user.findUnique({
     select: {
       items: true,
@@ -160,16 +160,18 @@ export const addItem = async (id: string, value: number) => {
     },
   });
 
+  const new_arr = Array.from({ length: quantity }).fill(value) as number[];
+
   await prisma.user.upsert({
     create: {
       id,
       items: {
-        set: [value],
+        set: new_arr,
       },
     },
     update: {
       items: {
-        set: [...(existing?.items ?? []), value],
+        set: [...(existing?.items ?? []), ...new_arr],
       },
     },
     where: {

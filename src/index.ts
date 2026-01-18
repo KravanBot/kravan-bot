@@ -56,13 +56,13 @@ const commands = [
   new SlashCommandBuilder()
     .setName("net-worth")
     .setDescription(
-      "Get someone's net worth (if not mentioned, it's your net worth)"
+      "Get someone's net worth (if not mentioned, it's your net worth)",
     )
     .addUserOption((option) =>
       option
         .setName("target")
         .setDescription("mention the person u wanna check")
-        .setRequired(false)
+        .setRequired(false),
     ),
 
   new SlashCommandBuilder()
@@ -72,14 +72,14 @@ const commands = [
       option
         .setName("target")
         .setDescription("mention the person u wanna SMASH")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addNumberOption((option) =>
       option
         .setName("bet")
         .setDescription("min 1 coin")
         .setRequired(true)
-        .setMinValue(1)
+        .setMinValue(1),
     ),
 
   new SlashCommandBuilder()
@@ -90,7 +90,7 @@ const commands = [
         .setName("bet")
         .setDescription("min 1 coin")
         .setRequired(true)
-        .setMinValue(1)
+        .setMinValue(1),
     ),
 
   new SlashCommandBuilder()
@@ -108,7 +108,7 @@ const commands = [
       option
         .setName("answer")
         .setDescription("Your answer to the question")
-        .setRequired(true)
+        .setRequired(true),
     ),
 
   new SlashCommandBuilder()
@@ -118,14 +118,14 @@ const commands = [
       option
         .setName("target")
         .setDescription("mention the person u wanna donate to")
-        .setRequired(true)
+        .setRequired(true),
     )
     .addNumberOption((option) =>
       option
         .setName("amount")
         .setDescription("The amount you want to donate")
         .setMinValue(1)
-        .setRequired(true)
+        .setRequired(true),
     ),
 
   new SlashCommandBuilder()
@@ -135,13 +135,13 @@ const commands = [
   new SlashCommandBuilder()
     .setName("steal")
     .setDescription(
-      '"Borrow" from someone just a few coins... Be careful not to get caught...'
+      '"Borrow" from someone just a few coins... Be careful not to get caught...',
     )
     .addUserOption((option) =>
       option
         .setName("victim")
         .setDescription("mention the person u wanna borrow from")
-        .setRequired(true)
+        .setRequired(true),
     ),
 
   new SlashCommandBuilder().setName("store").setDescription("Display the shop"),
@@ -154,7 +154,13 @@ const commands = [
         .setName("value")
         .setDescription("The value of the item")
         .setMinValue(1)
-        .setRequired(true)
+        .setRequired(true),
+    )
+    .addNumberOption((option) =>
+      option
+        .setName("quantity")
+        .setDescription("The number of copies from the item")
+        .setMinValue(1),
     ),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
@@ -205,7 +211,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             .setColor(0x05b2f7)
             .setTitle("Free Commands 😁")
             .setDescription(
-              "Commands that dont need any money (cuz im generous 😇)"
+              "Commands that dont need any money (cuz im generous 😇)",
             )
             .setFields([
               {
@@ -231,7 +237,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             .setColor(0xf1c232)
             .setTitle("Paid Commands 💸")
             .setDescription(
-              "Commands that do cost money (ill send u my paypal 😊)"
+              "Commands that do cost money (ill send u my paypal 😊)",
             )
             .setFields([
               {
@@ -291,21 +297,21 @@ client.on("interactionCreate", async (interaction: Interaction) => {
               {
                 name: "Coder 💻",
                 value: `${userMention(
-                  "609097048662343700"
+                  "609097048662343700",
                 )} (yes guys no AI was used pls appreciate me 🥹🙏)`,
               },
               {
                 name: "Masterminds 🧠",
                 value: `${userMention("1260205513795174434")} ${userMention(
-                  "609097048662343700"
+                  "609097048662343700",
                 )} ${userMention("133282052350017536")}`,
               },
               {
                 name: "Contributers ⛏️",
                 value: `${userMention("1260205513795174434")} ${userMention(
-                  "133282052350017536"
+                  "133282052350017536",
                 )} ${userMention("617091659758436516")} ${userMention(
-                  "756137226202513449"
+                  "756137226202513449",
                 )} (basically gambled too much)`,
               },
             ]),
@@ -356,21 +362,19 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             .setDescription("Give sum for the rest of us mfs")
             .setColor(0x35de35)
             .setImage(
-              "https://content.imageresizer.com/images/memes/huell-money-meme-65w66.jpg"
+              "https://content.imageresizer.com/images/memes/huell-money-meme-65w66.jpg",
             )
             .setFields(
-              (
-                await getTop5Richest()
-              ).map((user, idx) => ({
+              (await getTop5Richest()).map((user, idx) => ({
                 name: `🪙 ${user.coins} coins`,
                 value: `-${
                   idx == 0 ? " 🥇" : idx == 1 ? " 🥈" : idx == 2 ? " 🥉" : ""
                 } ${userMention(user.id)}`,
                 inline: true,
-              }))
+              })),
             )
             .setThumbnail(
-              "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHNjcTY5c3J1cnVlZ3pxamZ0ZHZvdGFqZ2x4N3N6aHIwdnZrZXpqaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MFsqcBSoOKPbjtmvWz/giphy.gif"
+              "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHNjcTY5c3J1cnVlZ3pxamZ0ZHZvdGFqZ2x4N3N6aHIwdnZrZXpqaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MFsqcBSoOKPbjtmvWz/giphy.gif",
             ),
         ],
       });
@@ -386,7 +390,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
       if ((await getUserCoins(from.id)) < amount)
         return await interaction.reply(
-          "Thats very sweet, but u cant afford donating this much :("
+          "Thats very sweet, but u cant afford donating this much :(",
         );
 
       await takeCoins(from.id, amount);
@@ -396,8 +400,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         `WOW YOU ARE SO SWEET ${userMention(from.id)}! ${
           from.displayName
         } gave ${userMention(
-          to.id
-        )} ${amount} coins 🪙\n\n(Exucse me im gonna tear up 🥹)`
+          to.id,
+        )} ${amount} coins 🪙\n\n(Exucse me im gonna tear up 🥹)`,
       );
 
       break;
@@ -408,13 +412,13 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
       if (result < 0)
         return await interaction.reply(
-          "U ALREADY CLAIMED TODAYS REWARD U GREEDY MF"
+          "U ALREADY CLAIMED TODAYS REWARD U GREEDY MF",
         );
 
       await addCoins(interaction.user.id, result);
 
       return await interaction.reply(
-        `NICE! Streak is now ${result} days 🔥 You got +${result} coins 🪙`
+        `NICE! Streak is now ${result} days 🔥 You got +${result} coins 🪙`,
       );
     }
 
@@ -441,20 +445,21 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
     case "buy": {
       const value = interaction.options.getNumber("value", true);
+      const quantity = interaction.options.getNumber("quantity", false) ?? 1;
 
       const item = Store.ITEMS[value];
 
       if (!item) return await interaction.reply("INVALID ITEM VALUE");
 
-      if ((await getUserCoins(interaction.user.id)) < item.amount)
-        return await interaction.reply("U TOO BROKE TO BUY DIS");
+      if ((await getUserCoins(interaction.user.id)) < item.amount * quantity)
+        return await interaction.reply("U TOO BROKE TO BUY DIS MUCH");
 
-      await takeCoins(interaction.user.id, item.amount);
+      await takeCoins(interaction.user.id, item.amount * quantity);
 
-      await addItem(interaction.user.id, value);
+      await addItem(interaction.user.id, value, quantity);
 
       await interaction.reply(
-        `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}"!!`
+        `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}"!!`,
       );
     }
   }
