@@ -213,4 +213,19 @@ export const useItem = async (id: string, value: number) => {
   return true;
 };
 
+export const getInventory = async (id: string) => {
+  return (
+    (
+      await prisma.user.findUnique({
+        select: {
+          items: true,
+        },
+        where: {
+          id,
+        },
+      })
+    )?.items ?? []
+  );
+};
+
 export { prisma };

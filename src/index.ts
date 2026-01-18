@@ -13,6 +13,7 @@ import { Duel } from "./actions/duel.js";
 import {
   addCoins,
   addItem,
+  getInventory,
   getTop5Richest,
   getUserCoins,
   takeCoins,
@@ -163,6 +164,10 @@ const commands = [
         .setMinValue(1)
         .setMaxValue(50),
     ),
+
+  new SlashCommandBuilder()
+    .setName("inventory")
+    .setDescription("Show your inventory"),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
@@ -463,6 +468,45 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       await interaction.reply(
         `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}" ${quantity} TIMES!!`,
       );
+
+      break;
+    }
+
+    case "inventory": {
+      const inventory = await getInventory(interaction.user.id);
+      const inventory_with_amounts = inventory.reduce(
+        (prev: Map<number, number>, curr: number) => {
+          prev.set(curr, (prev.get(curr) ?? 0) + 1);
+
+          return prev;
+        },
+        new Map<number, number>(),
+      );
+
+      if (!inventory.length) return await interaction.reply("YOU HAVE NOTHING");
+
+      await interaction.reply({
+        embeds: [
+          new CustomEmbed()
+            .setTitle("BACKPACK 👜")
+            .setColor(0x85d63a)
+            .setFields(
+              Array.from(inventory_with_amounts.entries()).map(
+                ([item, quantity]) => ({
+                  name: Store.ITEMS[item]!.name,
+                  value: `× ${quantity}`,
+                  inline: true,
+                }),
+              ),
+            )
+            .setThumbnail(interaction.user.avatarURL())
+            .setImage(
+              "https://images-ext-1.discordapp.net/external/NcpAYtAFE1-5ldPKWGzPzzGxdqDJ7ivKMN3WgWYnXHo/https/media.tenor.com/a_16IYnWm_IAAAPo/dora-dora-the-explorer.mp4",
+            ),
+        ],
+      });
+
+      break;
     }
   }
 });
