@@ -19,11 +19,7 @@ const prisma = new PrismaClient({ adapter }).$extends({
   },
 });
 
-export const addCoins = async (
-  id: string,
-  amount: number,
-  by_user?: boolean,
-) => {
+export const addCoins = async (id: string, amount: number) => {
   if (amount < 0) await addToJackpot(Math.abs(amount));
 
   const { coins } = await prisma.user.upsert({
@@ -48,29 +44,23 @@ export const addCoins = async (
     const diff = coins - 100_000_000;
 
     await takeCoins(id, diff);
-
-    if (!by_user) await addToBank(id, diff);
+    await addToBank(id, diff);
 
     return amount - diff;
   } else if (coins < 0) {
     const diff = Math.abs(coins);
 
     await addCoins(id, diff);
+    await takeFromBank(id, diff);
 
-    if (!by_user) await takeFromBank(id, diff);
-
-    return amount - diff;
+    return Math.abs(amount) - diff;
   }
 
   return amount;
 };
 
-export const takeCoins = async (
-  id: string,
-  amount: number,
-  by_user?: boolean,
-) => {
-  return await addCoins(id, -amount, by_user);
+export const takeCoins = async (id: string, amount: number) => {
+  return await addCoins(id, -amount);
 };
 
 export const getUserCoins = async (id: string) => {
@@ -96,11 +86,7 @@ export const hasEnoughCoins = async (id: string, min: number) => {
   return data.coins >= min;
 };
 
-export const addToBank = async (
-  id: string,
-  amount: number,
-  by_user?: boolean,
-) => {
+export const addToBank = async (id: string, amount: number) => {
   const final_amount =
     amount < 0 ? amount : Math.max(Math.floor(amount * 0.9), 1);
   let add_to_jackpot = amount - final_amount;
@@ -129,7 +115,7 @@ export const addToBank = async (
     await addToBank(id, diff);
     add_to_jackpot += diff;
 
-    return final_amount - diff;
+    return Math.abs(final_amount) - diff;
   } else if (bank > 4_000_000_000) {
     const diff = bank - 4_000_000_000;
 
@@ -139,7 +125,7 @@ export const addToBank = async (
     return final_amount - diff;
   }
 
-  if (add_to_jackpot <= 0 || by_user) return final_amount;
+  if (add_to_jackpot <= 0) return final_amount;
 
   await addToJackpot(add_to_jackpot);
 
@@ -152,12 +138,8 @@ export const addToJackpot = async (amount: number) => {
   // TODO: add amount_to_add to jackpot
 };
 
-export const takeFromBank = async (
-  id: string,
-  amount: number,
-  by_user?: boolean,
-) => {
-  return await addToBank(id, -amount, by_user);
+export const takeFromBank = async (id: string, amount: number) => {
+  return await addToBank(id, -amount);
 };
 
 export const getTop5Richest = async () => {
