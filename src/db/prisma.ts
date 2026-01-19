@@ -22,7 +22,7 @@ const prisma = new PrismaClient({ adapter }).$extends({
 export const addCoins = async (id: string, amount: number) => {
   if (amount < 0) await addToJackpot(Math.abs(amount));
 
-  const { coins } = await prisma.user.upsert({
+  const user = await prisma.user.upsert({
     select: {
       coins: true,
     },
@@ -33,27 +33,55 @@ export const addCoins = async (id: string, amount: number) => {
     },
     create: {
       id,
-      coins: amount,
+      coins: Math.max(0, amount),
     },
     where: {
       id,
     },
   });
 
-  if (coins > 100_000_000) {
-    const diff = coins - 100_000_000;
+  const newCoins = user.coins;
 
-    await takeCoins(id, diff);
-    await addToBank(id, diff);
+  if (newCoins > 100_000_000) {
+    const overflow = newCoins - 100_000_000;
+    await prisma.user.update({
+      where: { id },
+      data: {
+        coins: 100_000_000,
+        bank: {
+          increment: overflow,
+        },
+      },
+    });
+    return amount - overflow;
+  }
 
-    return amount - diff;
-  } else if (coins < 0) {
-    const diff = Math.abs(coins);
+  if (newCoins < 0) {
+    const deficit = Math.abs(newCoins);
 
-    await addCoins(id, diff);
-    await takeFromBank(id, diff);
+    const bankData = await prisma.user.findUnique({
+      where: { id },
+      select: { bank: true },
+    });
 
-    return Math.abs(amount) - diff;
+    if (!bankData || bankData.bank < deficit) {
+      await prisma.user.update({
+        where: { id },
+        data: { coins: 0 },
+      });
+      return amount + deficit;
+    }
+
+    await prisma.user.update({
+      where: { id },
+      data: {
+        coins: 0,
+        bank: {
+          decrement: deficit,
+        },
+      },
+    });
+    return amount;
   }
 
   return amount;
@@ -87,59 +115,67 @@ export const hasEnoughCoins = async (id: string, min: number) => {
 };
 
 export const addToBank = async (id: string, amount: number) => {
-  const final_amount =
-    amount < 0 ? amount : Math.max(Math.floor(amount * 0.9), 1);
-  let add_to_jackpot = amount - final_amount;
+  if (amount === 0) return 0;
 
-  const { bank } = await prisma.user.upsert({
+  const taxRate = amount > 0 ? 0.9 : 1;
+  const finalAmount =
+    amount > 0 ? Math.max(Math.floor(amount * taxRate), 1) : amount;
+
+  const tax = amount - finalAmount;
+
+  const user = await prisma.user.upsert({
     select: {
       bank: true,
     },
     update: {
       bank: {
-        increment: final_amount,
+        increment: finalAmount,
       },
     },
     create: {
       id,
-      bank: final_amount,
+      bank: Math.max(0, finalAmount),
     },
     where: {
       id,
     },
   });
 
-  if (bank < 0) {
-    const diff = Math.abs(bank);
+  const newBank = user.bank;
 
-    await addToBank(id, diff);
-    add_to_jackpot += diff;
-
-    return Math.abs(final_amount) - diff;
-  } else if (bank > 4_000_000_000) {
-    const diff = bank - 4_000_000_000;
-
-    await takeFromBank(id, diff);
-    add_to_jackpot += diff;
-
-    return final_amount - diff;
+  if (newBank > 4_000_000_000) {
+    const overflow = newBank - 4_000_000_000;
+    await prisma.user.update({
+      where: { id },
+      data: { bank: 4_000_000_000 },
+    });
+    await addToJackpot(tax + overflow);
+    return finalAmount - overflow;
   }
 
-  if (add_to_jackpot <= 0) return final_amount;
+  if (newBank < 0) {
+    const deficit = Math.abs(newBank);
+    await prisma.user.update({
+      where: { id },
+      data: { bank: 0 },
+    });
+    await addToJackpot(tax + deficit);
+    return finalAmount + deficit;
+  }
 
-  await addToJackpot(add_to_jackpot);
+  if (tax > 0) await addToJackpot(tax);
 
-  return final_amount;
+  return finalAmount;
+};
+
+export const takeFromBank = async (id: string, amount: number) => {
+  return await addToBank(id, -amount);
 };
 
 export const addToJackpot = async (amount: number) => {
   const amount_to_add = Math.max(Math.floor(amount / 4), 1);
 
   // TODO: add amount_to_add to jackpot
-};
-
-export const takeFromBank = async (id: string, amount: number) => {
-  return await addToBank(id, -amount);
 };
 
 export const getTop5Richest = async () => {

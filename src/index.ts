@@ -559,14 +559,25 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       const data = await getUserCoins(interaction.user.id);
 
       if (data.coins < amount)
-        return await interaction.reply("CANNOT DEPOSIT THIS MUCH");
+        return await interaction.reply(
+          `You only have 🪙 ${data.coins} in your wallet!`,
+        );
 
-      const real_amount = await takeCoins(interaction.user.id, amount);
+      try {
+        const takenAmount = await takeCoins(interaction.user.id, amount);
+        const depositedAmount = await addToBank(
+          interaction.user.id,
+          takenAmount,
+        );
 
-      await addToBank(interaction.user.id, real_amount);
-
-      await interaction.reply(`Deposited 🪙 ${real_amount} into your bank!`);
-
+        await interaction.reply(
+          `Deposited 🪙 ${depositedAmount.toLocaleString()} into your bank! (10% fee applied)`,
+        );
+      } catch {
+        await interaction.reply(
+          "An error occurred during deposit. Please try again.",
+        );
+      }
       break;
     }
 
@@ -575,14 +586,25 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       const data = await getUserCoins(interaction.user.id);
 
       if (data.bank < amount)
-        return await interaction.reply("CANNOT WITHDRAW THIS MUCH");
+        return await interaction.reply(
+          `You only have 🪙 ${data.bank} in your bank!`,
+        );
 
-      const real_amount = await takeFromBank(interaction.user.id, amount);
+      try {
+        const withdrawnAmount = await takeFromBank(interaction.user.id, amount);
+        const addedAmount = await addCoins(
+          interaction.user.id,
+          Math.abs(withdrawnAmount),
+        );
 
-      const final = await addCoins(interaction.user.id, real_amount);
-
-      await interaction.reply(`Withdrawed 🪙 ${final} into your wallet!`);
-
+        await interaction.reply(
+          `Withdrew 🪙 ${addedAmount.toLocaleString()} into your wallet!`,
+        );
+      } catch {
+        await interaction.reply(
+          "An error occurred during withdrawal. Please try again.",
+        );
+      }
       break;
     }
   }
