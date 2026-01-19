@@ -74,6 +74,22 @@ export class Steal {
     const value = await this.#getValue();
     const can_afford = await hasEnoughCoins(this.#theif.id, value);
 
+    const editUserChosenOption = async (custom_id: string) => {
+      const can_afford = await hasEnoughCoins(this.#theif.id, value);
+
+      if (custom_id == "pay" && can_afford)
+        await takeCoins(this.#theif.id, value);
+      else {
+        // TODO: put_in_jail
+      }
+
+      await this.#msg?.edit({
+        content: `${userMention(this.#theif.id)} tried to steal from ${userMention(this.#victim.id)}, and ${can_afford ? "was forced to serve in jail for 10 minutes ⛓️" : `chose to ${custom_id == "jail" ? "serve in jail for 10 minutes ⛓️" : `pay a ${value.toLocaleString()} coins fine 🪙`}`}`,
+        embeds: [],
+        components: [],
+      });
+    };
+
     await this.#msg?.edit({
       content: "",
       embeds: [
@@ -92,19 +108,18 @@ export class Steal {
             new ActionRowBuilder<ButtonBuilder>().addComponents(
               new ButtonBuilder()
                 .setCustomId("pay")
-                .setLabel(`🪙 ${value}`)
-                .setStyle(ButtonStyle.Success),
+                .setLabel(`🪙 ${value.toLocaleString()}`)
+                .setStyle(ButtonStyle.Secondary),
               new ButtonBuilder()
                 .setCustomId("jail")
-                .setLabel("ME SCARED")
-                .setStyle(ButtonStyle.Danger),
+                .setLabel(`⛓️ 10 mins`)
+                .setStyle(ButtonStyle.Secondary),
             ),
           ]
         : [],
     });
 
-    // TODO: put in jail
-    if (!can_afford) return;
+    if (!can_afford) return await editUserChosenOption("jail");
 
     try {
       const confirmation = await this.#msg!.awaitMessageComponent({
@@ -112,16 +127,9 @@ export class Steal {
         time: 300_000,
       });
 
-      if (
-        confirmation?.customId == "pay" &&
-        (await hasEnoughCoins(this.#theif.id, value))
-      )
-        await takeCoins(this.#theif.id, value);
-      else {
-        // TODO: put in jail
-      }
+      await editUserChosenOption(confirmation?.customId);
     } catch {
-      // TODO: put in jail
+      await editUserChosenOption("jail");
     }
   }
 
