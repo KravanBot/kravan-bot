@@ -10,7 +10,12 @@ import {
   User,
   userMention,
 } from "discord.js";
-import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
+import {
+  addCoins,
+  getUserCoins,
+  hasEnoughCoins,
+  takeCoins,
+} from "../db/prisma.js";
 import { client } from "../index.js";
 import { CustomEmbed } from "../utils/embed.js";
 
@@ -77,7 +82,7 @@ export class Duel {
           time: 60_000,
         });
 
-      if ((await getUserCoins(this.#target.id)) < this.#bet)
+      if (!(await hasEnoughCoins(this.#target.id, this.#bet)))
         return await this.#interaction.editReply({
           content: `${userMention(this.#target.id)} DOES NOT HAVE ENOUGH COINS`,
           components: [],
@@ -250,12 +255,12 @@ export class Duel {
       return false;
     }
 
-    if ((await getUserCoins(this.#initiator.id)) < this.#bet) {
+    if (!(await hasEnoughCoins(this.#initiator.id, this.#bet))) {
       await this.#interaction.reply("U CANT AFFORD THIS BET");
       return false;
     }
 
-    if ((await getUserCoins(this.#target.id)) < this.#bet) {
+    if (!(await hasEnoughCoins(this.#target.id, this.#bet))) {
       await this.#interaction.reply("TARGET CANT AFFORD THIS BET");
       return false;
     }

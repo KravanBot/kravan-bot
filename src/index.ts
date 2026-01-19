@@ -16,6 +16,7 @@ import {
   getInventory,
   getTop5Richest,
   getUserCoins,
+  hasEnoughCoins,
   takeCoins,
   updateAndReturnDaily,
   updateTheft,
@@ -335,14 +336,22 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       const user =
         interaction.options.getUser("target", false) ?? interaction.user;
 
+      const data = await getUserCoins(user.id);
+
       interaction.reply({
         embeds: [
           new CustomEmbed()
             .setTitle("NET WORTH 💰")
             .setFields([
               {
-                name: user.displayName,
-                value: `🪙 ${(await getUserCoins(user.id)).toLocaleString()} coins`,
+                name: "👛 Wallet",
+                value: `🪙 ${data.coins.toLocaleString()} coins`,
+                inline: true,
+              },
+              {
+                name: "🏦 Bank",
+                value: `🪙 ${data.bank.toLocaleString()} coins`,
+                inline: true,
               },
             ])
             .setDescription("Elon Musk dis u?")
@@ -377,7 +386,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             )
             .setFields(
               (await getTop5Richest()).map((user, idx) => ({
-                name: `🪙 ${user.coins.toLocaleString()}`,
+                name: `🪙 ${user.total.toLocaleString()}`,
                 value: `-${
                   idx == 0 ? " 🥇" : idx == 1 ? " 🥈" : idx == 2 ? " 🥉" : ""
                 } ${userMention(user.id)}`,
@@ -399,7 +408,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
       if (from.id == to.id || to.bot) return;
 
-      if ((await getUserCoins(from.id)) < amount)
+      if (!(await hasEnoughCoins(interaction.user.id, amount)))
         return await interaction.reply(
           "Thats very sweet, but u cant afford donating this much :(",
         );
@@ -438,7 +447,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
       if (target.bot || target.id == interaction.user.id) return;
 
-      if ((await getUserCoins(target.id)) <= 0) return;
+      if (!(await hasEnoughCoins(target.id, 0))) return;
 
       if (!(await updateTheft(interaction.user.id))) return;
 
@@ -462,16 +471,18 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
       if (!item) return await interaction.reply("INVALID ITEM VALUE");
 
-      if ((await getUserCoins(interaction.user.id)) < item.amount * quantity)
+      const total = item.amount * quantity;
+
+      if (!(await hasEnoughCoins(interaction.user.id, total)))
         return await interaction.reply("U TOO BROKE TO BUY DIS MUCH");
 
       if (!(await addItem(interaction.user.id, value, quantity)))
         return await interaction.reply("INVENTORY CAN HAVE MAX 100 ITEMS");
 
-      await takeCoins(interaction.user.id, item.amount * quantity);
+      await takeCoins(interaction.user.id, total);
 
       await interaction.reply(
-        `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}" ${quantity} TIMES FOR ${(item.amount * quantity).toLocaleString()} COINS!!`,
+        `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}" ${quantity} TIMES FOR ${total.toLocaleString()} COINS!!`,
       );
 
       break;

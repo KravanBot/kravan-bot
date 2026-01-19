@@ -124,7 +124,7 @@ export class Steal {
         return;
       }
 
-      const full_victim_amount = await getUserCoins(this.#victim.id);
+      const full_victim_amount = (await getUserCoins(this.#victim.id)).coins;
       const amount = Math.max(
         Math.floor(
           Math.random() * (full_victim_amount / 16 + 1) +

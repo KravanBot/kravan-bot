@@ -12,7 +12,12 @@ import {
   getRandomFromArray,
   goThroughAllMessages,
 } from "../utils/helpers.js";
-import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
+import {
+  addCoins,
+  getUserCoins,
+  hasEnoughCoins,
+  takeCoins,
+} from "../db/prisma.js";
 import { Mutex } from "async-mutex";
 
 enum COUNT_EVENT {
@@ -65,8 +70,8 @@ export class Counting {
     if (this.#trapped_by) {
       await message.reply(
         `NICE ${userMention(
-          message.author.id
-        )}! You overcame the trap and got ${this.#getTrapCost() * 2} coins 🪙`
+          message.author.id,
+        )}! You overcame the trap and got ${this.#getTrapCost() * 2} coins 🪙`,
       );
       await addCoins(message.author.id, this.#getTrapCost() * 2);
     }
@@ -78,7 +83,7 @@ export class Counting {
     if (dir > 0 && this.#last_number == 7) {
       // last number was 6, send 6 7 gif
       await message.reply(
-        "https://tenor.com/view/bosnov-67-bosnov-67-67-meme-gif-16727368109953357722"
+        "https://tenor.com/view/bosnov-67-bosnov-67-67-meme-gif-16727368109953357722",
       );
       await message.react("6️⃣");
       await message.react("7️⃣");
@@ -89,8 +94,8 @@ export class Counting {
     await message.react("❌");
     await message.reply(
       `${sentence}\n\nCount was reseted to 0 thanks to ${userMention(
-        this.#last_counter_id!
-      )}. Event was changed back to ${COUNT_EVENT.NORMAL}`
+        this.#last_counter_id!,
+      )}. Event was changed back to ${COUNT_EVENT.NORMAL}`,
     );
 
     if (this.#trapped_by) {
@@ -117,7 +122,7 @@ export class Counting {
   async #checkOrder(
     message: MessageT,
     value: number,
-    dir: 1 | -1
+    dir: 1 | -1,
   ): Promise<boolean> {
     let next_val = this.#last_number! + dir;
 
@@ -135,9 +140,9 @@ export class Counting {
       message,
       this.#trapped_by
         ? `DAMN U FELL FOR THE TRAP U SUCK\n${userMention(
-            this.#trapped_by
+            this.#trapped_by,
           )} got +${this.#getTrapCost() * 2} coins 🪙`
-        : `BRO LIKE WHO DOESNT KNOW ITS ${next_val} U SUCK`
+        : `BRO LIKE WHO DOESNT KNOW ITS ${next_val} U SUCK`,
     );
 
     return false;
@@ -229,12 +234,12 @@ export class Counting {
   }
 
   async #sendCountingDetails(
-    interaction: ChatInputCommandInteraction<CacheType>
+    interaction: ChatInputCommandInteraction<CacheType>,
   ) {
     await this.#lock(async () => {
       if (this.#last_counter_id == null)
         return await interaction.reply(
-          `Count is currently 0. Start it dummy like everyone knows its 1 cmon free coins`
+          `Count is currently 0. Start it dummy like everyone knows its 1 cmon free coins`,
         );
 
       const current_event_msg = ` ${
@@ -245,14 +250,14 @@ export class Counting {
 
       const trapped_msg = this.#trapped_by
         ? `, but BE CAREFUL, it was TRAPPED by ${userMention(
-            this.#trapped_by
+            this.#trapped_by,
           )}\nTry and overcome it, u might win some money... or else..`
         : "";
 
       await interaction.reply(
         `Last counted number was ${this.#last_number} by ${userMention(
-          this.#last_counter_id
-        )}${trapped_msg}.\n\n${current_event_msg}`
+          this.#last_counter_id,
+        )}${trapped_msg}.\n\n${current_event_msg}`,
       );
     });
   }
@@ -279,10 +284,10 @@ export class Counting {
                 this.#event = message.content.includes(COUNT_EVENT.BOOM)
                   ? COUNT_EVENT.BOOM
                   : message.content.includes(COUNT_EVENT.REVERSE)
-                  ? COUNT_EVENT.REVERSE
-                  : message.content.includes(COUNT_EVENT.NORMAL)
-                  ? COUNT_EVENT.NORMAL
-                  : null;
+                    ? COUNT_EVENT.REVERSE
+                    : message.content.includes(COUNT_EVENT.NORMAL)
+                      ? COUNT_EVENT.NORMAL
+                      : null;
 
               if (!this.#last_counter_id && message.content.includes("🪤"))
                 this.#trapped_by = message.content
@@ -323,7 +328,7 @@ export class Counting {
           }
 
           return true;
-        }
+        },
       );
 
       if (!this.#last_number) this.#last_number = 0;
@@ -344,9 +349,9 @@ export class Counting {
       if (Math.abs(this.#last_number!) < 10)
         return await interaction.reply("U CAN TRAP ONLY AFTER COUNTING TO 10");
 
-      if ((await getUserCoins(interaction.user.id)) < cost)
+      if (!(await hasEnoughCoins(interaction.user.id, cost)))
         return await interaction.reply(
-          "BROKIE U CANT AFFORD TRAPPING THIS NUMBER"
+          "BROKIE U CANT AFFORD TRAPPING THIS NUMBER",
         );
 
       try {
@@ -356,7 +361,7 @@ export class Counting {
         await takeCoins(interaction.user.id, cost);
 
         await interaction.reply(
-          `${userMention(interaction.user.id)} trapped the next number 🪤`
+          `${userMention(interaction.user.id)} trapped the next number 🪤`,
         );
 
         await this.#last_msg!.reply("Be careful...");
@@ -365,7 +370,7 @@ export class Counting {
       } catch (e) {
         console.log(e);
         await interaction.reply(
-          "Something went wrong. Maybe someone deleted his message..."
+          "Something went wrong. Maybe someone deleted his message...",
         );
       }
     });

@@ -7,7 +7,12 @@ import {
   ChatInputCommandInteraction,
   Message,
 } from "discord.js";
-import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
+import {
+  addCoins,
+  getUserCoins,
+  hasEnoughCoins,
+  takeCoins,
+} from "../db/prisma.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import { CustomEmbed } from "../utils/embed.js";
 import { current_gambles } from "../index.js";
@@ -37,7 +42,7 @@ export class Gamble {
   }
 
   async #canGamble() {
-    if ((await getUserCoins(this.#interaction.user.id)) < this.#bet) {
+    if (!(await hasEnoughCoins(this.#interaction.user.id, this.#bet))) {
       this.#interaction.reply("U A BROKE MF U CANT BET THIS MUCH");
       return false;
     }

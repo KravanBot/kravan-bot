@@ -6,9 +6,22 @@ import moment from "moment";
 const connectionString = `${process.env.DATABASE_URL}`;
 
 const adapter = new PrismaPg({ connectionString });
-const prisma = new PrismaClient({ adapter });
+const prisma = new PrismaClient({ adapter }).$extends({
+  result: {
+    user: {
+      total: {
+        needs: { bank: true, coins: true },
+        compute(user) {
+          return user.coins + user.bank;
+        },
+      },
+    },
+  },
+});
 
 export const addCoins = async (id: string, amount: number) => {
+  if (amount < 0) await addToJackpot(Math.abs(amount));
+
   const { coins } = await prisma.user.upsert({
     select: {
       coins: true,
@@ -27,16 +40,8 @@ export const addCoins = async (id: string, amount: number) => {
     },
   });
 
-  if (coins >= 0) return;
-
-  await prisma.user.update({
-    data: {
-      coins: 0,
-    },
-    where: {
-      id,
-    },
-  });
+  if (coins > 1_000_000) await addToBank(id, coins - 1_000_000);
+  else if (coins < 0) await takeFromBank(id, Math.abs(coins));
 };
 
 export const takeCoins = async (id: string, amount: number) => {
@@ -45,31 +50,95 @@ export const takeCoins = async (id: string, amount: number) => {
 
 export const getUserCoins = async (id: string) => {
   return (
-    (
-      await prisma.user.findUnique({
-        select: {
-          coins: true,
-        },
-        where: {
-          id,
-        },
-      })
-    )?.coins ?? 0
+    (await prisma.user.findUnique({
+      select: {
+        coins: true,
+        bank: true,
+      },
+      where: {
+        id,
+      },
+    })) ?? {
+      bank: 0,
+      coins: 0,
+    }
   );
 };
 
-export const getTop5Richest = async () => {
-  return await prisma.user.findMany({
-    take: 5,
-    where: {
-      coins: {
-        gt: 0,
+export const hasEnoughCoins = async (id: string, min: number) => {
+  const data = await getUserCoins(id);
+
+  return data.coins >= min;
+};
+
+export const addToBank = async (id: string, amount: number) => {
+  const final_amount = Math.floor(amount * 0.9);
+  let add_to_jackpot = amount - final_amount;
+
+  if (final_amount == 0) return;
+
+  const { bank } = await prisma.user.upsert({
+    select: {
+      bank: true,
+    },
+    update: {
+      bank: {
+        increment: final_amount,
       },
     },
-    orderBy: {
-      coins: "desc",
+    create: {
+      id,
+      bank: final_amount,
+    },
+    where: {
+      id,
     },
   });
+
+  if (bank < 0) {
+    const diff = Math.abs(bank);
+
+    await addToBank(id, diff);
+    add_to_jackpot += diff;
+  } else if (bank > 4_000_000_000) {
+    const diff = bank - 4_000_000_000;
+
+    await takeFromBank(id, diff);
+    add_to_jackpot += diff;
+  }
+
+  if (add_to_jackpot <= 0) return;
+
+  await addToJackpot(add_to_jackpot);
+};
+
+export const addToJackpot = async (amount: number) => {
+  const amount_to_add = Math.floor(amount / 4);
+
+  if (amount_to_add <= 0) return;
+
+  // TODO: add amount_to_add to jackpot
+};
+
+export const takeFromBank = async (id: string, amount: number) => {
+  await addToBank(id, -amount);
+};
+
+export const getTop5Richest = async () => {
+  return (
+    await prisma.user.findMany({
+      take: 5,
+      where: {
+        coins: {
+          gt: 0,
+        },
+      },
+      orderBy: {
+        bank: "desc",
+        coins: "desc",
+      },
+    })
+  ).sort((user) => -user.total);
 };
 
 export const updateAndReturnDaily = async (id: string) => {
