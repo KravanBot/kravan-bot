@@ -465,10 +465,10 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       if ((await getUserCoins(interaction.user.id)) < item.amount * quantity)
         return await interaction.reply("U TOO BROKE TO BUY DIS MUCH");
 
-      await takeCoins(interaction.user.id, item.amount * quantity);
-
       if (!(await addItem(interaction.user.id, value, quantity)))
         return await interaction.reply("INVENTORY CAN HAVE MAX 100 ITEMS");
+
+      await takeCoins(interaction.user.id, item.amount * quantity);
 
       await interaction.reply(
         `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}" ${quantity} TIMES!!`,
