@@ -556,6 +556,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
     case "deposit": {
       const amount = interaction.options.getNumber("amount", true);
+
+      if ((await getUserCoins(interaction.user.id)).coins < 100)
+        return await interaction.reply(
+          "YOU DONT HAVE ENOUGH COINS IN YOUR WALLET (min 100 coins)",
+        );
+
       const real_amount = await takeCoins(interaction.user.id, amount, true);
 
       await addToBank(interaction.user.id, real_amount);
@@ -567,6 +573,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
     case "withdraw": {
       const amount = interaction.options.getNumber("amount", true);
+
+      if ((await getUserCoins(interaction.user.id)).bank < 100)
+        return await interaction.reply(
+          "YOU DONT HAVE ENOUGH COINS IN THE BANK (min 100 coins)",
+        );
+
       const real_amount = await takeFromBank(interaction.user.id, amount, true);
 
       const final = await addCoins(interaction.user.id, real_amount);
