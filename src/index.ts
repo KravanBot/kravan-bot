@@ -694,7 +694,9 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await interaction.reply({
           embeds: [
             new CustomEmbed()
-              .setTitle(`JACKPOT IS AT 🪙 ${await getJackpot()}`)
+              .setTitle(
+                `JACKPOT IS AT 🪙 ${(await getJackpot())?.toLocaleString()}`,
+              )
               .setDescription(
                 "Go use the bot (count, gamble, level up, duel, buy, claim daily, donate, trap, join lottery), you might win it all...",
               )

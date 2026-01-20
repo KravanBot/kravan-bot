@@ -179,7 +179,7 @@ export const takeFromBank = async (id: string, amount: number) => {
 };
 
 export const addToJackpot = async (amount: number) => {
-  const amount_to_add = Math.max(Math.floor(amount / 4), 1);
+  const amount_to_add = Math.max(Math.floor(amount / 5), 1);
 
   await prisma.jackpot.updateMany({
     data: {
