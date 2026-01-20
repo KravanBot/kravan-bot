@@ -201,6 +201,8 @@ export class Gamble {
 
     delta = winnings - losses;
 
+    if (delta) await addCoins(this.#interaction.user.id, delta);
+
     embeds.push(
       new CustomEmbed()
         .setColor(0x345eeb)
@@ -221,7 +223,7 @@ export class Gamble {
           },
           {
             name: "New balance",
-            value: `🪙 ${(await getUserCoins(this.#interaction.id)).coins.toLocaleString()}`,
+            value: `🪙 ${(await getUserCoins(this.#interaction.user.id)).coins.toLocaleString()}`,
             inline: true,
           },
         ]),
@@ -233,10 +235,6 @@ export class Gamble {
       components: [],
       files: attachment ? [attachment] : [],
     });
-
-    if (!delta) return;
-
-    await addCoins(this.#interaction.user.id, delta);
   }
 
   #getLuckySequence(delta: number) {
