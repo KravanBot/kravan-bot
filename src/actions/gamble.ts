@@ -179,7 +179,7 @@ export class Gamble {
         const emoji_winnings = winningsForEmoji(emoji);
         winnings += emoji_winnings;
 
-        return `- ${emoji} - ${num} ${
+        return `${emoji} - ${num} ${
           emoji_winnings
             ? `(${emoji_winnings < 0 ? "" : "+"}${emoji_winnings.toLocaleString()} 🪙)`
             : ""
@@ -213,11 +213,15 @@ export class Gamble {
           {
             name: "Results",
             value: `${results.join("\n")}`,
-            inline: true,
           },
           {
             name: delta < 0 ? "Loss" : "Profit",
-            value: `- ${delta.toLocaleString()} 🪙`,
+            value: `🪙 ${delta.toLocaleString()}`,
+            inline: true,
+          },
+          {
+            name: "New balance",
+            value: `🪙 ${(await getUserCoins(this.#interaction.id)).coins.toLocaleString()}`,
             inline: true,
           },
         ]),
