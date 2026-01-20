@@ -14,6 +14,7 @@ import {
   addCoins,
   getUserCoins,
   hasEnoughCoins,
+  isInJail,
   takeCoins,
 } from "../db/prisma.js";
 import { client } from "../index.js";
@@ -262,6 +263,11 @@ export class Duel {
 
     if (!(await hasEnoughCoins(this.#target.id, this.#bet))) {
       await this.#interaction.reply("TARGET CANT AFFORD THIS BET");
+      return false;
+    }
+
+    if (await isInJail(this.#target.id)) {
+      await this.#interaction.reply("TARGET IS IN JAIL");
       return false;
     }
 

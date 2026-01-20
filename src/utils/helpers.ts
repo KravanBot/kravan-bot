@@ -1,5 +1,6 @@
 import { Message, TextChannel } from "discord.js";
 import { client } from "../index.js";
+import { isInJail } from "../db/prisma.js";
 
 export const getRandomFromArray = <T>(arr: T[]): T => {
   return arr[Math.floor(Math.random() * arr.length)]!;
@@ -7,7 +8,7 @@ export const getRandomFromArray = <T>(arr: T[]): T => {
 
 export const goThroughAllMessages = async (
   channel_id: string,
-  action: (msg: MapIterator<Message<true>>) => Promise<boolean>
+  action: (msg: MapIterator<Message<true>>) => Promise<boolean>,
 ) => {
   const counting_channel = client.channels.cache.get(channel_id) as TextChannel;
 
@@ -56,4 +57,15 @@ export const convertToNumber = (str: string) => {
   if (!/^-?\d+(\.\d+)?$/.test(str)) return NaN;
 
   return parseInt(str);
+};
+
+export const validateNotInJail = async (id: string) => {
+  const jail_date = await isInJail(id);
+
+  if (jail_date)
+    throw new Error(
+      JSON.stringify(
+        `U IN JAIL 😠!! U GET RELEASED <t:${Math.floor(jail_date.valueOf() / 1000 + 10 * 60)}:R>`,
+      ),
+    );
 };

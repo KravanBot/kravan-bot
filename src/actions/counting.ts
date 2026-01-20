@@ -1,24 +1,20 @@
 import {
   CacheType,
   ChatInputCommandInteraction,
-  Interaction,
   Message,
   OmitPartialGroupDMChannel,
+  PartialMessage,
+  TextChannel,
   userMention,
 } from "discord.js";
-import { client } from "../index.js";
 import {
   convertToNumber,
   getRandomFromArray,
   goThroughAllMessages,
 } from "../utils/helpers.js";
-import {
-  addCoins,
-  getUserCoins,
-  hasEnoughCoins,
-  takeCoins,
-} from "../db/prisma.js";
+import { addCoins, hasEnoughCoins, takeCoins } from "../db/prisma.js";
 import { Mutex } from "async-mutex";
+import { client } from "../index.js";
 
 enum COUNT_EVENT {
   NORMAL = "Normal",
@@ -26,7 +22,7 @@ enum COUNT_EVENT {
   BOOM = "7 Boom",
 }
 
-type MessageT = OmitPartialGroupDMChannel<Message<boolean>>;
+type MessageT = Message<boolean>;
 
 export class Counting {
   static COUNTING_CHANNEL_ID = "1236751657086484587";
@@ -48,19 +44,21 @@ export class Counting {
 
     (async () => {
       await this.#getLastNumber();
-
-      client.on("messageCreate", this.#handleMessage.bind(this));
-      client.on("interactionCreate", this.#handleInteraction.bind(this));
-      client.on("messageDelete", async (message) => {
-        if (message.id != this.#last_msg?.id) return;
-
-        if (this.#trapped_by) {
-          await addCoins(this.#trapped_by, this.#getTrapCost());
-        }
-
-        await this.#getLastNumber();
-      });
     })();
+  }
+
+  async onMessageDelete(
+    message: OmitPartialGroupDMChannel<
+      Message<boolean> | PartialMessage<boolean>
+    >,
+  ) {
+    if (message.id != this.#last_msg?.id) return;
+
+    if (this.#trapped_by) {
+      await addCoins(this.#trapped_by, this.#getTrapCost());
+    }
+
+    await this.#getLastNumber();
   }
 
   async #right(message: MessageT, dir: 1 | -1) {
@@ -116,7 +114,9 @@ export class Counting {
       this.#event = getRandomFromArray([COUNT_EVENT.BOOM, COUNT_EVENT.REVERSE]);
     else this.#event = COUNT_EVENT.NORMAL;
 
-    await message.channel.send(`Event changed to ${this.#event}`);
+    await (message.channel as TextChannel).send(
+      `Event changed to ${this.#event}`,
+    );
   }
 
   async #checkOrder(
@@ -148,7 +148,7 @@ export class Counting {
     return false;
   }
 
-  async #handleMessage(message: MessageT) {
+  async handleMessage(message: MessageT) {
     await this.#lock(async () => {
       if (message.channelId != Counting.COUNTING_CHANNEL_ID) return;
 
@@ -217,23 +217,7 @@ export class Counting {
     }, false);
   }
 
-  async #handleInteraction(interaction: Interaction) {
-    if (!interaction.isChatInputCommand()) return;
-
-    switch (interaction.commandName) {
-      case "counting-details":
-        await this.#sendCountingDetails(interaction);
-
-        break;
-
-      case "trap":
-        await this.#trap(interaction);
-
-        break;
-    }
-  }
-
-  async #sendCountingDetails(
+  async sendCountingDetails(
     interaction: ChatInputCommandInteraction<CacheType>,
   ) {
     await this.#lock(async () => {
@@ -336,7 +320,7 @@ export class Counting {
     });
   }
 
-  async #trap(interaction: ChatInputCommandInteraction<CacheType>) {
+  async trap(interaction: ChatInputCommandInteraction<CacheType>) {
     await this.#lock(async () => {
       const cost = this.#getTrapCost();
 

@@ -30,7 +30,7 @@ export class Gamble {
 
   constructor(interaction: InteractionT) {
     this.#interaction = interaction;
-    this.#bet = interaction.options.getNumber("bet", true);
+    this.#bet = Math.floor(interaction.options.getNumber("bet", true));
     this.#sequence = this.#chooseSequence();
     this.#revealed = 0;
 

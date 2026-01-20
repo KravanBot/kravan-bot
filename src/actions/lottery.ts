@@ -1,11 +1,12 @@
 import {
+  CacheType,
+  ChatInputCommandInteraction,
   Message,
   MessageCreateOptions,
   MessageEditOptions,
   TextChannel,
   userMention,
 } from "discord.js";
-import { client } from "../index.js";
 import {
   diffInMinutes,
   getRandomFromArray,
@@ -13,6 +14,7 @@ import {
 } from "../utils/helpers.js";
 import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
 import { CustomEmbed } from "../utils/embed.js";
+import { client } from "../index.js";
 
 type QuestionT = {
   question: string;
@@ -20,7 +22,7 @@ type QuestionT = {
   allow_negative: boolean;
 };
 
-// https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExZzl1cWZneGkxMmJoZzdxd2RjNGY1YTZsNHVucmJhdzNxdDY0aDE0eCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/TVfeiWmO42MLH63ONT/giphy.gif - gif for answers
+type InteractionT = ChatInputCommandInteraction<CacheType>;
 
 export class Lottery {
   static ANNOUNCEMENTS_CHANNEL_ID = "1311121693133246535";
@@ -36,65 +38,49 @@ export class Lottery {
     this.#question = null;
     this.#message = null;
     this.#entries = new Map();
+  }
 
-    client.on("messageCreate", async (message) => {
-      if (message.author.id == client.user?.id) return;
+  async handleMessage(message: Message<boolean>) {
+    this.#generateQuestion(message);
 
-      switch (message.channelId) {
-        case Lottery.ANNOUNCEMENTS_CHANNEL_ID:
-          this.#generateQuestion(message);
+    await this.#sendQuestion();
+  }
 
-          await this.#sendQuestion();
+  async handleInteraction(interaction: InteractionT) {
+    if (!this.#question || !this.#message) return;
 
-          break;
-      }
-    });
+    let value = truncateNumber(
+      interaction.options.getNumber("answer", true),
+      this.#question.allow_decimal ? 2 : 0,
+    );
 
-    client.on("interactionCreate", async (interaction) => {
-      if (!interaction.isChatInputCommand()) return;
+    value = this.#question.allow_negative ? value : Math.abs(value);
 
-      switch (interaction.commandName) {
-        case "lottery":
-          if (!this.#question || !this.#message) return;
+    if (diffInMinutes(interaction.createdAt, this.#message.createdAt) > 30) {
+      if (interaction.user.id != "609097048662343700") return; // id for me (maybe add a role to let reveal an answer)
 
-          let value = truncateNumber(
-            interaction.options.getNumber("answer", true),
-            this.#question.allow_decimal ? 2 : 0,
-          );
+      await interaction.reply("Checking results...");
 
-          value = this.#question.allow_negative ? value : Math.abs(value);
+      await this.#postResults(value);
 
-          if (
-            diffInMinutes(interaction.createdAt, this.#message.createdAt) > 30
-          ) {
-            if (interaction.user.id != "609097048662343700") return; // id for me (maybe add a role to let reveal an answer)
+      await interaction.deleteReply();
 
-            await interaction.reply("Checking results...");
+      return;
+    }
 
-            await this.#postResults(value);
+    // already entered the lottery
+    if (this.#entries.has(interaction.user.id)) return;
 
-            await interaction.deleteReply();
+    // if ((await getUserCoins(interaction.user.id)) < Lottery.COST) return;
 
-            return;
-          }
+    this.#entries.set(interaction.user.id, value);
 
-          // already entered the lottery
-          if (this.#entries.has(interaction.user.id)) return;
+    await interaction.reply("Adding you to the lottery...");
 
-          // if ((await getUserCoins(interaction.user.id)) < Lottery.COST) return;
+    // await takeCoins(interaction.user.id, Lottery.COST);
+    await this.#sendQuestion();
 
-          this.#entries.set(interaction.user.id, value);
-
-          await interaction.reply("Adding you to the lottery...");
-
-          // await takeCoins(interaction.user.id, Lottery.COST);
-          await this.#sendQuestion();
-
-          await interaction.deleteReply();
-
-          break;
-      }
-    });
+    await interaction.deleteReply();
   }
 
   #generateQuestion(message: Message<boolean>) {

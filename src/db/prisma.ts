@@ -1,6 +1,6 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
-import { diffInDays } from "../utils/helpers.js";
+import { diffInDays, diffInMinutes } from "../utils/helpers.js";
 import moment from "moment";
 
 const connectionString = `${process.env.DATABASE_URL}`;
@@ -360,6 +360,49 @@ export const getInventory = async (id: string) => {
       })
     )?.items ?? []
   );
+};
+
+export const isInJail = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    select: {
+      jail: true,
+    },
+    where: {
+      id,
+    },
+  });
+
+  if (user?.jail && diffInMinutes(user.jail, moment().utc().toDate()) >= 10) {
+    await prisma.user.update({
+      data: {
+        jail: null,
+      },
+      where: {
+        id,
+      },
+    });
+
+    return null;
+  }
+
+  return user?.jail ?? null;
+};
+
+export const putInJail = async (id: string) => {
+  const date = moment().utc().toDate();
+
+  await prisma.user.upsert({
+    create: {
+      id,
+      jail: date,
+    },
+    update: {
+      jail: date,
+    },
+    where: {
+      id,
+    },
+  });
 };
 
 export { prisma };

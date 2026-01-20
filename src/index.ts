@@ -7,6 +7,7 @@ import {
   Interaction,
   userMention,
   Guild,
+  InteractionReplyOptions,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -18,6 +19,7 @@ import {
   getTop5Richest,
   getUserCoins,
   hasEnoughCoins,
+  isInJail,
   takeCoins,
   takeFromBank,
   updateAndReturnDaily,
@@ -30,6 +32,7 @@ import { Leveling } from "./actions/leveling.js";
 import { configDotenv } from "dotenv";
 import { Steal } from "./actions/steal.js";
 import { Store } from "./actions/store.js";
+import { validateNotInJail } from "./utils/helpers.js";
 
 configDotenv();
 
@@ -224,9 +227,12 @@ const isGuildValid = (guild: Guild) => {
   }
 })();
 
+let lottery: Lottery;
+let counting: Counting;
+
 client.once("clientReady", async () => {
-  new Counting();
-  new Lottery();
+  counting = new Counting();
+  lottery = new Lottery();
   new Leveling();
 
   console.log("All set!");
@@ -241,383 +247,464 @@ client.on("guildCreate", async (guild) => {
 client.on("interactionCreate", async (interaction: Interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
-  switch (interaction.commandName) {
-    case "kraa":
-      await interaction.reply({
-        embeds: [
-          new CustomEmbed()
-            .setColor(0x05b2f7)
-            .setTitle("Free Commands 😁")
-            .setDescription(
-              "Commands that dont need any money (cuz im generous 😇)",
-            )
-            .setFields([
-              {
-                name: "/kraa",
-                value: "I mean u get the exact same message as rn 🫠",
-              },
-              {
-                name: "/counting-details",
-                value:
-                  "Sending the current count, the current event (counting events are listed in the Actions). If you are unsure what number should you count next, use this command 🙂",
-              },
-              // {
-              //   name: "/wall-of-shame",
-              //   value:
-              //     "anything bad u dummies do goes here, including:\n- all the people that destroyed counting sequence ❌\n- number of times goober smashed his head against the toilet 🚽",
-              // },
-              {
-                name: "/net-worth",
-                value: "Check how fat ur wallet is 💰",
-              },
-            ]),
-          new CustomEmbed()
-            .setColor(0xf1c232)
-            .setTitle("Paid Commands 💸")
-            .setDescription(
-              "Commands that do cost money (ill send u my paypal 😊)",
-            )
-            .setFields([
-              {
-                name: "/duel",
-                value:
-                  "Invite someone to a rock paper scissors. Add a bet so things get a lil spicy 🌶️\n- user - mention the person u wanna SMASH 💥 (costs min 1 coin)",
-              },
-              {
-                name: "/gamble",
-                value: `Cmon do i really have to explain myself? Its gambling cmon go do it 🕹️ (costs min 1 coin)`,
-              },
-              {
-                name: "/lottery",
-                value: `Join the lottery during every stream and win some ez money 🎱 (costs ${Lottery.COST} coins)`,
-              },
-              {
-                name: "/trap",
-                value:
-                  "Trap the number in the counting section, with a chance to win some coins 🪤 (costs 10% of the last counted money)",
-              },
-            ]),
+  try {
+    switch (interaction.commandName) {
+      case "kraa":
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setColor(0x05b2f7)
+              .setTitle("Free Commands 😁")
+              .setDescription(
+                "Commands that dont need any money (cuz im generous 😇)",
+              )
+              .setFields([
+                {
+                  name: "/kraa",
+                  value: "I mean u get the exact same message as rn 🫠",
+                },
+                {
+                  name: "/counting-details",
+                  value:
+                    "Sending the current count, the current event (counting events are listed in the Actions). If you are unsure what number should you count next, use this command 🙂",
+                },
+                // {
+                //   name: "/wall-of-shame",
+                //   value:
+                //     "anything bad u dummies do goes here, including:\n- all the people that destroyed counting sequence ❌\n- number of times goober smashed his head against the toilet 🚽",
+                // },
+                {
+                  name: "/net-worth",
+                  value: "Check how fat ur wallet is 💰",
+                },
+              ]),
+            new CustomEmbed()
+              .setColor(0xf1c232)
+              .setTitle("Paid Commands 💸")
+              .setDescription(
+                "Commands that do cost money (ill send u my paypal 😊)",
+              )
+              .setFields([
+                {
+                  name: "/duel",
+                  value:
+                    "Invite someone to a rock paper scissors. Add a bet so things get a lil spicy 🌶️\n- user - mention the person u wanna SMASH 💥 (costs min 1 coin)",
+                },
+                {
+                  name: "/gamble",
+                  value: `Cmon do i really have to explain myself? Its gambling cmon go do it 🕹️ (costs min 1 coin)`,
+                },
+                {
+                  name: "/lottery",
+                  value: `Join the lottery during every stream and win some ez money 🎱 (costs ${Lottery.COST} coins)`,
+                },
+                {
+                  name: "/trap",
+                  value:
+                    "Trap the number in the counting section, with a chance to win some coins 🪤 (costs 10% of the last counted money)",
+                },
+              ]),
 
-          new CustomEmbed()
-            .setColor(0x6c1af0)
-            .setTitle("Actions 🛝")
-            .setDescription("Kravan actions besides the commands (tecnologia)")
-            .setFields([
-              {
-                name: "Counting 🔢",
-                value:
-                  "- Whenever u count, u get a coin 🪙\n - If a number is trapped, you can count the next number just normally, or count the trapped number again. If you win, you get 20% of the number to ur pocket. If not, the person who trapped gets 20% and you get public humiliation 😔",
-              },
-              {
-                name: "Reverse 🔙",
-                value:
-                  "You must count in reverse order (pretty straight forward u a dummy if u did not understand)\n\u200b",
-                inline: true,
-              },
-              {
-                name: "7 Boom 💥",
-                value:
-                  "If the number you want to count has 7 in it or is a multiplier of 7, you MUST write 'boom' and not the actual number\n\u200b",
-                inline: true,
-              },
-              {
-                name: "Leveling 🔼",
-                value:
-                  "Whenever you go up a level, you get 10% of the new level straight to ur pocket 💵",
-              },
-            ]),
-
-          new CustomEmbed()
-            .setColor(0xffffff)
-            .setTitle("Creators 🃏")
-            .setDescription("(aka created the bot furcefully by ranni)")
-            .setFields([
-              {
-                name: "Coder 💻",
-                value: `${userMention(
-                  "609097048662343700",
-                )} (yes guys no AI was used pls appreciate me 🥹🙏)`,
-              },
-              {
-                name: "Masterminds 🧠",
-                value: `${userMention("1260205513795174434")} ${userMention(
-                  "609097048662343700",
-                )} ${userMention("133282052350017536")}`,
-              },
-              {
-                name: "Contributers ⛏️",
-                value: `${userMention("1260205513795174434")} ${userMention(
-                  "133282052350017536",
-                )} ${userMention("617091659758436516")} ${userMention(
-                  "756137226202513449",
-                )} (basically gambled too much)`,
-              },
-            ]),
-        ],
-      });
-
-      break;
-
-    case "net-worth":
-      const user =
-        interaction.options.getUser("target", false) ?? interaction.user;
-
-      const data = await getUserCoins(user.id);
-
-      interaction.reply({
-        embeds: [
-          new CustomEmbed()
-            .setTitle("NET WORTH 💰")
-            .setFields([
-              {
-                name: "👛 Wallet",
-                value: `🪙 ${data.coins.toLocaleString()} coins`,
-                inline: true,
-              },
-              {
-                name: "🏦 Bank",
-                value: `🪙 ${data.bank.toLocaleString()} coins`,
-                inline: true,
-              },
-            ])
-            .setDescription("Elon Musk dis u?")
-            .setColor(0xfc9630)
-            .setThumbnail(user.avatarURL()),
-        ],
-      });
-
-      break;
-
-    case "duel":
-      new Duel(interaction);
-
-      break;
-
-    case "gamble":
-      if (current_gambles.has(interaction.user.id)) return;
-
-      current_gambles.set(interaction.user.id, new Gamble(interaction));
-
-      break;
-
-    case "superiors":
-      await interaction.reply({
-        embeds: [
-          new CustomEmbed()
-            .setTitle("WOW 🤩🤑")
-            .setDescription("Give sum for the rest of us mfs")
-            .setColor(0x35de35)
-            .setImage(
-              "https://content.imageresizer.com/images/memes/huell-money-meme-65w66.jpg",
-            )
-            .setFields(
-              (await getTop5Richest()).map((user, idx) => ({
-                name: `🪙 ${user.total.toLocaleString()}`,
-                value: `-${
-                  idx == 0 ? " 🥇" : idx == 1 ? " 🥈" : idx == 2 ? " 🥉" : ""
-                } ${userMention(user.id)}`,
-                inline: true,
-              })),
-            )
-            .setThumbnail(
-              "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHNjcTY5c3J1cnVlZ3pxamZ0ZHZvdGFqZ2x4N3N6aHIwdnZrZXpqaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MFsqcBSoOKPbjtmvWz/giphy.gif",
-            ),
-        ],
-      });
-
-      break;
-
-    case "donate": {
-      const from = interaction.user;
-      const to = interaction.options.getUser("target", true);
-      const amount = interaction.options.getNumber("amount", true);
-
-      if (from.id == to.id || to.bot) return;
-
-      if (!(await hasEnoughCoins(interaction.user.id, amount)))
-        return await interaction.reply(
-          "Thats very sweet, but u cant afford donating this much :(",
-        );
-
-      await takeCoins(from.id, amount);
-      await addCoins(to.id, amount);
-
-      await interaction.reply(
-        `WOW YOU ARE SO SWEET ${userMention(from.id)}! ${
-          from.displayName
-        } gave ${userMention(
-          to.id,
-        )} ${amount.toLocaleString()} coins 🪙\n\n(Exucse me im gonna tear up 🥹)`,
-      );
-
-      break;
-    }
-
-    case "daily": {
-      const result = await updateAndReturnDaily(interaction.user.id);
-
-      if (result < 0)
-        return await interaction.reply(
-          "U ALREADY CLAIMED TODAYS REWARD U GREEDY MF",
-        );
-
-      await addCoins(interaction.user.id, result);
-
-      return await interaction.reply(
-        `NICE! Streak is now ${result.toLocaleString()} days 🔥 You got +${result.toLocaleString()} coins 🪙`,
-      );
-    }
-
-    case "steal": {
-      const target = interaction.options.getUser("victim", true);
-
-      if (target.bot || target.id == interaction.user.id) return;
-
-      if (!(await hasEnoughCoins(target.id, 0))) return;
-
-      if (!(await updateTheft(interaction.user.id))) return;
-
-      new Steal(interaction.user, target, interaction);
-
-      break;
-    }
-
-    case "store":
-      await interaction.reply({
-        embeds: [Store.getStoreEmbed()],
-      });
-
-      break;
-
-    case "buy": {
-      const value = interaction.options.getNumber("value", true);
-      const quantity = interaction.options.getNumber("quantity", false) ?? 1;
-
-      const item = Store.ITEMS[value];
-
-      if (!item) return await interaction.reply("INVALID ITEM VALUE");
-
-      const total = item.amount * quantity;
-
-      if (!(await hasEnoughCoins(interaction.user.id, total)))
-        return await interaction.reply("U TOO BROKE TO BUY DIS MUCH");
-
-      if (!(await addItem(interaction.user.id, value, quantity)))
-        return await interaction.reply("INVENTORY CAN HAVE MAX 100 ITEMS");
-
-      await takeCoins(interaction.user.id, total);
-
-      await interaction.reply(
-        `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}" ${quantity} TIMES FOR ${total.toLocaleString()} COINS!!`,
-      );
-
-      break;
-    }
-
-    case "inventory": {
-      const user =
-        interaction.options.getUser("target", false) ?? interaction.user;
-
-      const inventory = await getInventory(user.id);
-      const inventory_with_amounts = inventory.reduce(
-        (prev: Map<number, number>, curr: number) => {
-          prev.set(curr, (prev.get(curr) ?? 0) + 1);
-
-          return prev;
-        },
-        new Map<number, number>(),
-      );
-
-      if (!inventory.length) return await interaction.reply("YOU HAVE NOTHING");
-
-      await interaction.reply({
-        embeds: [
-          new CustomEmbed()
-            .setTitle("BACKPACK 👜")
-            .setColor(0x85d63a)
-            .setFields(
-              Array.from(inventory_with_amounts.entries()).map(
-                ([item, quantity]) => ({
-                  name: Store.ITEMS[item]!.name,
-                  value: `× ${quantity.toLocaleString()}`,
+            new CustomEmbed()
+              .setColor(0x6c1af0)
+              .setTitle("Actions 🛝")
+              .setDescription(
+                "Kravan actions besides the commands (tecnologia)",
+              )
+              .setFields([
+                {
+                  name: "Counting 🔢",
+                  value:
+                    "- Whenever u count, u get a coin 🪙\n - If a number is trapped, you can count the next number just normally, or count the trapped number again. If you win, you get 20% of the number to ur pocket. If not, the person who trapped gets 20% and you get public humiliation 😔",
+                },
+                {
+                  name: "Reverse 🔙",
+                  value:
+                    "You must count in reverse order (pretty straight forward u a dummy if u did not understand)\n\u200b",
                   inline: true,
-                }),
+                },
+                {
+                  name: "7 Boom 💥",
+                  value:
+                    "If the number you want to count has 7 in it or is a multiplier of 7, you MUST write 'boom' and not the actual number\n\u200b",
+                  inline: true,
+                },
+                {
+                  name: "Leveling 🔼",
+                  value:
+                    "Whenever you go up a level, you get 10% of the new level straight to ur pocket 💵",
+                },
+              ]),
+
+            new CustomEmbed()
+              .setColor(0xffffff)
+              .setTitle("Creators 🃏")
+              .setDescription("(aka created the bot furcefully by ranni)")
+              .setFields([
+                {
+                  name: "Coder 💻",
+                  value: `${userMention(
+                    "609097048662343700",
+                  )} (yes guys no AI was used pls appreciate me 🥹🙏)`,
+                },
+                {
+                  name: "Masterminds 🧠",
+                  value: `${userMention("1260205513795174434")} ${userMention(
+                    "609097048662343700",
+                  )} ${userMention("133282052350017536")}`,
+                },
+                {
+                  name: "Contributers ⛏️",
+                  value: `${userMention("1260205513795174434")} ${userMention(
+                    "133282052350017536",
+                  )} ${userMention("617091659758436516")} ${userMention(
+                    "756137226202513449",
+                  )} (basically gambled too much)`,
+                },
+              ]),
+          ],
+        });
+
+        break;
+
+      case "net-worth":
+        const user =
+          interaction.options.getUser("target", false) ?? interaction.user;
+
+        const data = await getUserCoins(user.id);
+
+        interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle("NET WORTH 💰")
+              .setFields([
+                {
+                  name: "👛 Wallet",
+                  value: `🪙 ${data.coins.toLocaleString()} coins`,
+                  inline: true,
+                },
+                {
+                  name: "🏦 Bank",
+                  value: `🪙 ${data.bank.toLocaleString()} coins`,
+                  inline: true,
+                },
+              ])
+              .setDescription("Elon Musk dis u?")
+              .setColor(0xfc9630)
+              .setThumbnail(user.avatarURL()),
+          ],
+        });
+
+        break;
+
+      case "duel":
+        await validateNotInJail(interaction.user.id);
+
+        new Duel(interaction);
+
+        break;
+
+      case "gamble":
+        await validateNotInJail(interaction.user.id);
+
+        if (current_gambles.has(interaction.user.id)) return;
+
+        current_gambles.set(interaction.user.id, new Gamble(interaction));
+
+        break;
+
+      case "superiors":
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle("WOW 🤩🤑")
+              .setDescription("Give sum for the rest of us mfs")
+              .setColor(0x35de35)
+              .setImage(
+                "https://content.imageresizer.com/images/memes/huell-money-meme-65w66.jpg",
+              )
+              .setFields(
+                (await getTop5Richest()).map((user, idx) => ({
+                  name: `🪙 ${user.total.toLocaleString()}`,
+                  value: `-${
+                    idx == 0 ? " 🥇" : idx == 1 ? " 🥈" : idx == 2 ? " 🥉" : ""
+                  } ${userMention(user.id)}`,
+                  inline: true,
+                })),
+              )
+              .setThumbnail(
+                "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeHNjcTY5c3J1cnVlZ3pxamZ0ZHZvdGFqZ2x4N3N6aHIwdnZrZXpqaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MFsqcBSoOKPbjtmvWz/giphy.gif",
               ),
-            )
-            .setThumbnail(user.avatarURL())
-            .setImage(
-              "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2UyNzlnc2k0eXh6YnczamZ5Ynk1YTducHRrMGMzdml2emJ5b3M1NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/n6yBj4EzqmTHG/giphy.gif",
-            ),
-        ],
-      });
+          ],
+        });
 
-      break;
-    }
+        break;
 
-    case "deposit": {
-      const amount = interaction.options.getNumber("amount", true);
-      const data = await getUserCoins(interaction.user.id);
+      case "donate": {
+        await validateNotInJail(interaction.user.id);
 
-      if (data.coins < amount)
+        const from = interaction.user;
+        const to = interaction.options.getUser("target", true);
+        const amount = interaction.options.getNumber("amount", true);
+
+        if (from.id == to.id || to.bot) return;
+
+        if (!(await hasEnoughCoins(interaction.user.id, amount)))
+          return await interaction.reply(
+            "Thats very sweet, but u cant afford donating this much :(",
+          );
+
+        await takeCoins(from.id, amount);
+        await addCoins(to.id, amount);
+
+        await interaction.reply(
+          `WOW YOU ARE SO SWEET ${userMention(from.id)}! ${
+            from.displayName
+          } gave ${userMention(
+            to.id,
+          )} ${amount.toLocaleString()} coins 🪙\n\n(Exucse me im gonna tear up 🥹)`,
+        );
+
+        break;
+      }
+
+      case "daily": {
+        await validateNotInJail(interaction.user.id);
+
+        const result = await updateAndReturnDaily(interaction.user.id);
+
+        if (result < 0)
+          return await interaction.reply(
+            "U ALREADY CLAIMED TODAYS REWARD U GREEDY MF",
+          );
+
+        await addCoins(interaction.user.id, result);
+
         return await interaction.reply(
-          `You only have 🪙 ${data.coins.toLocaleString()} in your wallet!`,
-        );
-
-      try {
-        const takenAmount = await takeCoins(interaction.user.id, amount, false);
-        const depositedAmount = await addToBank(
-          interaction.user.id,
-          takenAmount,
-        );
-
-        await interaction.reply(
-          `Deposited 🪙 ${depositedAmount.toLocaleString()} into your bank! (5% fee applied)`,
-        );
-      } catch {
-        await interaction.reply(
-          "An error occurred during deposit. Please try again.",
+          `NICE! Streak is now ${result.toLocaleString()} days 🔥 You got +${result.toLocaleString()} coins 🪙`,
         );
       }
-      break;
-    }
 
-    case "withdraw": {
-      const amount = interaction.options.getNumber("amount", true);
-      const data = await getUserCoins(interaction.user.id);
+      case "steal": {
+        await validateNotInJail(interaction.user.id);
 
-      if (data.bank < amount)
-        return await interaction.reply(
-          `You only have 🪙 ${data.bank.toLocaleString()} in your bank!`,
-        );
+        const target = interaction.options.getUser("victim", true);
 
-      const wallet_space = 100_000_000 - data.coins;
-      if (wallet_space <= 0)
-        return await interaction.reply(
-          "Your wallet is full! (Max: 🪙 100,000,000)",
-        );
+        if (target.bot || target.id == interaction.user.id) return;
 
-      if (amount > wallet_space)
-        return await interaction.reply(
-          `Your wallet can only hold 🪙 ${wallet_space.toLocaleString()} more. Try withdrawing that amount or deposit some coins first.`,
-        );
+        if (!(await hasEnoughCoins(target.id, 0))) return;
 
-      try {
-        const withdrawnAmount = await takeFromBank(interaction.user.id, amount);
-        const addedAmount = await addCoins(
-          interaction.user.id,
-          Math.abs(withdrawnAmount),
-        );
+        if (!(await updateTheft(interaction.user.id))) return;
 
-        await interaction.reply(
-          `Withdrew 🪙 ${addedAmount.toLocaleString()} into your wallet!`,
-        );
-      } catch (error) {
-        await interaction.reply(
-          "An error occurred during withdrawal. Please try again.",
-        );
+        new Steal(interaction.user, target, interaction);
+
+        break;
       }
-      break;
+
+      case "store":
+        await interaction.reply({
+          embeds: [Store.getStoreEmbed()],
+        });
+
+        break;
+
+      case "buy": {
+        await validateNotInJail(interaction.user.id);
+
+        const value = interaction.options.getNumber("value", true);
+        const quantity = interaction.options.getNumber("quantity", false) ?? 1;
+
+        const item = Store.ITEMS[value];
+
+        if (!item) return await interaction.reply("INVALID ITEM VALUE");
+
+        const total = item.amount * quantity;
+
+        if (!(await hasEnoughCoins(interaction.user.id, total)))
+          return await interaction.reply("U TOO BROKE TO BUY DIS MUCH");
+
+        if (!(await addItem(interaction.user.id, value, quantity)))
+          return await interaction.reply("INVENTORY CAN HAVE MAX 100 ITEMS");
+
+        await takeCoins(interaction.user.id, total);
+
+        await interaction.reply(
+          `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}" ${quantity} TIMES FOR ${total.toLocaleString()} COINS!!`,
+        );
+
+        break;
+      }
+
+      case "inventory": {
+        const user =
+          interaction.options.getUser("target", false) ?? interaction.user;
+
+        const inventory = await getInventory(user.id);
+        const inventory_with_amounts = inventory.reduce(
+          (prev: Map<number, number>, curr: number) => {
+            prev.set(curr, (prev.get(curr) ?? 0) + 1);
+
+            return prev;
+          },
+          new Map<number, number>(),
+        );
+
+        if (!inventory.length)
+          return await interaction.reply("YOU HAVE NOTHING");
+
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle("BACKPACK 👜")
+              .setColor(0x85d63a)
+              .setFields(
+                Array.from(inventory_with_amounts.entries()).map(
+                  ([item, quantity]) => ({
+                    name: Store.ITEMS[item]!.name,
+                    value: `× ${quantity.toLocaleString()}`,
+                    inline: true,
+                  }),
+                ),
+              )
+              .setThumbnail(user.avatarURL())
+              .setImage(
+                "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2UyNzlnc2k0eXh6YnczamZ5Ynk1YTducHRrMGMzdml2emJ5b3M1NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/n6yBj4EzqmTHG/giphy.gif",
+              ),
+          ],
+        });
+
+        break;
+      }
+
+      case "deposit": {
+        await validateNotInJail(interaction.user.id);
+
+        const amount = interaction.options.getNumber("amount", true);
+        const data = await getUserCoins(interaction.user.id);
+
+        if (data.coins < amount)
+          return await interaction.reply(
+            `You only have 🪙 ${data.coins.toLocaleString()} in your wallet!`,
+          );
+
+        try {
+          const takenAmount = await takeCoins(
+            interaction.user.id,
+            amount,
+            false,
+          );
+          const depositedAmount = await addToBank(
+            interaction.user.id,
+            takenAmount,
+          );
+
+          await interaction.reply(
+            `Deposited 🪙 ${depositedAmount.toLocaleString()} into your bank! (5% fee applied)`,
+          );
+        } catch {
+          await interaction.reply(
+            "An error occurred during deposit. Please try again.",
+          );
+        }
+        break;
+      }
+
+      case "withdraw": {
+        await validateNotInJail(interaction.user.id);
+
+        const amount = interaction.options.getNumber("amount", true);
+        const data = await getUserCoins(interaction.user.id);
+
+        if (data.bank < amount)
+          return await interaction.reply(
+            `You only have 🪙 ${data.bank.toLocaleString()} in your bank!`,
+          );
+
+        const wallet_space = 100_000_000 - data.coins;
+        if (wallet_space <= 0)
+          return await interaction.reply(
+            "Your wallet is full! (Max: 🪙 100,000,000)",
+          );
+
+        if (amount > wallet_space)
+          return await interaction.reply(
+            `Your wallet can only hold 🪙 ${wallet_space.toLocaleString()} more. Try withdrawing that amount or deposit some coins first.`,
+          );
+
+        try {
+          const withdrawnAmount = await takeFromBank(
+            interaction.user.id,
+            amount,
+          );
+          const addedAmount = await addCoins(
+            interaction.user.id,
+            Math.abs(withdrawnAmount),
+          );
+
+          await interaction.reply(
+            `Withdrew 🪙 ${addedAmount.toLocaleString()} into your wallet!`,
+          );
+        } catch (error) {
+          await interaction.reply(
+            "An error occurred during withdrawal. Please try again.",
+          );
+        }
+        break;
+      }
+
+      case "lottery": {
+        await validateNotInJail(interaction.user.id);
+
+        await lottery.handleInteraction(interaction);
+
+        break;
+      }
+
+      case "counting-details":
+        await counting.sendCountingDetails(interaction);
+
+        break;
+
+      case "trap":
+        await validateNotInJail(interaction.user.id);
+
+        await counting.trap(interaction);
+
+        break;
     }
+  } catch (e: any) {
+    await interaction.reply(JSON.parse(e.message));
+  }
+});
+
+client.on("messageCreate", async (message) => {
+  try {
+    switch (message.channelId) {
+      case Lottery.ANNOUNCEMENTS_CHANNEL_ID:
+        await validateNotInJail(message.author.id);
+
+        await lottery.handleMessage(message);
+
+        break;
+
+      case Counting.COUNTING_CHANNEL_ID:
+        await validateNotInJail(message.author.id);
+
+        await counting.handleMessage(message);
+
+        break;
+    }
+  } catch (e: any) {
+    await message.reply(JSON.parse(e.message));
+  }
+});
+
+client.on("messageDelete", async (message) => {
+  switch (message.channelId) {
+    case Counting.COUNTING_CHANNEL_ID:
+      await counting.onMessageDelete(message);
+
+      break;
   }
 });
 
