@@ -694,9 +694,11 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await interaction.reply({
           embeds: [
             new CustomEmbed()
-              .setTitle(`🪙 ${await getJackpot()}`)
-              .setDescription("Go use the bot, you might win it all...")
-              .setColor(0x14dea1)
+              .setTitle(`JACKPOT IS AT 🪙 ${await getJackpot()}`)
+              .setDescription(
+                "Go use the bot (count, gamble, level up, duel, buy, claim daily, donate, trap, join lottery), you might win it all...",
+              )
+              .setColor(0xf5d50a)
               .setImage(
                 "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmhjbnAyaGl5N24wZnZ2eHAzMTFyMGcwZ2NhdWU1bGlmcTQ5cnYxcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LCdPNT81vlv3y/giphy.gif",
               ),
