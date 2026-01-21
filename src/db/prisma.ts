@@ -250,10 +250,11 @@ export const updateAndReturnDaily = async (id: string) => {
     },
   });
 
-  const date = moment().utc().toDate();
+  const last_date = moment(user?.last_date).startOf("day");
+  const current_date = moment().utc().startOf("day");
 
   const diff = user?.last_date
-    ? Math.floor(diffInDays(date, user.last_date))
+    ? Math.floor(Math.abs(last_date.diff(current_date, "days")))
     : 1;
 
   if (diff <= 0) return -1;
@@ -266,7 +267,7 @@ export const updateAndReturnDaily = async (id: string) => {
       create: {
         id,
         daily: 1,
-        last_date: date,
+        last_date: current_date.toDate(),
       },
       update: {
         daily:
@@ -275,7 +276,7 @@ export const updateAndReturnDaily = async (id: string) => {
                 increment: 1,
               }
             : 1,
-        last_date: date,
+        last_date: current_date.toDate(),
       },
       where: {
         id,
