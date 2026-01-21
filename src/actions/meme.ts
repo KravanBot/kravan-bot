@@ -10,6 +10,7 @@ import { CustomEmbed } from "../utils/embed.js";
 enum Memes {
   TAKE_MONEY,
   COOKING,
+  STONKS,
 }
 
 type MemeT = {
@@ -40,6 +41,17 @@ export class Meme {
           x: 145,
           y: 240,
           size: 128,
+        },
+      ],
+    })
+    .set(Memes.STONKS, {
+      name: "Stonks",
+      image: "https://i.imgflip.com/3388rw.png",
+      avatars: [
+        {
+          x: 108,
+          y: 45,
+          size: 175,
         },
       ],
     });
