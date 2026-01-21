@@ -179,15 +179,26 @@ export const takeFromBank = async (id: string, amount: number) => {
 };
 
 export const addToJackpot = async (amount: number) => {
-  const amount_to_add = Math.max(Math.floor(amount / 5), 1);
+  const amount_to_add = Math.max(Math.floor(amount / 1), 1);
 
-  await prisma.jackpot.updateMany({
-    data: {
-      coins: {
-        increment: amount_to_add,
+  const jackpot = (
+    await prisma.jackpot.updateManyAndReturn({
+      data: {
+        coins: {
+          increment: amount_to_add,
+        },
       },
-    },
-  });
+    })
+  )[0];
+
+  if (jackpot && jackpot?.coins > 1_000_000_000)
+    await prisma.jackpot.updateMany({
+      data: {
+        coins: {
+          decrement: jackpot.coins - 1_000_000_000,
+        },
+      },
+    });
 };
 
 export const getJackpot = async () => {

@@ -34,6 +34,7 @@ import { configDotenv } from "dotenv";
 import { Steal } from "./actions/steal.js";
 import { Store } from "./actions/store.js";
 import { validateNotInJail } from "./utils/helpers.js";
+import { Meme } from "./actions/meme.js";
 
 configDotenv();
 
@@ -208,6 +209,24 @@ const commands = [
   new SlashCommandBuilder()
     .setName("jackpot")
     .setDescription("Get the current jackpot"),
+
+  new SlashCommandBuilder()
+    .setName("meme")
+    .setDescription("Generate a meme")
+    .addStringOption((option) =>
+      option
+        .setName("meme")
+        .setDescription("The meme")
+        .setRequired(true)
+        .addChoices(
+          Object.entries(Meme.MEMES).map(([type, data]) => ({
+            name: data.name,
+            value: type,
+          })),
+        ),
+    )
+    .addUserOption((option) => option.setName("user1").setRequired(true))
+    .addUserOption((option) => option.setName("user2")),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
@@ -706,6 +725,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
               ),
           ],
         });
+
+        break;
+      }
+
+      case "image": {
+        new Meme(interaction);
 
         break;
       }
