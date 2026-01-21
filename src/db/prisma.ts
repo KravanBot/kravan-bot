@@ -211,7 +211,7 @@ export const clearJackpot = async () => {
 export const getTop5Richest = async () => {
   return (
     await prisma.user.findMany({
-      take: 5,
+      take: 6,
       where: {
         NOT: {
           AND: {
