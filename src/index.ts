@@ -219,14 +219,21 @@ const commands = [
         .setDescription("The meme")
         .setRequired(true)
         .addChoices(
-          Object.entries(Meme.MEMES).map(([type, data]) => ({
+          ...Array.from(Meme.MEMES).map(([type, data]) => ({
             name: data.name,
             value: type.toString(),
           })),
         ),
     )
-    .addUserOption((option) => option.setName("user1").setRequired(true))
-    .addUserOption((option) => option.setName("user2")),
+    .addUserOption((option) =>
+      option
+        .setName("user1")
+        .setDescription("First user in the meme")
+        .setRequired(true),
+    )
+    .addUserOption((option) =>
+      option.setName("user2").setDescription("Second user in the meme"),
+    ),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 

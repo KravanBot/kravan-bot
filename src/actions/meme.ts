@@ -18,19 +18,17 @@ type MemeT = {
 };
 
 export class Meme {
-  static MEMES: Record<Memes, MemeT> = {
-    [Memes.TAKE_MONEY]: {
-      name: "Take my money",
-      image: "https://imgflip.com/s/meme/Shut-Up-And-Take-My-Money-Fry.jpg",
-      avatars: [
-        {
-          x: 110,
-          y: 25,
-          size: 175,
-        },
-      ],
-    },
-  };
+  static MEMES: Map<Memes, MemeT> = new Map().set(Memes.TAKE_MONEY, {
+    name: "Take my money",
+    image: "https://imgflip.com/s/meme/Shut-Up-And-Take-My-Money-Fry.jpg",
+    avatars: [
+      {
+        x: 110,
+        y: 25,
+        size: 175,
+      },
+    ],
+  });
 
   #meme: MemeT;
   #users: User[];
@@ -39,7 +37,7 @@ export class Meme {
   constructor(interaction: ChatInputCommandInteraction<CacheType>) {
     const type: Memes = parseInt(interaction.options.getString("meme", true));
 
-    this.#meme = Meme.MEMES[type];
+    this.#meme = Meme.MEMES.get(type)!;
     this.#users = [interaction.options.getUser("user1", true)];
     this.#interaction = interaction;
 
@@ -106,7 +104,6 @@ export class Meme {
     });
 
     await this.#interaction.reply({
-      embeds: [new CustomEmbed().setImage(`attachment://${attachment_name}`)],
       files: [attachment],
     });
   }
