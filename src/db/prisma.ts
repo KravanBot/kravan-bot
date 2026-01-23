@@ -90,7 +90,7 @@ export const takeCoins = async (id: string, amount: number) => {
     },
   });
 
-  return new_data.coins - current_data.coins;
+  return Math.abs(new_data.coins - current_data.coins);
 };
 
 export const getUserCoins = async (id: string) => {
@@ -182,7 +182,7 @@ export const takeFromBank = async (id: string, amount: number) => {
     },
   });
 
-  return new_data.bank - current_data.bank;
+  return Math.abs(new_data.bank - current_data.bank);
 };
 
 export const addToJackpot = async (amount: number) => {
