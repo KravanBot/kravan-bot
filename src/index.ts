@@ -441,6 +441,11 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                   value: `🪙 ${data.bank.toLocaleString()} coins`,
                   inline: true,
                 },
+                {
+                  name: "💎 Gems",
+                  value: `:CrowThumbsUp: ${data.gems.toLocaleString()} gems`,
+                  inline: true,
+                },
               ])
               .setDescription("Elon Musk dis u?")
               .setColor(0xfc9630)
@@ -497,7 +502,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                             ? " 🥉"
                             : ""
                     } ${usernames.get(user.id)}`,
-                    value: `👛 ${user.coins.toLocaleString()}\n🏦 ${user.bank.toLocaleString()}\n💸 ${(user.coins + user.bank).toLocaleString()}`,
+                    value: `👛 ${user.coins.toLocaleString()}\n🏦 ${user.bank.toLocaleString()}\n💎 ${user.gems.toLocaleString()} \n💸 ${(user.coins + user.bank).toLocaleString()}`,
                     inline: true,
                   })),
                 )
@@ -773,7 +778,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             await interaction.reply({
               embeds: [
                 new CustomEmbed()
-                  .setTitle("🏳️‍🌈 Gayrate 🏳️‍🌈")
+                  .setTitle(":Raven_Pride:  Gayrate :Raven_Pride: ")
                   .setDescription(
                     `${userMention(target.id)} is ${Math.floor(Math.random() * 101)}% gay 🏳️‍🌈`,
                   )

@@ -10,6 +10,7 @@ model User {
   id String @id
   coins Int @default(0)
   bank Int @default(0)
+  gems Int @default(0)
   daily Int @default(0)
   last_date DateTime?
   last_theft DateTime?

@@ -10,7 +10,7 @@ const prisma = new PrismaClient({ adapter }).$extends({
   result: {
     user: {
       total: {
-        needs: { bank: true, coins: true },
+        needs: { gems: true, bank: true, coins: true },
         compute(user) {
           return user.coins + user.bank;
         },
@@ -105,6 +105,7 @@ export const getUserCoins = async (id: string) => {
       select: {
         coins: true,
         bank: true,
+        gems: true,
       },
       where: {
         id,
@@ -112,6 +113,7 @@ export const getUserCoins = async (id: string) => {
     })) ?? {
       bank: 0,
       coins: 0,
+      gems: 0,
     }
   );
 };
@@ -132,6 +134,7 @@ export const addToBank = async (id: string, amount: number) => {
   const user = await prisma.user.upsert({
     select: {
       bank: true,
+      coins: true,
     },
     update: {
       bank: {
@@ -149,13 +152,25 @@ export const addToBank = async (id: string, amount: number) => {
 
   const newBank = user.bank;
 
-  if (newBank > 4_000_000_000) {
-    const overflow = newBank - 4_000_000_000;
+  if (newBank > 2_000_000_000) {
+    const overflow = newBank - 2_000_000_000;
+    const should_get_gems = user.coins >= 100_000_000;
+
     await prisma.user.update({
       where: { id },
-      data: { bank: 4_000_000_000 },
+      data: should_get_gems
+        ? {
+            coins: 1000,
+            bank: 0,
+            gems: {
+              increment: 20,
+            },
+          }
+        : { bank: 2_000_000_000 },
     });
+
     await addToJackpot(tax + overflow);
+
     return finalAmount - overflow;
   }
 
@@ -231,12 +246,15 @@ export const getTop5Richest = async () => {
             bank: {
               lte: 0,
             },
+            gems: {
+              lte: 0,
+            },
           },
         },
       },
     })
   )
-    .sort((a, b) => b.total - a.total)
+    .sort((a, b) => (a.gems || b.gems ? b.gems - a.gems : b.total - a.total))
     .slice(0, 6);
 };
 
