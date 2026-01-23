@@ -21,6 +21,7 @@ enum Memes {
   RIP,
   IDK,
   COMMUNIST,
+  GIVE_UP,
 }
 
 type MemeT = {
@@ -197,6 +198,23 @@ export class Meme {
           x: 200,
           y: 65,
           size: 125,
+        },
+      ],
+    })
+    .set(Memes.GIVE_UP, {
+      name: "Give Up",
+      image:
+        "https://media.discordapp.net/attachments/1459659790417399960/1464190289941102592/hq720.png?ex=697490f8&is=69733f78&hm=29e4f6ae3d4eb366e18ef1b88fe6d8011f786bda4e434a0a7ab75f2e68e896c7&=&format=webp&quality=lossless&width=755&height=425",
+      avatars: [
+        {
+          x: 160,
+          y: 65,
+          size: 50,
+        },
+        {
+          x: 360,
+          y: 230,
+          size: 50,
         },
       ],
     });
