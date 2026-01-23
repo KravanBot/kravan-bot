@@ -52,15 +52,8 @@ export const addCoins = async (id: string, amount: number) => {
 
   if (newCoins > 100_000_000) {
     const overflow = newCoins - 100_000_000;
-    await prisma.user.update({
-      where: { id },
-      data: {
-        coins: 100_000_000,
-        bank: {
-          increment: getBankAmountWithTax(overflow),
-        },
-      },
-    });
+    await addToBank(id, overflow);
+
     return Math.abs(amount) - overflow;
   }
 
