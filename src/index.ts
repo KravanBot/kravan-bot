@@ -813,7 +813,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           }
 
           case "aura": {
-            const result = (Math.floor(Math.random() * 101) - 1) * 10; // -10, 0, 10, 20
+            const result = Math.floor(Math.random() * 102) - 1;
 
             await interaction.reply({
               embeds: [
@@ -822,7 +822,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                     "<:pepe_calm:1390954099624775791> Aurarate <:pepe_calm:1390954099624775791>",
                   )
                   .setDescription(
-                    `${userMention(target.id)} has ${result + 10 == 0 ? "" : getRandomFromArray(["+", "-"])}${result < 0 ? "♾️" : (result + 10).toLocaleString()} aura 🗿`,
+                    `${userMention(target.id)} has ${result == 0 ? "" : getRandomFromArray(["+", "-"])}${result < 0 ? "♾️" : (result * 10).toLocaleString()} aura 🗿`,
                   )
                   .setColor(0xffffff),
               ],
