@@ -162,8 +162,8 @@ export const addToBank = async (id: string, amount: number) => {
       where: { id },
       data: should_get_gems
         ? {
-            coins: overflow,
-            bank: 0,
+            coins: 0,
+            bank: overflow,
             gems: {
               increment: 20,
             },

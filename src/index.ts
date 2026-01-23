@@ -33,7 +33,7 @@ import { Leveling } from "./actions/leveling.js";
 import { configDotenv } from "dotenv";
 import { Steal } from "./actions/steal.js";
 import { Store } from "./actions/store.js";
-import { validateNotInJail } from "./utils/helpers.js";
+import { getRandomFromArray, validateNotInJail } from "./utils/helpers.js";
 import { Meme } from "./actions/meme.js";
 
 configDotenv();
@@ -249,7 +249,7 @@ const commands = [
         .setName("category")
         .setDescription("The category")
         .setChoices(
-          ...["gay"].map((el) => ({
+          ...["gay", "furry", "aura"].map((el) => ({
             name: el,
             value: el,
           })),
@@ -774,21 +774,62 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         const category = interaction.options.getString("category", true);
 
         switch (category) {
-          case "gay":
+          case "gay": {
+            const result = Math.floor(Math.random() * 101);
+
             await interaction.reply({
               embeds: [
                 new CustomEmbed()
                   .setTitle(
-                    "<:Raven_Pride:1387726839895687169>  Gayrate <:Raven_Pride:1387726839895687169> ",
+                    "<:Raven_Pride:1387726839895687169> Gayrate <:Raven_Pride:1387726839895687169>",
                   )
                   .setDescription(
-                    `${userMention(target.id)} is ${Math.floor(Math.random() * 101)}% gay 🏳️‍🌈`,
+                    `${userMention(target.id)} is ${result}% gay 🏳️‍🌈`,
                   )
                   .setColor(0xf772d6),
               ],
             });
 
             break;
+          }
+
+          case "furry": {
+            const result = Math.floor(Math.random() * 101);
+
+            await interaction.reply({
+              embeds: [
+                new CustomEmbed()
+                  .setTitle(
+                    "<:think:1432750974463643698> Furryrate <:think:1432750974463643698>",
+                  )
+                  .setDescription(
+                    `${userMention(target.id)} is ${result}% furry 😼`,
+                  )
+                  .setColor(0xfca242),
+              ],
+            });
+
+            break;
+          }
+
+          case "aura": {
+            const result = (Math.floor(Math.random() * 101) - 1) * 10; // -10, 0, 10, 20
+
+            await interaction.reply({
+              embeds: [
+                new CustomEmbed()
+                  .setTitle(
+                    "<:pepe_calm:1390954099624775791> Aurarate <:pepe_calm:1390954099624775791>",
+                  )
+                  .setDescription(
+                    `${userMention(target.id)} has ${result + 10 == 0 ? "" : getRandomFromArray(["+", "-"])}${result < 0 ? "♾️" : (result + 10).toLocaleString()} aura 🗿`,
+                  )
+                  .setColor(0xffffff),
+              ],
+            });
+
+            break;
+          }
         }
 
         break;
