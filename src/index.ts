@@ -778,7 +778,9 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             await interaction.reply({
               embeds: [
                 new CustomEmbed()
-                  .setTitle(":Raven_Pride:  Gayrate :Raven_Pride: ")
+                  .setTitle(
+                    "<:Raven_Pride:1387726839895687169>  Gayrate <:Raven_Pride:1387726839895687169> ",
+                  )
                   .setDescription(
                     `${userMention(target.id)} is ${Math.floor(Math.random() * 101)}% gay 🏳️‍🌈`,
                   )
