@@ -2,35 +2,48 @@ import { CustomEmbed } from "../utils/embed.js";
 
 export enum ItemId {
   ALARM = 1,
+  BOUQUET,
+  SHIELD_1,
+  SHIELD_2,
+  SHIELD_3,
+  SHIELD_4,
+  SHIELD_5,
+  SHIELD_6,
+  SHIELD_7,
+  SHIELD_8,
+  SHIELD_9,
+  SHIELD_10,
 }
+
 export class Store {
-  static ITEMS: Record<
+  static ITEMS = new Map<
     number,
     {
       name: string;
       description: string;
       amount: number;
     }
-  > = {
-    [ItemId.ALARM]: {
+  >()
+    .set(ItemId.ALARM, {
       name: "🚨 Alarm",
       description:
         "Get an alarm the next time someone tries to steal from you (works for only 1 steal opportunity)",
       amount: 15,
-    },
-  };
+    })
+    .set(ItemId.BOUQUET, {
+      name: "💐 Bouquet",
+      description:
+        "Buy a bouquet of flowers (u can also give it to a special someone 🤗)",
+      amount: 100,
+    });
 
   static getStoreEmbed() {
-    return new CustomEmbed()
-      .setTitle("SHOP 🛍️")
-      .setColor(0x8f34eb)
-      .setDescription("Buy cool stuff here lol")
-      .setFields(
-        Object.entries(this.ITEMS).map(([id, item]) => ({
-          name: `${id}) ${item.name} (🪙 ${item.amount.toLocaleString()})`,
-          value: `- ${item.description}`,
-          inline: true,
-        })),
-      );
+    return new CustomEmbed().setColor(0x8f34eb).setFields(
+      Object.entries(this.ITEMS).map(([_, item]) => ({
+        name: `${item.name} (🪙 ${item.amount.toLocaleString()})`,
+        value: `- ${item.description}`,
+        inline: true,
+      })),
+    );
   }
 }

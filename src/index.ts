@@ -158,11 +158,16 @@ const commands = [
   new SlashCommandBuilder()
     .setName("buy")
     .setDescription("Buy something from the shop")
-    .addNumberOption((option) =>
+    .addStringOption((option) =>
       option
-        .setName("value")
-        .setDescription("The value of the item")
-        .setMinValue(1)
+        .setName("item")
+        .setDescription("The item to buy")
+        .setChoices(
+          ...Array.from(Store.ITEMS).map(([id, data]) => ({
+            name: data.name,
+            value: id.toString(),
+          })),
+        )
         .setRequired(true),
     )
     .addNumberOption((option) =>
@@ -586,10 +591,10 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       case "buy": {
         await validateNotInJail(interaction.user.id);
 
-        const value = interaction.options.getNumber("value", true);
+        const value = parseInt(interaction.options.getString("item", true));
         const quantity = interaction.options.getNumber("quantity", false) ?? 1;
 
-        const item = Store.ITEMS[value];
+        const item = Store.ITEMS.get(value);
 
         if (!item) return await interaction.reply("INVALID ITEM VALUE");
 
@@ -635,7 +640,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
               .setFields(
                 Array.from(inventory_with_amounts.entries()).map(
                   ([item, quantity]) => ({
-                    name: Store.ITEMS[item]!.name,
+                    name: Store.ITEMS.get(item)!.name,
                     value: `× ${quantity.toLocaleString()}`,
                     inline: true,
                   }),
