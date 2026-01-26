@@ -73,6 +73,27 @@ export class Gamble {
     if (!this.#interaction.replied) await this.#interaction.reply("Loading...");
 
     const edit = async () => {
+      const is_first = this.#revealed == 0;
+
+      const components = [
+        new ButtonBuilder()
+          .setCustomId("next")
+          .setLabel("Reveal Next")
+          .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+          .setCustomId("all")
+          .setLabel("Reveal All")
+          .setStyle(ButtonStyle.Secondary),
+      ];
+
+      if (is_first)
+        components.push(
+          new ButtonBuilder()
+            .setCustomId("cancel")
+            .setLabel("Cancel")
+            .setStyle(ButtonStyle.Danger),
+        );
+
       return await this.#interaction.editReply({
         content: `${this.#sequence
           .slice(0, this.#revealed)
@@ -88,7 +109,7 @@ export class Gamble {
                 Gamble.#good_emoji
               } - Earn your bet back\n- ${
                 Gamble.#bad_emoji
-              } - Half of your bet is being reduced`,
+              } - Half of your bet is being reduced\n\n🛡️ - costs 🪙 ${Math.max(this.#bet * 0.05, 1)} (5% of your bet), reduces 10% from all your losses`,
             )
             .setFields([
               {
@@ -100,14 +121,16 @@ export class Gamble {
         ],
         components: [
           new ActionRowBuilder<ButtonBuilder>().addComponents(
-            new ButtonBuilder()
-              .setCustomId("next")
-              .setLabel("Reveal Next")
-              .setStyle(ButtonStyle.Primary),
-            new ButtonBuilder()
-              .setCustomId("all")
-              .setLabel("Reveal All")
-              .setStyle(ButtonStyle.Secondary),
+            ...[
+              new ButtonBuilder()
+                .setCustomId("next")
+                .setLabel("Reveal Next")
+                .setStyle(ButtonStyle.Primary),
+              new ButtonBuilder()
+                .setCustomId("all")
+                .setLabel("Reveal All")
+                .setStyle(ButtonStyle.Secondary),
+            ],
           ),
         ],
       });
@@ -118,6 +141,8 @@ export class Gamble {
 
       if (!(await this.#checkRevealClicked(msg))) break;
     }
+
+    if (this.#revealed < 0) return await this.#interaction.deleteReply();
 
     await edit();
 
@@ -138,8 +163,19 @@ export class Gamble {
       });
       interaction.deferUpdate();
 
-      if (interaction.customId == "next") this.#revealed++;
-      else this.#revealed = this.#sequence.length;
+      switch (interaction.customId) {
+        case "next":
+          this.#revealed++;
+          break;
+
+        case "all":
+          this.#revealed = this.#sequence.length;
+          break;
+
+        case "cancel":
+          this.#revealed = -1;
+          return false;
+      }
 
       return true;
     } catch (e) {

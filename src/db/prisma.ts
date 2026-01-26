@@ -35,16 +35,18 @@ export const addCoins = async (id: string, amount: number) => {
 
   new_data.coins += amount;
 
-  const is_wallet_overflown = new_data.coins > 100_000_000;
+  const coins_overflow = Math.max(0, new_data.coins - 100_000_000);
 
-  if (is_wallet_overflown) {
-    new_data.bank += getBankAmountWithTax(new_data.coins - 100_000_000);
-    new_data.coins = 100_000_000;
-  }
+  if (coins_overflow) {
+    new_data.coins -= coins_overflow;
+    new_data.bank += getBankAmountWithTax(coins_overflow);
 
-  if (new_data.bank > 2_000_000_000 && is_wallet_overflown) {
-    new_data.bank = 0;
-    new_data.gems += 20;
+    const bank_overflow = Math.max(0, new_data.bank - 2_000_000_000);
+
+    if (bank_overflow) {
+      new_data.bank = bank_overflow;
+      new_data.gems += 20;
+    } else new_data.bank -= bank_overflow;
   }
 
   await prisma.user.upsert({
@@ -124,17 +126,17 @@ export const addToBank = async (id: string, amount: number) => {
 
   new_data.bank += getBankAmountWithTax(amount);
 
-  const is_bank_overflown = new_data.bank > 2_000_000_000;
+  const bank_overflow = Math.max(0, new_data.bank - 2_000_000_000);
 
-  if (is_bank_overflown) {
-    new_data.coins += new_data.bank - 2_000_000_000;
-    new_data.bank = 2_000_000_000;
-  }
+  if (bank_overflow) {
+    new_data.coins += bank_overflow;
+    const coins_overflow = Math.max(0, new_data.coins - 100_000_000);
 
-  if (new_data.coins > 100_000_000 && is_bank_overflown) {
-    new_data.coins = 100_000_000;
-    new_data.bank = 0;
-    new_data.gems += 20;
+    if (coins_overflow) {
+      new_data.coins -= coins_overflow;
+      new_data.bank = coins_overflow;
+      new_data.gems += 20;
+    } else new_data.bank -= bank_overflow;
   }
 
   await prisma.user.upsert({
