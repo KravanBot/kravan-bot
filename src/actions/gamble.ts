@@ -109,7 +109,7 @@ export class Gamble {
                 Gamble.#good_emoji
               } - Earn your bet back\n- ${
                 Gamble.#bad_emoji
-              } - Half of your bet is being reduced\n\n🛡️ - costs 🪙 ${Math.max(this.#bet * 0.05, 1)} (5% of your bet), reduces 10% from all your losses`,
+              } - Half of your bet is being reduced\n\n🛡️ - costs 🪙 ${Math.max(Math.floor(this.#bet * 0.05), 1)} (5% of your bet), reduces 10% from all your losses`,
             )
             .setFields([
               {
