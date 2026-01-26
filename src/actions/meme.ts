@@ -5,7 +5,8 @@ import {
   ChatInputCommandInteraction,
   User,
 } from "discord.js";
-import { CustomEmbed } from "../utils/embed.js";
+import path from "node:path";
+import fs from "fs/promises";
 
 enum Memes {
   TAKE_MONEY,
@@ -45,8 +46,15 @@ export class Meme {
     })
     .set(Memes.COOKING, {
       name: "Cooking",
-      image:
-        "https://instagram.ftlv6-1.fna.fbcdn.net/v/t51.29350-15/394556382_287308694224822_9173530909992844440_n.jpg?stp=dst-jpg_e35_tt6&efg=eyJ2ZW5jb2RlX3RhZyI6IkZFRUQuaW1hZ2VfdXJsZ2VuLjc1MHg3NDQuc2RyLmYyOTM1MC5kZWZhdWx0X2ltYWdlLmMyIn0&_nc_ht=instagram.ftlv6-1.fna.fbcdn.net&_nc_cat=110&_nc_oc=Q6cZ2QGupJt_yqAMObPHvWQDJR6kByHuCRbWzV3_xW0vsj2ZwOf7IgLYPyjTgUKcseQll-s&_nc_ohc=l--Iye8Wm9kQ7kNvwEpAxC6&_nc_gid=dT4xlwvtRN_bxUlfjrtSJg&edm=APs17CUBAAAA&ccb=7-5&ig_cache_key=MzIyMDMwNjEzNzAzMDc3NjI2OA%3D%3D.3-ccb7-5&oh=00_AfofUGJugiFm2qdv86UF4ZyWhz2aInhWtBToK5r37ipjoA&oe=69769A49&_nc_sid=10d13b",
+      image: path.join(
+        import.meta.dirname,
+        "..",
+        "..",
+        "..",
+        "assets",
+        "memes",
+        "cooking.jpg",
+      ),
       avatars: [
         {
           x: 145,
@@ -253,7 +261,9 @@ export class Meme {
   }
 
   async #createCanvas() {
-    const background = await loadImage(this.#meme.image);
+    const background = this.#meme.image.startsWith("http")
+      ? await loadImage(this.#meme.image)
+      : await loadImage(await fs.readFile(this.#meme.image));
 
     const canvas = createCanvas(background.width, background.height);
     const context = canvas.getContext("2d");
