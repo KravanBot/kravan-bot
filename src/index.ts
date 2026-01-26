@@ -20,11 +20,13 @@ import {
   getTop5Richest,
   getUserCoins,
   hasEnoughCoins,
+  hasItem,
   isInJail,
   takeCoins,
   takeFromBank,
   updateAndReturnDaily,
   updateTheft,
+  useItem,
 } from "./db/prisma.js";
 import { Gamble } from "./actions/gamble.js";
 import { Lottery } from "./actions/lottery.js";
@@ -849,11 +851,26 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         break;
       }
 
-      // case "give": {
-      //   const item = parseInt(interaction.options.getString("item", true))
-      //   const target = interaction.options.getUser("target", true);
+      case "give": {
+        const item = parseInt(interaction.options.getString("item", true));
+        const target = interaction.options.getUser("target", true);
 
-      // }
+        if (target.id == interaction.user.id || target.bot) return;
+
+        if (!(await hasItem(interaction.user.id, item)).success)
+          return await interaction.reply("YOU DO NO OWN THAT ITEM");
+
+        if (!(await addItem(target.id, item, 1)))
+          return await interaction.reply("TARGET IS CAPPED");
+
+        await useItem(interaction.user.id, item);
+
+        await interaction.reply(
+          `${userMention(interaction.user.id)} GAVE ${userMention(target.id)} A ${Store.ITEMS.get(item)?.name}!!!`,
+        );
+
+        break;
+      }
     }
   } catch (e: any) {
     await interaction.reply(JSON.parse(e.message));

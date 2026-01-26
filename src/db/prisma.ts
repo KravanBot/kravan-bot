@@ -371,7 +371,7 @@ export const addItem = async (id: string, value: number, quantity: number) => {
   return true;
 };
 
-export const useItem = async (id: string, value: number) => {
+export const hasItem = async (id: string, value: number) => {
   const existing = await prisma.user.findUnique({
     select: {
       items: true,
@@ -381,14 +381,23 @@ export const useItem = async (id: string, value: number) => {
     },
   });
 
-  if (!existing?.items.includes(value)) return false;
+  if (!existing?.items.includes(value))
+    return { success: false, items: existing?.items ?? [] };
 
-  existing.items.splice(existing.items.findIndex((el) => el == value)!, 1);
+  return { success: true, items: existing.items };
+};
+
+export const useItem = async (id: string, value: number) => {
+  const { success, items } = await hasItem(id, value);
+
+  if (!success) return false;
+
+  items.splice(items.findIndex((el) => el == value)!, 1);
 
   await prisma.user.update({
     data: {
       items: {
-        set: existing.items,
+        set: items,
       },
     },
     where: {
