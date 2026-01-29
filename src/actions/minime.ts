@@ -127,13 +127,18 @@ export class MiniMe {
     if (response == "no") return await this.#interaction.deleteReply();
 
     if (!(await hasEnoughCoins(this.#interaction.user.id, MiniMe.#COST)))
-      return await this.#interaction.reply({
+      return await this.#interaction.editReply({
         content: "You dont have enough in ur wallet!",
         components: [],
       });
 
     await takeCoins(this.#interaction.user.id, MiniMe.#COST);
     await putOnMinime(this.#interaction.user.id, { base: 1 });
+
+    await this.#interaction.editReply({
+      content: "SUCCESSFULLY UNLOCKED YOUR MINIME!!",
+      components: [],
+    });
   }
 
   async #sendCanvas() {
