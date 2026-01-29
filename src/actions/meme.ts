@@ -17,7 +17,6 @@ enum Memes {
   BROKE,
   CHASE,
   OMEN,
-  RAW,
   DOUPLEGANGER,
   RIP,
   IDK,
@@ -114,49 +113,34 @@ export class Meme {
     })
     .set(Memes.CHASE, {
       name: "Chase",
-      image:
-        "https://scontent.ftlv5-1.fna.fbcdn.net/v/t1.6435-9/157375125_10158379186214822_5596869456124347766_n.png?_nc_cat=107&ccb=1-7&_nc_sid=127cfc&_nc_ohc=7J2HRaMtAeoQ7kNvwGrQ1pW&_nc_oc=Adl7jCwGxH9D5WmtWMKEq5xtqo3DaGZQNrxdvk21rO0SFwCtH2RSrd7iGk4MTaK9ChM&_nc_zt=23&_nc_ht=scontent.ftlv5-1.fna&_nc_gid=TQiCiKx2wDloXki_q23Jzg&oh=00_AfrQUMmAw3bDvH7B0H5ik2lxmY5oL708eP5M1_wH0LaFdg&oe=6998A7FF",
+      image: "https://i.imgflip.com/2wpud7.png",
       avatars: [
         {
-          x: 235,
-          y: 120,
-          size: 105,
+          x: 245,
+          y: 100,
+          size: 100,
         },
         {
-          x: 367,
-          y: 297,
-          size: 105,
+          x: 375,
+          y: 270,
+          size: 100,
         },
       ],
     })
     .set(Memes.OMEN, {
       name: "Omen",
-      image:
-        "https://media.discordapp.net/attachments/1439321657108861050/1463871549315485801/966FAE68-5CEE-49E4-8024-A85A0D8A4BD3.jpg?ex=6973681e&is=6972169e&hm=dd90e314d7a3b402b5b95913aca9657f19385de5d5f330ccb195bd98041c5cf7&=&format=webp&width=437&height=470",
+      image: "https://i.imgflip.com/aipc1v.jpg",
       avatars: [
         {
-          x: 150,
-          y: 40,
+          x: 200,
+          y: 65,
           size: 100,
-        },
-      ],
-    })
-    .set(Memes.RAW, {
-      name: "Raw",
-      image:
-        "https://cdn.discordapp.com/attachments/1439321657108861050/1463924560066777161/iu_.png?ex=6973997d&is=697247fd&hm=a6467028f08dc1bd0db224e3405632ddca3c6ee976f40ef42c7d13b19bfec331&",
-      avatars: [
-        {
-          x: 820,
-          y: 0,
-          size: 465,
         },
       ],
     })
     .set(Memes.DOUPLEGANGER, {
       name: "Doupleganger",
-      image:
-        "https://media.discordapp.net/attachments/1439321657108861050/1463926699841425470/1tkjq9.png?ex=69739b7b&is=697249fb&hm=d307e8b1a8c0fb813c47d015244c4b599aa1b7c2336392b5c8ad57a4b804ea30&=&format=webp&quality=lossless&width=880&height=495",
+      image: "https://i.imgflip.com/1tkjq9.jpg",
       avatars: [
         {
           x: 190,
@@ -188,13 +172,12 @@ export class Meme {
     })
     .set(Memes.IDK, {
       name: "Idk man",
-      image:
-        "https://media.discordapp.net/attachments/1439321657108861050/1463927495131791604/1lj6ra.png?ex=69739c39&is=69724ab9&hm=824da5e70070b2beddc73c4796f6d8e9faa32ed3234b6b29c61aa4ca11654899&=&format=webp&quality=lossless&width=422&height=344",
+      image: "https://i.imgflip.com/1lj6ra.jpg",
       avatars: [
         {
-          x: 150,
-          y: 35,
-          size: 125,
+          x: 158,
+          y: 30,
+          size: 130,
         },
       ],
     })
@@ -211,17 +194,16 @@ export class Meme {
     })
     .set(Memes.GIVE_UP, {
       name: "Give Up",
-      image:
-        "https://media.discordapp.net/attachments/1459659790417399960/1464190289941102592/hq720.png?ex=697490f8&is=69733f78&hm=29e4f6ae3d4eb366e18ef1b88fe6d8011f786bda4e434a0a7ab75f2e68e896c7&=&format=webp&quality=lossless&width=755&height=425",
+      image: "https://i.imgflip.com/5lc1pb.jpg",
       avatars: [
         {
-          x: 160,
-          y: 65,
+          x: 144,
+          y: 88,
           size: 50,
         },
         {
-          x: 360,
-          y: 230,
+          x: 322,
+          y: 248,
           size: 50,
         },
       ],

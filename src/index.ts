@@ -37,6 +37,7 @@ import { Steal } from "./actions/steal.js";
 import { Store } from "./actions/store.js";
 import { getRandomFromArray, validateNotInJail } from "./utils/helpers.js";
 import { Meme } from "./actions/meme.js";
+import { MiniMe } from "./actions/minime.js";
 
 configDotenv();
 
@@ -279,6 +280,14 @@ const commands = [
           })),
         )
         .setRequired(true),
+    ),
+  new SlashCommandBuilder()
+    .setName("mini-me")
+    .setDescription("The user's mini-me")
+    .addUserOption((option) =>
+      option
+        .setName("target")
+        .setDescription("mention the person u want to see their mini-me"),
     ),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
@@ -883,6 +892,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await interaction.reply(
           `${userMention(interaction.user.id)} GAVE ${userMention(target.id)} A ${Store.ITEMS.get(item)?.name}!!!`,
         );
+
+        break;
+      }
+
+      case "mini-me": {
+        new MiniMe(interaction);
 
         break;
       }
