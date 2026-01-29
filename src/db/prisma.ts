@@ -2,6 +2,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
 import { diffInMinutes } from "../utils/helpers.js";
 import moment from "moment";
+import { JsonObject } from "@prisma/client/runtime/client";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 
@@ -459,6 +460,35 @@ export const putInJail = async (id: string) => {
     },
     update: {
       jail: date,
+    },
+    where: {
+      id,
+    },
+  });
+};
+
+export const getMinime = async (id: string) => {
+  return (
+    await prisma.user.findUnique({
+      select: {
+        minime: true,
+      },
+      where: {
+        id,
+      },
+    })
+  )?.minime as JsonObject | null;
+};
+
+export const putOnMinime = async (id: string, data: Object) => {
+  const prev = (await getMinime(id)) ?? {};
+
+  await prisma.user.update({
+    data: {
+      minime: {
+        ...prev,
+        ...data,
+      },
     },
     where: {
       id,

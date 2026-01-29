@@ -16,6 +16,7 @@ model User {
   last_theft DateTime?
   jail DateTime?
   items Int[] @default([])
+  minime Json?
 }
 
 model Jackpot {

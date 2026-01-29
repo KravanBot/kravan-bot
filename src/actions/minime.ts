@@ -1,11 +1,22 @@
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import {
+  ActionRowBuilder,
   AttachmentBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   CacheType,
   ChatInputCommandInteraction,
 } from "discord.js";
 import fs from "fs/promises";
 import path from "path";
+import {
+  getMinime,
+  hasEnoughCoins,
+  prisma,
+  putOnMinime,
+  takeCoins,
+} from "../db/prisma.js";
+import { JsonObject } from "@prisma/client/runtime/client";
 
 export class MiniMe {
   static #PATH = path.join(
@@ -27,6 +38,7 @@ export class MiniMe {
     "mask",
     "hat",
   ];
+  static #COST = 10_000;
 
   #interaction: ChatInputCommandInteraction<CacheType>;
 
@@ -40,16 +52,9 @@ export class MiniMe {
 
   async #createCanvas() {
     // TODO: get from db
-    const customizables: Record<string, number | null> = {
-      base: 1,
-      wig: 1,
-      pants: 1,
-      hat: 1,
-      shirt: 2,
-      shoes: 1,
-    };
+    const customizables = await getMinime(this.#interaction.user.id);
 
-    if (!customizables["base"]) return null;
+    if (!customizables || !customizables["base"]) return null;
 
     const base = await loadImage(
       await fs.readFile(
@@ -90,10 +95,51 @@ export class MiniMe {
     return canvas;
   }
 
+  async #sendUnlock() {
+    const msg = await this.#interaction.reply({
+      content: `You havent unlocked your mini-me. Do you want to unlock it?`,
+      components: [
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setCustomId("yes")
+            .setLabel("Yes (🪙 10K)")
+            .setStyle(ButtonStyle.Success),
+
+          new ButtonBuilder()
+            .setCustomId("no")
+            .setLabel("No")
+            .setStyle(ButtonStyle.Danger),
+        ),
+      ],
+    });
+
+    let response = "no";
+
+    try {
+      response = (
+        await msg?.awaitMessageComponent({
+          filter: (i) => i.user.id === this.#interaction.user.id,
+          time: 60_000,
+        })
+      ).customId;
+    } catch {}
+
+    if (response == "no") return await this.#interaction.deleteReply();
+
+    if (!(await hasEnoughCoins(this.#interaction.user.id, MiniMe.#COST)))
+      return await this.#interaction.reply({
+        content: "You dont have enough in ur wallet!",
+        components: [],
+      });
+
+    await takeCoins(this.#interaction.user.id, MiniMe.#COST);
+    await putOnMinime(this.#interaction.user.id, { base: 1 });
+  }
+
   async #sendCanvas() {
     const canvas = await this.#createCanvas();
 
-    if (!canvas) return;
+    if (!canvas) return await this.#sendUnlock();
 
     const attachment_name = "avatar.png";
 
