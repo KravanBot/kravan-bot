@@ -7,7 +7,7 @@ import {
   Interaction,
   userMention,
   Guild,
-  InteractionReplyOptions,
+  GuildMemberRoleManager,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -510,6 +510,28 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         {
           const result = await getTop5Richest();
           const usernames: Map<string, string> = new Map();
+
+          if (result.length) {
+            const FIRST_PLACE_ROLE_ID = "1466805806346535097";
+
+            try {
+              const guild = interaction.guild!;
+
+              const role = guild.roles.cache.get(FIRST_PLACE_ROLE_ID)!;
+
+              const current_first_place = role.members.at(0)!;
+              const new_first_place = guild.members.cache.get(
+                result.at(0)!.id,
+              )!;
+
+              if (current_first_place.id != new_first_place.id) {
+                await current_first_place.roles.remove(FIRST_PLACE_ROLE_ID);
+                await new_first_place.roles.add(FIRST_PLACE_ROLE_ID);
+              }
+            } catch (e) {
+              console.log(e);
+            }
+          }
 
           for (const user of result)
             usernames.set(

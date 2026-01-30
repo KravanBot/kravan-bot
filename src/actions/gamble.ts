@@ -182,16 +182,18 @@ export class Gamble {
       const value = counts.get(emoji) ?? 0;
       let sum = 0;
 
-      sum +=
-        emoji == Gamble.#good_emoji
-          ? value * this.#bet
-          : emoji == Gamble.#bad_emoji
-            ? -value * (Math.floor(this.#bet / 2) + (this.#bet % 2))
-            : 0;
+      const is_emoji_good = emoji == Gamble.#good_emoji;
+      const is_emoji_bad = emoji == Gamble.#bad_emoji;
+
+      sum += is_emoji_good
+        ? value * this.#bet
+        : is_emoji_bad
+          ? value * (Math.floor(this.#bet / 2) + (this.#bet % 2))
+          : 0;
 
       sum += value >= 3 ? this.#bet * Math.pow(2, value - 2) : 0;
 
-      return sum;
+      return sum * (is_emoji_bad ? -1 : 1);
     };
 
     const results = Array.from(
