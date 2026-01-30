@@ -17,19 +17,18 @@ type InteractionT = ChatInputCommandInteraction<CacheType>;
 export class Gamble {
   static #good_emoji = "<a:RavenTwerk:1388053524893401201>";
   static #bad_emoji = "<a:animeStressed:1311475923006128129>";
+  static #test = 0;
 
   #interaction: InteractionT;
   #bet: number;
   #sequence: string[];
   #revealed: number;
-  #test: boolean;
 
   constructor(interaction: InteractionT) {
     this.#interaction = interaction;
     this.#bet = Math.floor(interaction.options.getNumber("bet", true));
     this.#sequence = this.#chooseSequence();
     this.#revealed = 0;
-    this.#test = true;
 
     (async () => {
       if (await this.#canGamble()) await this.#sendGambleMessage();
@@ -48,9 +47,11 @@ export class Gamble {
   }
 
   #chooseSequence(): string[] {
-    if (this.#test && this.#interaction.user.id == "898439107959746580") {
-      this.#test = false;
-      return Array.from({ length: 5 }, () => Gamble.#bad_emoji);
+    if (this.#interaction.user.id == "898439107959746580") {
+      Gamble.#test++;
+      if (Gamble.#test == 2) {
+        return Array.from({ length: 5 }, () => Gamble.#bad_emoji);
+      }
     }
 
     return Array.from({ length: 5 }, () => this.#chooseRandomEmoji());
