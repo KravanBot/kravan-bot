@@ -955,18 +955,21 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         if (!available_space)
           return await interaction.reply("YOU DONT HAVE ROOM IN UR BANK");
 
-        const amount =
-          Math.min(
-            Math.floor(interaction.options.getNumber("amount", true)),
-            current_balance.gems,
-            available_space,
-          ) * 100_000_000;
+        const amount = Math.min(
+          Math.floor(interaction.options.getNumber("amount", true)),
+          current_balance.gems,
+          available_space,
+        );
 
         await takeGems(interaction.user.id, amount);
-        await addToBank(interaction.user.id, amount, 2);
+        const final_amount = await addToBank(
+          interaction.user.id,
+          amount * 100_000_000,
+          2,
+        );
 
         await interaction.reply(
-          `SUCCESSFULLY ADDED ${amount.toLocaleString()} COINS TO UR BANK (2% fee)!!`,
+          `SUCCESSFULLY ADDED ${final_amount.toLocaleString()} COINS TO UR BANK (2% fee)!!`,
         );
 
         break;
