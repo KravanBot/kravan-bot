@@ -50,6 +50,7 @@ export const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
     GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.GuildMembers,
     GatewayIntentBits.MessageContent,
   ],
 });
@@ -516,8 +517,9 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
             try {
               const guild = interaction.guild!;
+              await guild.members.fetch();
 
-              const role = guild.roles.cache.get(FIRST_PLACE_ROLE_ID)!;
+              const role = (await guild.roles.fetch(FIRST_PLACE_ROLE_ID))!;
 
               const current_first_place = role.members.at(0)!;
               const new_first_place = guild.members.cache.get(
