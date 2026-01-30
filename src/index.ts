@@ -969,7 +969,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         );
 
         await interaction.reply(
-          `SUCCESSFULLY ADDED ${final_amount.toLocaleString()} COINS TO UR BANK (2% fee)!!`,
+          `SUCCESSFULLY SELLED ${amount} GEMS!! ${final_amount.toLocaleString()} COINS WERE ADDED TO UR BANK (2% fee)!!`,
         );
 
         break;
