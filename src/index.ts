@@ -591,14 +591,14 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           );
 
         await takeCoins(from.id, amount);
-        await addCoins(to.id, amount);
+        await addCoins(to.id, Math.floor(amount * 0.9));
 
         await interaction.reply(
           `WOW YOU ARE SO SWEET ${userMention(from.id)}! ${
             from.displayName
           } gave ${userMention(
             to.id,
-          )} ${amount.toLocaleString()} coins 🪙\n\n(Exucse me im gonna tear up 🥹)`,
+          )} ${Math.floor(amount * 0.9).toLocaleString()} coins (10% fee) 🪙\n\n(Exucse me im gonna tear up 🥹)`,
         );
 
         break;
