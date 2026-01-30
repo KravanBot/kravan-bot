@@ -13,6 +13,7 @@ import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
 import {
   addCoins,
+  addGems,
   addItem,
   addToBank,
   getInventory,
@@ -35,7 +36,7 @@ import { CustomEmbed } from "./utils/embed.js";
 import { Leveling } from "./actions/leveling.js";
 import { configDotenv } from "dotenv";
 import { Steal } from "./actions/steal.js";
-import { Store } from "./actions/store.js";
+import { ItemId, Store } from "./actions/store.js";
 import { getRandomFromArray, validateNotInJail } from "./utils/helpers.js";
 import { Meme } from "./actions/meme.js";
 import { MiniMe } from "./actions/minime.js";
@@ -674,7 +675,9 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         if (!(await hasEnoughCoins(interaction.user.id, total)))
           return await interaction.reply("U TOO BROKE TO BUY DIS MUCH");
 
-        if (!(await addItem(interaction.user.id, value, quantity)))
+        if (value == ItemId.DIAMOND)
+          await addGems(interaction.user.id, quantity);
+        else if (!(await addItem(interaction.user.id, value, quantity)))
           return await interaction.reply("INVENTORY CAN HAVE MAX 100 ITEMS");
 
         await takeCoins(interaction.user.id, total);

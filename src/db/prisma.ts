@@ -211,6 +211,27 @@ export const takeFromBank = async (id: string, amount: number) => {
   return Math.abs(new_data.bank - current_data.bank);
 };
 
+export const addGems = async (id: string, amount: number) => {
+  const current_data = await getUserCoins(id);
+  const new_data = { ...current_data };
+
+  new_data.gems += amount;
+
+  await prisma.user.upsert({
+    select: {
+      coins: true,
+    },
+    update: new_data,
+    create: {
+      id,
+      ...new_data,
+    },
+    where: {
+      id,
+    },
+  });
+};
+
 export const takeGems = async (id: string, amount: number) => {
   const current_data = await getUserCoins(id);
   const new_data = { ...current_data };
