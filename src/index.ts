@@ -290,6 +290,18 @@ const commands = [
         .setName("target")
         .setDescription("mention the person u want to see their mini-me"),
     ),
+
+  new SlashCommandBuilder()
+    .setName("sell")
+    .setDescription("Sell your gems and get coins")
+    .addNumberOption((option) =>
+      option
+        .setName("amount")
+        .setDescription("The amount of gems you want to convert")
+        .setMinValue(1)
+        .setMaxValue(20)
+        .setRequired(true),
+    ),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
@@ -922,6 +934,35 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
       case "mini-me": {
         new MiniMe(interaction);
+
+        break;
+      }
+
+      case "sell": {
+        const current_balance = await getUserCoins(interaction.user.id);
+
+        if (!current_balance.gems)
+          return await interaction.reply("YOU DONT HAVE ANY GEMS BROKIE");
+
+        const available_space = Math.floor(
+          (2_000_000_000 - current_balance.bank) / 100_000_000,
+        );
+
+        if (!available_space)
+          return await interaction.reply("YOU DONT HAVE ROOM IN UR BANK");
+
+        const amount =
+          Math.min(
+            Math.floor(interaction.options.getNumber("amount", true)),
+            current_balance.gems,
+            available_space,
+          ) * 100_000_000;
+
+        await addToBank(interaction.user.id, amount, 2);
+
+        await interaction.reply(
+          `SUCCESSFULLY ADDED ${amount.toLocaleString()} COINS TO UR BANK (2% fee)!!`,
+        );
 
         break;
       }

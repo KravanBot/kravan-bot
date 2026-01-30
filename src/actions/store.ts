@@ -3,6 +3,7 @@ import { CustomEmbed } from "../utils/embed.js";
 export enum ItemId {
   ALARM = 1,
   BOUQUET,
+  DIAMOND,
 }
 
 export class Store {
@@ -25,6 +26,11 @@ export class Store {
       description:
         "Buy a bouquet of flowers (u can also give it to a special someone 🤗)",
       amount: 100,
+    })
+    .set(ItemId.DIAMOND, {
+      name: "💎 Gem",
+      description: "Get a shiny diamond",
+      amount: 100_000_000,
     });
 
   static getStoreEmbed() {

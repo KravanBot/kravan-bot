@@ -20,8 +20,8 @@ const prisma = new PrismaClient({ adapter }).$extends({
   },
 });
 
-const getBankAmountWithTax = (amount: number) => {
-  const taxRate = amount > 0 ? 0.95 : 1;
+const getBankAmountWithTax = (amount: number, tax_rate: number = 5) => {
+  const taxRate = amount > 0 ? 1 - tax_rate * 0.01 : 1;
   const finalAmount =
     amount > 0 ? Math.max(Math.floor(amount * taxRate), 1) : amount;
 
@@ -137,13 +137,17 @@ export const hasEnoughCoins = async (id: string, min: number) => {
   return data.coins >= min;
 };
 
-export const addToBank = async (id: string, amount: number) => {
+export const addToBank = async (
+  id: string,
+  amount: number,
+  tax_rate: number = 5,
+) => {
   if (amount === 0) return 0;
 
   const current_data = await getUserCoins(id);
   const new_data = { ...current_data };
 
-  new_data.bank += getBankAmountWithTax(amount);
+  new_data.bank += getBankAmountWithTax(amount, tax_rate);
 
   const bank_overflow = Math.max(0, new_data.bank - 2_000_000_000);
 
