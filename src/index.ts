@@ -24,6 +24,7 @@ import {
   isInJail,
   takeCoins,
   takeFromBank,
+  takeGems,
   updateAndReturnDaily,
   updateTheft,
   useItem,
@@ -958,6 +959,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             available_space,
           ) * 100_000_000;
 
+        await takeGems(interaction.user.id, amount);
         await addToBank(interaction.user.id, amount, 2);
 
         await interaction.reply(
