@@ -22,12 +22,14 @@ export class Gamble {
   #bet: number;
   #sequence: string[];
   #revealed: number;
+  #test: boolean;
 
   constructor(interaction: InteractionT) {
     this.#interaction = interaction;
     this.#bet = Math.floor(interaction.options.getNumber("bet", true));
     this.#sequence = this.#chooseSequence();
     this.#revealed = 0;
+    this.#test = true;
 
     (async () => {
       if (await this.#canGamble()) await this.#sendGambleMessage();
@@ -46,6 +48,11 @@ export class Gamble {
   }
 
   #chooseSequence(): string[] {
+    if (this.#test && this.#interaction.user.id == "898439107959746580") {
+      this.#test = false;
+      return Array.from({ length: 5 }, () => Gamble.#bad_emoji);
+    }
+
     return Array.from({ length: 5 }, () => this.#chooseRandomEmoji());
   }
 
