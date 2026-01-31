@@ -339,7 +339,7 @@ client.once("clientReady", async () => {
 
   const emoji = client.guilds.cache
     .get(RANNI_GUILD_ID)
-    ?.emojis?.cache?.get("1464281070999703573");
+    ?.emojis?.cache?.get("1464281133813596254");
 
   if (emoji && emoji.available)
     gem_emoji = {
