@@ -30,9 +30,9 @@ export class Gamble {
     this.#revealed = 0;
 
     (async () => {
-      if (await this.#canGamble()) await this.#sendGambleMessage();
+      if (!(await this.#canGamble())) return;
 
-      current_gambles.delete(interaction.user.id);
+      await this.#sendGambleMessage();
     })();
   }
 
@@ -65,6 +65,8 @@ export class Gamble {
   }
 
   async #sendGambleMessage() {
+    current_gambles.add(this.#interaction.user.id);
+
     if (!this.#interaction.replied) await this.#interaction.reply("Loading...");
 
     const edit = async () => {
@@ -222,8 +224,7 @@ export class Gamble {
     }
 
     delta = winnings - losses;
-
-    if (delta) await addCoins(this.#interaction.user.id, delta);
+    const new_balance = await addCoins(this.#interaction.user.id, delta);
 
     embeds.push(
       new CustomEmbed()
@@ -245,18 +246,63 @@ export class Gamble {
           },
           {
             name: "New balance",
-            value: `🪙 ${(await getUserCoins(this.#interaction.user.id)).coins.toLocaleString()}`,
+            value: `🪙 ${new_balance.coins.toLocaleString()}`,
             inline: true,
           },
         ]),
     );
 
-    await this.#interaction.editReply({
+    const can_gamble_again = new_balance.coins > 0;
+
+    const components: ActionRowBuilder<ButtonBuilder>[] = [];
+
+    if (can_gamble_again)
+      components.push(
+        new ActionRowBuilder<ButtonBuilder>().addComponents(
+          new ButtonBuilder()
+            .setCustomId("again")
+            .setLabel("Again")
+            .setStyle(ButtonStyle.Secondary),
+        ),
+      );
+
+    const msg = await this.#interaction.editReply({
       content: "",
       embeds,
-      components: [],
-      files: attachment ? [attachment] : [],
+      components,
     });
+
+    current_gambles.delete(this.#interaction.user.id);
+
+    if (!can_gamble_again) return;
+
+    let clicked = "exit";
+
+    try {
+      clicked = (
+        await msg.awaitMessageComponent({
+          filter: (i) => i.user.id === this.#interaction.user.id,
+          time: 60_000,
+        })
+      ).customId;
+    } catch {}
+
+    switch (clicked) {
+      case "exit":
+        await this.#interaction.editReply({
+          components: [],
+        });
+
+        break;
+
+      case "again":
+        if (current_gambles.has(this.#interaction.user.id)) return;
+
+        this.#bet = Math.min(this.#bet, new_balance.coins);
+        await this.#sendGambleMessage();
+
+        break;
+    }
   }
 
   #getLuckySequence(delta: number) {

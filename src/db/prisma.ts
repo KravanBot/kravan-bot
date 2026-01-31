@@ -32,6 +32,9 @@ export const addCoins = async (id: string, amount: number) => {
   if (amount < 0) return await takeCoins(id, amount);
 
   const current_data = await getUserCoins(id);
+
+  if (amount == 0) return { ...current_data, diff: 0 };
+
   const new_data = { ...current_data };
 
   new_data.coins += amount;
@@ -64,7 +67,7 @@ export const addCoins = async (id: string, amount: number) => {
     },
   });
 
-  return new_data.coins - current_data.coins;
+  return { ...new_data, diff: Math.abs(new_data.coins - current_data.coins) };
 };
 
 export const takeCoins = async (id: string, amount: number) => {
@@ -109,7 +112,7 @@ export const takeCoins = async (id: string, amount: number) => {
     },
   });
 
-  return Math.abs(new_data.coins - current_data.coins);
+  return { ...new_data, diff: Math.abs(new_data.coins - current_data.coins) };
 };
 
 export const getUserCoins = async (id: string) => {

@@ -58,7 +58,7 @@ export const client = new Client({
 });
 export let gem_emoji = { message: "💎", embed: "💎" };
 
-export const current_gambles: Map<string, Gamble> = new Map();
+export const current_gambles: Set<string> = new Set();
 
 const items_as_string_option = Array.from(Store.ITEMS).map(([id, data]) => ({
   name: data.name,
@@ -528,7 +528,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         if (current_gambles.has(interaction.user.id)) return;
 
-        current_gambles.set(interaction.user.id, new Gamble(interaction));
+        new Gamble(interaction);
 
         break;
 
@@ -756,7 +756,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           );
           const depositedAmount = await addToBank(
             interaction.user.id,
-            takenAmount,
+            takenAmount.diff,
           );
 
           await interaction.reply(
