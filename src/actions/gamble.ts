@@ -22,14 +22,26 @@ export class Gamble {
   #bet: number;
   #sequence: string[];
   #revealed: number;
+  #time: number;
 
-  constructor(interaction: InteractionT) {
+  constructor(interaction: InteractionT, time: number = 0) {
     this.#interaction = interaction;
-    this.#bet = Math.floor(interaction.options.getNumber("bet", true));
+    this.#bet = 0;
     this.#sequence = this.#chooseSequence();
     this.#revealed = 0;
+    this.#time = time;
 
     (async () => {
+      const balance = await getUserCoins(interaction.user.id);
+
+      this.#bet = Math.max(
+        Math.min(
+          Math.floor(interaction.options.getNumber("bet", true)),
+          balance.coins,
+        ),
+        1,
+      );
+
       if (!(await this.#canGamble())) return;
 
       await this.#sendGambleMessage();
@@ -74,11 +86,11 @@ export class Gamble {
 
       const components = [
         new ButtonBuilder()
-          .setCustomId("next")
+          .setCustomId(this.#getCustomId("next"))
           .setLabel("Reveal Next")
           .setStyle(ButtonStyle.Primary),
         new ButtonBuilder()
-          .setCustomId("all")
+          .setCustomId(this.#getCustomId("all"))
           .setLabel("Reveal All")
           .setStyle(ButtonStyle.Primary),
       ];
@@ -86,7 +98,7 @@ export class Gamble {
       if (is_first)
         components.push(
           new ButtonBuilder()
-            .setCustomId("cancel")
+            .setCustomId(this.#getCustomId("cancel"))
             .setLabel("Cancel")
             .setStyle(ButtonStyle.Danger),
         );
@@ -150,15 +162,15 @@ export class Gamble {
       interaction.deferUpdate();
 
       switch (interaction.customId) {
-        case "next":
+        case this.#getCustomId("next"):
           this.#revealed++;
           break;
 
-        case "all":
+        case this.#getCustomId("all"):
           this.#revealed = this.#sequence.length;
           break;
 
-        case "cancel":
+        case this.#getCustomId("cancel"):
           this.#revealed = -1;
           return false;
       }
@@ -260,7 +272,7 @@ export class Gamble {
       components.push(
         new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
-            .setCustomId("again")
+            .setCustomId(this.#getCustomId("again"))
             .setLabel("Again")
             .setStyle(ButtonStyle.Secondary),
         ),
@@ -295,11 +307,10 @@ export class Gamble {
 
         break;
 
-      case "again":
+      case this.#getCustomId("again"):
         if (current_gambles.has(this.#interaction.user.id)) return;
 
-        this.#bet = Math.min(this.#bet, new_balance.coins);
-        await this.#sendGambleMessage();
+        new Gamble(this.#interaction, this.#time + 1);
 
         break;
     }
@@ -414,5 +425,9 @@ export class Gamble {
         ? new AttachmentBuilder(selected.img).setName(attachment_name)
         : undefined,
     };
+  }
+
+  #getCustomId(id: string) {
+    return `${id}-${this.#time}`;
   }
 }
