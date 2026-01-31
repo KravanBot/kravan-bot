@@ -264,29 +264,20 @@ export class Gamble {
         ]),
     );
 
-    const can_gamble_again = new_balance.coins > 0;
-
-    const components: ActionRowBuilder<ButtonBuilder>[] = [];
-
-    if (can_gamble_again)
-      components.push(
+    const msg = await this.#interaction.editReply({
+      content: "",
+      embeds,
+      components: [
         new ActionRowBuilder<ButtonBuilder>().addComponents(
           new ButtonBuilder()
             .setCustomId(this.#getCustomId("again"))
             .setLabel("Again")
             .setStyle(ButtonStyle.Secondary),
         ),
-      );
-
-    const msg = await this.#interaction.editReply({
-      content: "",
-      embeds,
-      components,
+      ],
     });
 
     current_gambles.delete(this.#interaction.user.id);
-
-    if (!can_gamble_again) return;
 
     let clicked = "exit";
 
