@@ -34,6 +34,7 @@ export class MiniMe {
     "shoes",
     "pants",
     "shirt",
+    "bracelet",
     "expression",
     "mask",
     "hat",
