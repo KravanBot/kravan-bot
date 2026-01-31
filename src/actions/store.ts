@@ -1,3 +1,4 @@
+import { gem_emoji } from "../index.js";
 import { CustomEmbed } from "../utils/embed.js";
 
 export enum ItemId {
@@ -35,11 +36,11 @@ export class Store {
 
   static getStoreEmbed() {
     return new CustomEmbed()
-      .setDescription("Buy cool stuff here lol")
+      .setDescription("Items/Perks that u can use (and give)")
       .setColor(0x8f34eb)
       .setFields(
         Array.from(this.ITEMS.values()).map((item) => ({
-          name: `${item.name} (🪙 ${item.amount.toLocaleString()})`,
+          name: `${item.name.replaceAll("💎", gem_emoji.embed)} (🪙 ${item.amount.toLocaleString()})`,
           value: `${item.description}`,
           inline: true,
         })),

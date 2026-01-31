@@ -56,6 +56,7 @@ export const client = new Client({
     GatewayIntentBits.MessageContent,
   ],
 });
+export let gem_emoji = { message: "💎", embed: "💎" };
 
 export const current_gambles: Map<string, Gamble> = new Map();
 
@@ -336,6 +337,16 @@ client.once("clientReady", async () => {
   lottery = new Lottery();
   new Leveling();
 
+  const emoji = client.guilds.cache
+    .get(RANNI_GUILD_ID)
+    ?.emojis?.cache?.get("1464281070999703573");
+
+  if (emoji && emoji.available)
+    gem_emoji = {
+      message: `:${emoji.name}:`,
+      embed: `<:${emoji.name}:${emoji.id}>`,
+    };
+
   console.log("All set!");
 });
 
@@ -491,7 +502,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                 },
                 {
                   name: "🔒 Vault",
-                  value: `💎 ${data.gems.toLocaleString()} gems`,
+                  value: `${gem_emoji.embed} ${data.gems.toLocaleString()} gems`,
                   inline: true,
                 },
               ])
@@ -575,7 +586,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                             ? " 🥉"
                             : ""
                     } ${usernames.get(user.id)}`,
-                    value: `👛 ${user.coins.toLocaleString()}\n🏦 ${user.bank.toLocaleString()}\n💎 ${user.gems.toLocaleString()} \n💸 ${user.total.toLocaleString()}`,
+                    value: `👛 ${user.coins.toLocaleString()}\n🏦 ${user.bank.toLocaleString()}\n${gem_emoji.embed} ${user.gems.toLocaleString()} \n💸 ${user.total.toLocaleString()}`,
                     inline: true,
                   })),
                 )
@@ -683,7 +694,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await takeCoins(interaction.user.id, total);
 
         await interaction.reply(
-          `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}" ${quantity} TIMES FOR ${total.toLocaleString()} COINS!!`,
+          `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase().replaceAll("💎", gem_emoji.message)}" ${quantity} TIMES FOR ${total.toLocaleString()} COINS!!`,
         );
 
         break;
