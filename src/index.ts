@@ -800,7 +800,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           );
 
           await interaction.reply(
-            `Withdrew 🪙 ${added_amount.toLocaleString()} into your wallet!`,
+            `Withdrew 🪙 ${added_amount.diff.toLocaleString()} into your wallet!`,
           );
         } catch (error) {
           await interaction.reply(
