@@ -41,9 +41,12 @@ export class MiniMe {
   static #COST = 10_000;
 
   #interaction: ChatInputCommandInteraction<CacheType>;
+  #target_id: string;
 
   constructor(interaction: ChatInputCommandInteraction<CacheType>) {
     this.#interaction = interaction;
+    this.#target_id =
+      interaction.options.getUser("target")?.id ?? interaction.user.id;
 
     (async () => {
       await this.#sendCanvas();
@@ -51,8 +54,7 @@ export class MiniMe {
   }
 
   async #createCanvas() {
-    // TODO: get from db
-    const customizables = await getMinime(this.#interaction.user.id);
+    const customizables = await getMinime(this.#target_id);
 
     if (!customizables || !customizables["base"]) return null;
 
@@ -144,7 +146,12 @@ export class MiniMe {
   async #sendCanvas() {
     const canvas = await this.#createCanvas();
 
-    if (!canvas) return await this.#sendUnlock();
+    if (!canvas) {
+      if (this.#interaction.user.id == this.#target_id)
+        return await this.#sendUnlock();
+
+      return await this.#interaction.reply("TARGET DID NOT UNLOCK HIS MINIME");
+    }
 
     const attachment_name = "avatar.png";
 
