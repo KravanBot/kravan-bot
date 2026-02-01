@@ -706,7 +706,10 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           ItemId.DIAMOND,
         ].includes(value);
 
-        if (!can_have_multiple && (await hasItem(interaction.user.id, value)))
+        if (
+          !can_have_multiple &&
+          (await hasItem(interaction.user.id, value)).success
+        )
           return await interaction.reply("YOU ALREADY OWN THIS ITEM!");
 
         if (item.currency == Currency.COIN)
