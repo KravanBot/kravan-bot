@@ -36,7 +36,7 @@ import { CustomEmbed } from "./utils/embed.js";
 import { Leveling } from "./actions/leveling.js";
 import { configDotenv } from "dotenv";
 import { Steal } from "./actions/steal.js";
-import { ItemId, Store } from "./actions/store.js";
+import { Currency, ItemId, Store } from "./actions/store.js";
 import { getRandomFromArray, validateNotInJail } from "./utils/helpers.js";
 import { Meme } from "./actions/meme.js";
 import { MiniMe } from "./actions/minime.js";
@@ -664,7 +664,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
       case "store":
         await interaction.reply({
-          embeds: [Store.getStoreEmbed()],
+          embeds: Store.getStoreEmbeds(),
         });
 
         break;
@@ -687,8 +687,13 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         const total = item.amount * quantity;
 
-        if (!(await hasEnoughCoins(interaction.user.id, total)))
-          return await interaction.reply("U TOO BROKE TO BUY DIS MUCH");
+        const data = await getUserCoins(interaction.user.id);
+
+        if (
+          (item.currency == Currency.COIN && data.coins < total) ||
+          (item.currency == Currency.GEM && data.gems < total)
+        )
+          return await interaction.reply("U TOO BROKE TO BUY DIS");
 
         if (value == ItemId.DIAMOND)
           await addGems(interaction.user.id, quantity);
@@ -704,10 +709,15 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         if (!can_have_multiple && (await hasItem(interaction.user.id, value)))
           return await interaction.reply("YOU ALREADY OWN THIS ITEM!");
 
-        await takeCoins(interaction.user.id, total);
+        if (item.currency == Currency.COIN)
+          await takeCoins(interaction.user.id, total);
+        else await takeGems(interaction.user.id, total);
 
         await interaction.reply(
-          `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase().replaceAll("💎", gem_emoji.message)}" ${quantity} TIMES FOR ${total.toLocaleString()} COINS!!`,
+          `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}" ${quantity} TIMES FOR ${total.toLocaleString()} ${item.currency == Currency.COIN ? "COINS" : "GEMS"}!!`.replaceAll(
+            "💎",
+            gem_emoji.message,
+          ),
         );
 
         break;

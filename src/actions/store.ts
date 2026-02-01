@@ -9,9 +9,10 @@ export enum ItemId {
   BUBI,
   KRAVAN_HEART,
   PONGO,
+  COUNT,
 }
 
-enum Currency {
+export enum Currency {
   COIN,
   GEM,
 }
@@ -65,19 +66,38 @@ export class Store {
       currency: Currency.GEM,
     });
 
-  static getStoreEmbed() {
-    return new CustomEmbed()
-      .setDescription("Items/Perks that u can use (and give)")
-      .setColor(0x8f34eb)
-      .setFields(
-        Array.from(this.ITEMS.values()).map((item) => ({
-          name: `${item.name} (${item.currency == Currency.COIN ? "🪙" : "💎"} ${item.amount.toLocaleString()})`.replaceAll(
-            "💎",
-            gem_emoji.embed,
-          ),
-          value: `${item.description}`,
-          inline: true,
-        })),
-      );
+  static getStoreEmbeds() {
+    return [
+      new CustomEmbed()
+        .setDescription("Items/Perks that u can use (and give)")
+        .setColor(0x8f34eb)
+        .setFields(
+          Array.from(this.ITEMS.values())
+            .slice(0, ItemId.START_SHIRTS)
+            .map((item) => ({
+              name: `${item.name} (${item.currency == Currency.COIN ? "🪙" : "💎"} ${item.amount.toLocaleString()})`.replaceAll(
+                "💎",
+                gem_emoji.embed,
+              ),
+              value: `${item.description}`,
+              inline: true,
+            })),
+        ),
+      new CustomEmbed()
+        .setDescription("Shirts/Hoodies to buy for your mini-me")
+        .setColor(0x8f34eb)
+        .setFields(
+          Array.from(this.ITEMS.values())
+            .slice(ItemId.START_SHIRTS + 1, ItemId.COUNT)
+            .map((item) => ({
+              name: `${item.name} (${item.currency == Currency.COIN ? "🪙" : "💎"} ${item.amount.toLocaleString()})`.replaceAll(
+                "💎",
+                gem_emoji.embed,
+              ),
+              value: `${item.description}`,
+              inline: true,
+            })),
+        ),
+    ];
   }
 }
