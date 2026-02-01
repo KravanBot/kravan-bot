@@ -1032,21 +1032,23 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             "You did not unlock your minime! Use /mini-me to unlock it",
           );
 
+        const item = parseInt(interaction.options.getString("item", true));
+
         let type = "";
-        let item = parseInt(interaction.options.getString("item", true));
+        let item_offset = 0;
 
         if (!(await hasItem(interaction.user.id, item)).success)
           return await interaction.reply("YOU DONT OWN THIS ITEM");
 
         if (item > ItemId.START_SHIRTS) {
           type = "shirt";
-          item -= ItemId.START_SHIRTS;
+          item_offset = item - ItemId.START_SHIRTS;
         }
 
         await putOnMinime(
           interaction.user.id,
           {
-            [type]: item,
+            [type]: item_offset,
           },
           minime,
         );
