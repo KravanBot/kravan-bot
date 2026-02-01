@@ -32,7 +32,7 @@ export class Gamble {
   constructor(interaction: InteractionT, time: number = 0) {
     this.#interaction = interaction;
     this.#bet = 0;
-    this.#sequence = this.#chooseSequence();
+    this.#sequence = [];
     this.#revealed = 0;
     this.#time = time;
 
@@ -46,6 +46,7 @@ export class Gamble {
         ),
         1,
       );
+      this.#sequence = this.#chooseSequence();
 
       if (!(await this.#canGamble())) return;
 
