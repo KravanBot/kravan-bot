@@ -73,7 +73,7 @@ export class Gamble {
     if (random <= 0) return Gamble.#bad_emoji;
     if (random <= 1) return Gamble.#good_emoji;
 
-    const emojis = Gamble.#default_emojis;
+    const emojis = [...Gamble.#default_emojis];
 
     if (this.#bet >= 10_000) emojis.push("<a:Raven_Yes:1387726723285520394>");
 
