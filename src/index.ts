@@ -1033,12 +1033,15 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           );
 
         let type = "";
-        const item = parseInt(interaction.options.getString("item", true));
+        let item = parseInt(interaction.options.getString("item", true));
 
         if (!(await hasItem(interaction.user.id, item)).success)
           return await interaction.reply("YOU DONT OWN THIS ITEM");
 
-        if (item > ItemId.START_SHIRTS) type = "shirt";
+        if (item > ItemId.START_SHIRTS) {
+          type = "shirt";
+          item -= ItemId.START_SHIRTS;
+        }
 
         await putOnMinime(
           interaction.user.id,
