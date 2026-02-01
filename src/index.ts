@@ -675,11 +675,10 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await validateNotInJail(interaction.user.id);
 
         const value = parseInt(interaction.options.getString("item", true));
-        const quantity = Array.from(Store.ITEMS.keys())
-          .slice(0, ItemId.START_SHIRTS - 1)
-          .includes(value)
-          ? (interaction.options.getNumber("quantity", false) ?? 1)
-          : 1;
+        const quantity =
+          value <= ItemId.DIAMOND
+            ? (interaction.options.getNumber("quantity", false) ?? 1)
+            : 1;
 
         const item = Store.ITEMS.get(value);
 
@@ -695,22 +694,20 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         )
           return await interaction.reply("U TOO BROKE TO BUY DIS");
 
-        if (value == ItemId.DIAMOND)
-          await addGems(interaction.user.id, quantity);
-        else if (!(await addItem(interaction.user.id, value, quantity)))
-          return await interaction.reply("INVENTORY CAN HAVE MAX 100 ITEMS");
-
-        const can_have_multiple = [
-          ItemId.ALARM,
-          ItemId.BOUQUET,
-          ItemId.DIAMOND,
-        ].includes(value);
+        const can_have_multiple = [ItemId.ALARM, ItemId.BOUQUET].includes(
+          value,
+        );
 
         if (
           !can_have_multiple &&
           (await hasItem(interaction.user.id, value)).success
         )
           return await interaction.reply("YOU ALREADY OWN THIS ITEM!");
+
+        if (value == ItemId.DIAMOND)
+          await addGems(interaction.user.id, quantity);
+        else if (!(await addItem(interaction.user.id, value, quantity)))
+          return await interaction.reply("INVENTORY CAN HAVE MAX 100 ITEMS");
 
         if (item.currency == Currency.COIN)
           await takeCoins(interaction.user.id, total);
