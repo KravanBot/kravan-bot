@@ -85,10 +85,10 @@ export class Store {
         ),
       new CustomEmbed()
         .setDescription("Shirts/Hoodies to buy for your mini-me")
-        .setColor(0x8f34eb)
+        .setColor(0x34c6eb)
         .setFields(
           Array.from(this.ITEMS.values())
-            .slice(ItemId.START_SHIRTS + 1, ItemId.COUNT)
+            .slice(ItemId.START_SHIRTS, ItemId.COUNT)
             .map((item) => ({
               name: `${item.name} (${item.currency == Currency.COIN ? "🪙" : "💎"} ${item.amount.toLocaleString()})`.replaceAll(
                 "💎",
