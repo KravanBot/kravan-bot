@@ -136,7 +136,7 @@ export class MiniMe {
       });
 
     await takeCoins(this.#interaction.user.id, MiniMe.#COST);
-    await putOnMinime(this.#interaction.user.id, { base: 1 });
+    await putOnMinime(this.#interaction.user.id, { base: 1 }, {});
 
     await this.#interaction.editReply({
       content: "SUCCESSFULLY UNLOCKED YOUR MINIME!!",

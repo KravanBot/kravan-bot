@@ -554,9 +554,17 @@ export const getMinime = async (id: string) => {
   )?.minime as JsonObject | null;
 };
 
-export const putOnMinime = async (id: string, data: Object) => {
+export const fetchAndPutOnMinime = async (id: string, data: Object) => {
   const prev = (await getMinime(id)) ?? {};
 
+  await putOnMinime(id, data, prev);
+};
+
+export const putOnMinime = async (
+  id: string,
+  data: Object,
+  prev: JsonObject,
+) => {
   await prisma.user.update({
     data: {
       minime: {

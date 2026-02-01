@@ -18,11 +18,13 @@ import {
   addToBank,
   getInventory,
   getJackpot,
+  getMinime,
   getTop5Richest,
   getUserCoins,
   hasEnoughCoins,
   hasItem,
   isInJail,
+  putOnMinime,
   takeCoins,
   takeFromBank,
   takeGems,
@@ -303,6 +305,19 @@ const commands = [
         .setDescription("The amount of gems you want to convert")
         .setMinValue(1)
         .setMaxValue(20)
+        .setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("wear")
+    .setDescription("Put an item on your mini-me")
+    .addStringOption((option) =>
+      option
+        .setName("item")
+        .setDescription("The item to put")
+        .setChoices(
+          items_as_string_option.slice(ItemId.START_SHIRTS, ItemId.COUNT),
+        )
         .setRequired(true),
     ),
 ].map((cmd) => cmd.toJSON());
@@ -1004,6 +1019,37 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         await interaction.reply(
           `SUCCESSFULLY SOLD ${amount} GEMS!! ${final_amount.toLocaleString()} COINS WERE ADDED TO UR BANK (2% fee)!!`,
+        );
+
+        break;
+      }
+
+      case "wear": {
+        const minime = await getMinime(interaction.user.id);
+
+        if (!minime || !minime["base"])
+          return await interaction.reply(
+            "You did not unlock your minime! Use /mini-me to unlock it",
+          );
+
+        let type = "";
+        const item = parseInt(interaction.options.getString("item", true));
+
+        if (!(await hasItem(interaction.user.id, item)).success)
+          return await interaction.reply("YOU DONT OWN THIS ITEM");
+
+        if (item > ItemId.START_SHIRTS) type = "shirt";
+
+        await putOnMinime(
+          interaction.user.id,
+          {
+            [type]: item,
+          },
+          minime,
+        );
+
+        await interaction.reply(
+          `SUCCESSFULLY WORE ${Store.ITEMS.get(item)?.name}!`,
         );
 
         break;
