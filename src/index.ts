@@ -145,7 +145,7 @@ const commands = [
       option
         .setName("amount")
         .setDescription("The amount you want to donate")
-        .setMinValue(1)
+        .setMinValue(10)
         .setRequired(true),
     ),
 
@@ -192,7 +192,7 @@ const commands = [
       option
         .setName("item")
         .setDescription("The item to give")
-        .setChoices(...items_as_string_option)
+        .setChoices(...items_as_string_option.slice(0, ItemId.START_SHIRTS - 1))
         .setRequired(true),
     )
     .addUserOption((option) =>
@@ -219,7 +219,7 @@ const commands = [
         .setName("amount")
         .setDescription("The amount to deposit")
         .setMinValue(100)
-        .setMaxValue(100_000_000)
+        .setMaxValue(500_000_000)
         .setRequired(true),
     ),
 
@@ -231,7 +231,7 @@ const commands = [
         .setName("amount")
         .setDescription("The amount to withdraw")
         .setMinValue(100)
-        .setMaxValue(100_000_000)
+        .setMaxValue(500_000_000)
         .setRequired(true),
     ),
 
@@ -675,7 +675,11 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await validateNotInJail(interaction.user.id);
 
         const value = parseInt(interaction.options.getString("item", true));
-        const quantity = interaction.options.getNumber("quantity", false) ?? 1;
+        const quantity = Array.from(Store.ITEMS.keys())
+          .slice(0, ItemId.START_SHIRTS - 1)
+          .includes(value)
+          ? (interaction.options.getNumber("quantity", false) ?? 1)
+          : 1;
 
         const item = Store.ITEMS.get(value);
 
@@ -690,6 +694,15 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           await addGems(interaction.user.id, quantity);
         else if (!(await addItem(interaction.user.id, value, quantity)))
           return await interaction.reply("INVENTORY CAN HAVE MAX 100 ITEMS");
+
+        const can_have_multiple = [
+          ItemId.ALARM,
+          ItemId.BOUQUET,
+          ItemId.DIAMOND,
+        ].includes(value);
+
+        if (!can_have_multiple && (await hasItem(interaction.user.id, value)))
+          return await interaction.reply("YOU ALREADY OWN THIS ITEM!");
 
         await takeCoins(interaction.user.id, total);
 
@@ -783,10 +796,10 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             `You only have 🪙 ${data.bank.toLocaleString()} in your bank!`,
           );
 
-        const wallet_space = 100_000_000 - data.coins;
+        const wallet_space = 500_000_000 - data.coins;
         if (wallet_space <= 0)
           return await interaction.reply(
-            "Your wallet is full! (Max: 🪙 100,000,000)",
+            "Your wallet is full! (Max: 🪙 500,000,000)",
           );
 
         try {

@@ -39,7 +39,7 @@ export const addCoins = async (id: string, amount: number) => {
 
   new_data.coins += amount;
 
-  const coins_overflow = Math.max(0, new_data.coins - 100_000_000);
+  const coins_overflow = Math.max(0, new_data.coins - 500_000_000);
 
   if (coins_overflow) {
     new_data.coins -= coins_overflow;
@@ -156,7 +156,7 @@ export const addToBank = async (
 
   if (bank_overflow) {
     new_data.coins += bank_overflow;
-    const coins_overflow = Math.max(0, new_data.coins - 100_000_000);
+    const coins_overflow = Math.max(0, new_data.coins - 500_000_000);
 
     if (coins_overflow) {
       new_data.coins -= coins_overflow;

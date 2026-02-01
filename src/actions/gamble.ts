@@ -17,6 +17,11 @@ type InteractionT = ChatInputCommandInteraction<CacheType>;
 export class Gamble {
   static #good_emoji = "<a:RavenTwerk:1388053524893401201>";
   static #bad_emoji = "<a:animeStressed:1311475923006128129>";
+  static #default_emojis = [
+    "<:EvilSmile:1311471459641589790>",
+    "<a:evilcat:1432751141254467815>",
+    "<a:TOAAAD:1385075517904130129>",
+  ];
 
   #interaction: InteractionT;
   #bet: number;
@@ -67,13 +72,11 @@ export class Gamble {
     if (random <= 0) return Gamble.#bad_emoji;
     if (random <= 1) return Gamble.#good_emoji;
 
-    return getRandomFromArray([
-      // "<:Raven_RiP:1386395346057433301>",
-      "<:EvilSmile:1311471459641589790>",
-      "<a:evilcat:1432751141254467815>",
-      // "<a:stareShock:1385075817796734996>",
-      "<a:TOAAAD:1385075517904130129>",
-    ]);
+    const emojis = Gamble.#default_emojis;
+
+    if (this.#bet >= 10_000) emojis.push("<a:Raven_Yes:1387726723285520394>");
+
+    return getRandomFromArray(emojis);
   }
 
   async #sendGambleMessage() {
