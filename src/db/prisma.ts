@@ -480,18 +480,16 @@ export const useItem = async (id: string, value: number) => {
     if (minime?.[type] == value) delete minime[type];
   }
 
-  await prisma.user.update({
-    data: {
-      items: {
-        set: items,
-      },
-      minime:
-        minime != null
-          ? {
-              set: minime,
-            }
-          : {},
+  const data: Record<string, object> = {
+    items: {
+      set: items,
     },
+  };
+
+  if (minime != null) data.minime = minime;
+
+  await prisma.user.update({
+    data,
     where: {
       id,
     },
