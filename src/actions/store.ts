@@ -20,6 +20,8 @@ export enum ItemId {
 
   START_WIGS,
   MILES_MORALES,
+  SOKKA,
+  JANE_PORTER,
   TANGLED,
 
   START_HATS,
@@ -119,13 +121,13 @@ export class Store {
       amount: 5,
       currency: Currency.GEM,
     })
-    .set(ItemId.MILES_MORALES, {
+    .set(ItemId.SOKKA, {
       name: "🧊 Sokka",
       description: "Without the bun tho",
       amount: 5,
       currency: Currency.GEM,
     })
-    .set(ItemId.TANGLED, {
+    .set(ItemId.JANE_PORTER, {
       name: "🟫 Jane Porter",
       description: "Basically long brown hair",
       amount: 5,
