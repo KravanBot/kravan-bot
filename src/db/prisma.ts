@@ -471,17 +471,19 @@ export const useItem = async (id: string, value: number) => {
 
   items.splice(items.findIndex((el) => el == value)!, 1);
 
-  const { type } = Store.getItemType(value);
+  const { type, item_offset } = Store.getItemType(value);
   let minime: JsonObject | null = null;
 
   if (!items.includes(value)) {
     minime = await getMinime(id);
 
-    if (minime?.[type] == value) delete minime[type];
+    if (minime?.[type] == item_offset) delete minime[type];
   }
 
   const data: Record<string, object> = {
-    items,
+    items: {
+      set: items,
+    },
   };
 
   if (minime != null) data.minime = minime;
