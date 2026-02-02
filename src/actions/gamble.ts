@@ -218,7 +218,7 @@ export class Gamble {
           : this.#show_new_emoji &&
               value == 2 &&
               Array.from(counts.values()).filter((val) => val == 2).length == 2
-            ? Math.floor(this.#bet / 2)
+            ? this.#bet
             : 0;
 
       return sum * (is_emoji_bad ? -1 : 1);
