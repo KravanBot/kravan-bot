@@ -63,10 +63,12 @@ export let gem_emoji = { message: "💎", embed: "💎" };
 
 export const current_gambles: Set<string> = new Set();
 
-const items_as_string_option = Array.from(Store.ITEMS).map(([id, data]) => ({
-  name: data.name,
-  value: id.toString(),
-}));
+const items_as_string_option = Array.from(Store.ITEMS)
+  .filter(([_, data]) => !!data)
+  .map(([id, data]) => ({
+    name: data!.name,
+    value: id.toString(),
+  }));
 
 const commands = [
   new SlashCommandBuilder()

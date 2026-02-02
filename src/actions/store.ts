@@ -34,7 +34,7 @@ export class Store {
       description: string;
       amount: number;
       currency: Currency;
-    }
+    } | null
   >()
     .set(ItemId.ALARM, {
       name: "🚨 Alarm",
@@ -56,6 +56,7 @@ export class Store {
       amount: 100_000_000,
       currency: Currency.COIN,
     })
+    .set(ItemId.START_SHIRTS, null)
     .set(ItemId.BUBI, {
       name: "🐶 Bubi",
       description: "Teru's weird named dog",
@@ -74,6 +75,7 @@ export class Store {
       amount: 10,
       currency: Currency.GEM,
     })
+    .set(ItemId.START_PANTS, null)
     .set(ItemId.JEANS, {
       name: "👖 Jeans",
       description: "A basic pair of jeans",
@@ -86,22 +88,24 @@ export class Store {
       amount: 2,
       currency: Currency.GEM,
     })
+    .set(ItemId.START_SHOES, null)
     .set(ItemId.RED_SNEAKERS, {
       name: "👟 Red Sneakers",
       description: "Basic red sneakers",
       amount: 5,
       currency: Currency.GEM,
-    });
+    })
+    .set(ItemId.COUNT, null);
 
   static getStoreEmbeds() {
     const values = Array.from(this.ITEMS.values());
     const convertToFields = (arr: typeof values) =>
       arr.map((item) => ({
-        name: `${item.name} (${item.currency == Currency.COIN ? "🪙" : "💎"} ${item.amount.toLocaleString()})`.replaceAll(
+        name: `${item!.name} (${item!.currency == Currency.COIN ? "🪙" : "💎"} ${item!.amount.toLocaleString()})`.replaceAll(
           "💎",
           gem_emoji.embed,
         ),
-        value: `${item.description}`,
+        value: `${item!.description}`,
         inline: true,
       }));
 
@@ -116,7 +120,7 @@ export class Store {
         .setColor(0x34c6eb)
         .setFields(
           convertToFields(
-            values.slice(ItemId.START_SHIRTS, ItemId.START_PANTS),
+            values.slice(ItemId.START_SHIRTS + 1, ItemId.START_PANTS),
           ),
         ),
 
@@ -124,14 +128,16 @@ export class Store {
         .setDescription("Drip your mini-me with some pants")
         .setColor(0xabff24)
         .setFields(
-          convertToFields(values.slice(ItemId.START_PANTS, ItemId.START_SHOES)),
+          convertToFields(
+            values.slice(ItemId.START_PANTS + 1, ItemId.START_SHOES),
+          ),
         ),
 
       new CustomEmbed()
         .setDescription("One two buckle your mini-me's shoes")
         .setColor(0xff3324)
         .setFields(
-          convertToFields(values.slice(ItemId.START_SHOES, ItemId.COUNT)),
+          convertToFields(values.slice(ItemId.START_SHOES + 1, ItemId.COUNT)),
         ),
     ];
   }
