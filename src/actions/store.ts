@@ -18,6 +18,21 @@ export enum ItemId {
   START_SHOES,
   RED_SNEAKERS,
 
+  START_WIGS,
+
+  START_HATS,
+  PROPELLER,
+  SPROUT,
+
+  START_EXPRESSION,
+  BOTOX_LIPS,
+
+  START_BRACELET,
+  SNAKE,
+
+  START_MASK,
+  KRAVAN,
+
   COUNT,
 }
 
@@ -95,6 +110,41 @@ export class Store {
       amount: 5,
       currency: Currency.GEM,
     })
+    .set(ItemId.START_WIGS, null)
+    .set(ItemId.START_HATS, null)
+    .set(ItemId.PROPELLER, {
+      name: "🌀 Propeller",
+      description: "U might reach the sky with it",
+      amount: 5,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.SPROUT, {
+      name: "🌱 Sprout",
+      description: "A sprout coming out yo huge head",
+      amount: 2,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.START_EXPRESSION, null)
+    .set(ItemId.BOTOX_LIPS, {
+      name: "👄 Botox lips",
+      description: "Be careful with those...",
+      amount: 2,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.START_BRACELET, null)
+    .set(ItemId.SNAKE, {
+      name: "🐍 Snake",
+      description: "U know what to do with those next",
+      amount: 50,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.START_MASK, null)
+    .set(ItemId.KRAVAN, {
+      name: "🐦‍⬛ Kravan",
+      description: "A kravan mask",
+      amount: 100,
+      currency: Currency.GEM,
+    })
     .set(ItemId.COUNT, null);
 
   static getStoreEmbeds() {
@@ -135,9 +185,56 @@ export class Store {
 
       new CustomEmbed()
         .setDescription("One two buckle your mini-me's shoes")
-        .setColor(0xff3324)
+        .setColor(0xf5c63b)
         .setFields(
-          convertToFields(values.slice(ItemId.START_SHOES + 1, ItemId.COUNT)),
+          convertToFields(
+            values.slice(ItemId.START_SHOES + 1, ItemId.START_WIGS),
+          ),
+        ),
+
+      new CustomEmbed()
+        .setDescription(
+          "Put a wig on your mini-me u dont want it to be bald like ranni",
+        )
+        .setColor(0xfc7830)
+        .setFields(
+          convertToFields(
+            values.slice(ItemId.START_WIGS + 1, ItemId.START_HATS),
+          ),
+        ),
+
+      new CustomEmbed()
+        .setDescription("A cute hat/topper for your mini-me")
+        .setColor(0xff443d)
+        .setFields(
+          convertToFields(
+            values.slice(ItemId.START_HATS + 1, ItemId.START_EXPRESSION),
+          ),
+        ),
+
+      new CustomEmbed()
+        .setDescription("Add your mini-me an expression")
+        .setColor(0xff3665)
+        .setFields(
+          convertToFields(
+            values.slice(ItemId.START_EXPRESSION + 1, ItemId.START_BRACELET),
+          ),
+        ),
+
+      new CustomEmbed()
+        .setDescription("Wear something on your hand")
+        .setColor(0xff3665)
+        .setFields(
+          convertToFields(
+            values.slice(ItemId.START_BRACELET + 1, ItemId.START_MASK),
+          ),
+        ),
+
+      new CustomEmbed()
+        .setDescription("Hide your mini-me's ugly ahh face with a mask")
+        .setColor(0xff3665)
+        .setFields(
+          convertToFields(values.slice(ItemId.START_MASK + 1, ItemId.COUNT)),
         ),
     ];
   }
@@ -146,7 +243,25 @@ export class Store {
     let type = "";
     let result = 0;
 
-    if (item > ItemId.START_PANTS) {
+    if (item > ItemId.START_MASK) {
+      type = "mask";
+      result = ItemId.START_MASK;
+    } else if (item > ItemId.START_BRACELET) {
+      type = "bracelet";
+      result = ItemId.START_BRACELET;
+    } else if (item > ItemId.START_EXPRESSION) {
+      type = "expression";
+      result = ItemId.START_EXPRESSION;
+    } else if (item > ItemId.START_HATS) {
+      type = "hat";
+      result = ItemId.START_HATS;
+    } else if (item > ItemId.START_WIGS) {
+      type = "wig";
+      result = ItemId.START_WIGS;
+    } else if (item > ItemId.START_SHOES) {
+      type = "shoes";
+      result = ItemId.START_SHOES;
+    } else if (item > ItemId.START_PANTS) {
       type = "pants";
       result = ItemId.START_PANTS;
     } else if (item > ItemId.START_SHIRTS) {

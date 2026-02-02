@@ -719,7 +719,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         else await takeGems(interaction.user.id, total);
 
         await interaction.reply(
-          `SUCCESSFULLY PURCHASED THE "${item.name.toUpperCase()}" ${quantity} TIMES FOR ${total.toLocaleString()} ${item.currency == Currency.COIN ? "COINS" : "GEMS"}!!`.replaceAll(
+          `SUCCESSFULLY PURCHASED THE ${item.name.toUpperCase()} ${quantity} TIMES FOR ${total.toLocaleString()} ${item.currency == Currency.COIN ? "COINS" : "GEMS"}!!`.replaceAll(
             "💎",
             gem_emoji.message,
           ),
