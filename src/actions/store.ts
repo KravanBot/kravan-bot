@@ -5,10 +5,19 @@ export enum ItemId {
   ALARM,
   BOUQUET,
   DIAMOND,
+
   START_SHIRTS,
   BUBI,
   KRAVAN_HEART,
   PONGO,
+
+  START_PANTS,
+  JEANS,
+  LEAF,
+
+  START_SHOES,
+  RED_SNEAKERS,
+
   COUNT,
 }
 
@@ -64,55 +73,84 @@ export class Store {
       description: "Beanie's street cat",
       amount: 10,
       currency: Currency.GEM,
+    })
+    .set(ItemId.JEANS, {
+      name: "👖 Jeans",
+      description: "A basic pair of jeans",
+      amount: 5,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.LEAF, {
+      name: "🍀 Leaf",
+      description: "To cover the good parts",
+      amount: 2,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.RED_SNEAKERS, {
+      name: "👟 Red Sneakers",
+      description: "Basic red sneakers",
+      amount: 5,
+      currency: Currency.GEM,
     });
 
   static getStoreEmbeds() {
+    const values = Array.from(this.ITEMS.values());
+    const convertToFields = (arr: typeof values) =>
+      arr.map((item) => ({
+        name: `${item.name} (${item.currency == Currency.COIN ? "🪙" : "💎"} ${item.amount.toLocaleString()})`.replaceAll(
+          "💎",
+          gem_emoji.embed,
+        ),
+        value: `${item.description}`,
+        inline: true,
+      }));
+
     return [
       new CustomEmbed()
         .setDescription("Items/Perks that u can use (and give)")
         .setColor(0x8f34eb)
-        .setFields(
-          Array.from(this.ITEMS.values())
-            .slice(0, ItemId.START_SHIRTS)
-            .map((item) => ({
-              name: `${item.name} (${item.currency == Currency.COIN ? "🪙" : "💎"} ${item.amount.toLocaleString()})`.replaceAll(
-                "💎",
-                gem_emoji.embed,
-              ),
-              value: `${item.description}`,
-              inline: true,
-            })),
-        ),
+        .setFields(convertToFields(values.slice(0, ItemId.START_SHIRTS))),
+
       new CustomEmbed()
-        .setDescription("Shirts/Hoodies to buy for your mini-me")
+        .setDescription("Drip your mini-me with a shirt")
         .setColor(0x34c6eb)
         .setFields(
-          Array.from(this.ITEMS.values())
-            .slice(ItemId.START_SHIRTS, ItemId.COUNT)
-            .map((item) => ({
-              name: `${item.name} (${item.currency == Currency.COIN ? "🪙" : "💎"} ${item.amount.toLocaleString()})`.replaceAll(
-                "💎",
-                gem_emoji.embed,
-              ),
-              value: `${item.description}`,
-              inline: true,
-            })),
+          convertToFields(
+            values.slice(ItemId.START_SHIRTS, ItemId.START_PANTS),
+          ),
+        ),
+
+      new CustomEmbed()
+        .setDescription("Drip your mini-me with some pants")
+        .setColor(0xabff24)
+        .setFields(
+          convertToFields(values.slice(ItemId.START_PANTS, ItemId.START_SHOES)),
+        ),
+
+      new CustomEmbed()
+        .setDescription("One two buckle your mini-me's shoes")
+        .setColor(0xff3324)
+        .setFields(
+          convertToFields(values.slice(ItemId.START_SHOES, ItemId.COUNT)),
         ),
     ];
   }
 
   static getItemType(item: number) {
     let type = "";
-    let item_offset = 0;
+    let result = 0;
 
-    if (item > ItemId.START_SHIRTS) {
+    if (item > ItemId.START_PANTS) {
+      type = "pants";
+      result = ItemId.START_PANTS;
+    } else if (item > ItemId.START_SHIRTS) {
       type = "shirt";
-      item_offset = item - ItemId.START_SHIRTS;
+      result = ItemId.START_SHIRTS;
     }
 
     return {
       type,
-      item_offset,
+      item_offset: item - result,
     };
   }
 }
