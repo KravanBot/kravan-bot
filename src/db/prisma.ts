@@ -481,9 +481,7 @@ export const useItem = async (id: string, value: number) => {
   }
 
   const data: Record<string, object> = {
-    items: {
-      set: items,
-    },
+    items,
   };
 
   if (minime != null) data.minime = minime;
