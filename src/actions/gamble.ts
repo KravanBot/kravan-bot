@@ -215,7 +215,8 @@ export class Gamble {
       sum +=
         value >= 3
           ? this.#bet * Math.pow(2, value - 2)
-          : value == 2 &&
+          : this.#show_new_emoji &&
+              value == 2 &&
               Array.from(counts.values()).filter((val) => val == 2).length == 2
             ? Math.floor(this.#bet / 2)
             : 0;
