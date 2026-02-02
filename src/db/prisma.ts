@@ -47,12 +47,16 @@ export const addCoins = async (id: string, amount: number) => {
     new_data.coins -= coins_overflow;
     new_data.bank += getBankAmountWithTax(coins_overflow);
 
-    const bank_overflow = Math.max(0, new_data.bank - 2_000_000_000);
+    let bank_overflow = 0;
 
-    if (bank_overflow) {
+    do {
+      bank_overflow = Math.max(0, new_data.bank - 2_000_000_000);
+
+      if (bank_overflow <= 0) break;
+
       new_data.bank = bank_overflow + 500_000_000;
       new_data.gems += 15;
-    } else new_data.bank -= bank_overflow;
+    } while (bank_overflow);
   }
 
   await prisma.user.upsert({
@@ -258,33 +262,28 @@ export const takeGems = async (id: string, amount: number) => {
   });
 };
 
-export const addToJackpot = async (amount: number) => {
-  const amount_to_add = Math.max(Math.floor(amount / 1), 1);
-
-  const jackpot = (
-    await prisma.jackpot.updateManyAndReturn({
-      data: {
-        coins: {
-          increment: amount_to_add,
-        },
-      },
-    })
-  )[0];
-
-  if (jackpot && jackpot?.coins > 1_000_000_000)
-    await prisma.jackpot.updateMany({
-      data: {
-        coins: {
-          decrement: jackpot.coins - 1_000_000_000,
-        },
-      },
-    });
-};
-
 export const getJackpot = async () => {
   const jackpot = await prisma.jackpot.findFirst();
 
   return jackpot?.coins;
+};
+
+export const addToJackpot = async (amount: number) => {
+  let jackpot = (await getJackpot()) ?? 0;
+
+  if (jackpot >= 1_000_000_000) return;
+
+  const amount_to_add = Math.max(Math.floor(amount / 1), 1);
+
+  jackpot += amount;
+
+  if (jackpot > 1_000_000_000) jackpot = 1_000_000_000;
+
+  await prisma.jackpot.updateManyAndReturn({
+    data: {
+      coins: jackpot,
+    },
+  });
 };
 
 export const clearJackpot = async () => {
