@@ -28,6 +28,7 @@ export class Gamble {
   #sequence: string[];
   #revealed: number;
   #time: number;
+  #show_new_emoji: boolean;
 
   constructor(interaction: InteractionT, time: number = 0) {
     this.#interaction = interaction;
@@ -35,6 +36,7 @@ export class Gamble {
     this.#sequence = [];
     this.#revealed = 0;
     this.#time = time;
+    this.#show_new_emoji = false;
 
     (async () => {
       const balance = await getUserCoins(interaction.user.id);
@@ -46,6 +48,7 @@ export class Gamble {
         ),
         1,
       );
+      this.#show_new_emoji = this.#bet >= 10_000;
       this.#sequence = this.#chooseSequence();
 
       if (!(await this.#canGamble())) return;
@@ -75,7 +78,7 @@ export class Gamble {
 
     const emojis = [...Gamble.#default_emojis];
 
-    if (this.#bet >= 10_000) emojis.push("<a:Raven_Yes:1387726723285520394>");
+    if (this.#show_new_emoji) emojis.push("<a:Raven_Yes:1387726723285520394>");
 
     return getRandomFromArray(emojis);
   }
@@ -209,7 +212,13 @@ export class Gamble {
           ? value * (Math.floor(this.#bet / 2) + (this.#bet % 2))
           : 0;
 
-      sum += value >= 3 ? this.#bet * Math.pow(2, value - 2) : 0;
+      sum +=
+        value >= 3
+          ? this.#bet * Math.pow(2, value - 2)
+          : value == 2 &&
+              Array.from(counts.values()).filter((val) => val == 2).length == 2
+            ? Math.floor(this.#bet / 2)
+            : 0;
 
       return sum * (is_emoji_bad ? -1 : 1);
     };
@@ -239,7 +248,7 @@ export class Gamble {
       embeds.push(lucky_sequence.embed);
     }
 
-    delta = winnings - losses;
+    delta = Math.floor(winnings) - losses;
     const new_balance = await addCoins(this.#interaction.user.id, delta);
 
     embeds.push(
@@ -279,6 +288,7 @@ export class Gamble {
             .setStyle(ButtonStyle.Secondary),
         ),
       ],
+      files: attachment ? [attachment] : [],
     });
 
     current_gambles.delete(this.#interaction.user.id);

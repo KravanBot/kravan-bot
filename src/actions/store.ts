@@ -19,6 +19,8 @@ export enum ItemId {
   RED_SNEAKERS,
 
   START_WIGS,
+  MILES_MORALES,
+  TANGLED,
 
   START_HATS,
   PROPELLER,
@@ -111,6 +113,30 @@ export class Store {
       currency: Currency.GEM,
     })
     .set(ItemId.START_WIGS, null)
+    .set(ItemId.MILES_MORALES, {
+      name: "🕷️ Miles Morales",
+      description: "I mean who wouldnt want to be him",
+      amount: 5,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.MILES_MORALES, {
+      name: "🧊 Sokka",
+      description: "Without the bun tho",
+      amount: 5,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.TANGLED, {
+      name: "🟫 Jane Porter",
+      description: "Basically long brown hair",
+      amount: 5,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.TANGLED, {
+      name: "🟨 Tangled",
+      description: "Ok maybe not as long as Rapunzel's",
+      amount: 5,
+      currency: Currency.GEM,
+    })
     .set(ItemId.START_HATS, null)
     .set(ItemId.PROPELLER, {
       name: "🌀 Propeller",
@@ -126,7 +152,7 @@ export class Store {
     })
     .set(ItemId.START_EXPRESSION, null)
     .set(ItemId.BOTOX_LIPS, {
-      name: "👄 Botox lips",
+      name: "👄 Botox Lips",
       description: "Be careful with those...",
       amount: 2,
       currency: Currency.GEM,
@@ -134,7 +160,7 @@ export class Store {
     .set(ItemId.START_BRACELET, null)
     .set(ItemId.SNAKE, {
       name: "🐍 Snake",
-      description: "U know what to do with those next",
+      description: "U know what to do with those",
       amount: 50,
       currency: Currency.GEM,
     })
@@ -193,9 +219,7 @@ export class Store {
         ),
 
       new CustomEmbed()
-        .setDescription(
-          "Put a wig on your mini-me u dont want it to be bald like ranni",
-        )
+        .setDescription("Put a wig on your mini-me u dont want it to be bald")
         .setColor(0xfc7830)
         .setFields(
           convertToFields(
@@ -223,7 +247,7 @@ export class Store {
 
       new CustomEmbed()
         .setDescription("Wear something on your hand")
-        .setColor(0xff3665)
+        .setColor(0xff6ed3)
         .setFields(
           convertToFields(
             values.slice(ItemId.START_BRACELET + 1, ItemId.START_MASK),
@@ -232,7 +256,7 @@ export class Store {
 
       new CustomEmbed()
         .setDescription("Hide your mini-me's ugly ahh face with a mask")
-        .setColor(0xff3665)
+        .setColor(0xff78fd)
         .setFields(
           convertToFields(values.slice(ItemId.START_MASK + 1, ItemId.COUNT)),
         ),
