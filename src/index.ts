@@ -27,6 +27,7 @@ import {
   putOnMinime,
   takeCoins,
   takeFromBank,
+  takeFromMinime,
   takeGems,
   updateAndReturnDaily,
   updateTheft,
@@ -1021,16 +1022,10 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         const item = parseInt(interaction.options.getString("item", true));
 
-        let type = "";
-        let item_offset = 0;
-
         if (!(await hasItem(interaction.user.id, item)).success)
           return await interaction.reply("YOU DONT OWN THIS ITEM");
 
-        if (item > ItemId.START_SHIRTS) {
-          type = "shirt";
-          item_offset = item - ItemId.START_SHIRTS;
-        }
+        const { type, item_offset } = Store.getItemType(item);
 
         await putOnMinime(
           interaction.user.id,

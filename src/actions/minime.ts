@@ -27,7 +27,7 @@ export class MiniMe {
     "assets",
     "customizables",
   );
-  static #ORDER = [
+  static ORDER = [
     "wig_back",
     "base",
     "wig_front",
@@ -74,7 +74,7 @@ export class MiniMe {
       delete customizables["wig"];
     }
 
-    for (const item of MiniMe.#ORDER) {
+    for (const item of MiniMe.ORDER) {
       if (!(item in customizables)) continue;
 
       const id = customizables[item];

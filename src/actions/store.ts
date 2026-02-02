@@ -100,4 +100,19 @@ export class Store {
         ),
     ];
   }
+
+  static getItemType(item: number) {
+    let type = "";
+    let item_offset = 0;
+
+    if (item > ItemId.START_SHIRTS) {
+      type = "shirt";
+      item_offset = item - ItemId.START_SHIRTS;
+    }
+
+    return {
+      type,
+      item_offset,
+    };
+  }
 }

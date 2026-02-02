@@ -3,6 +3,8 @@ import { PrismaClient } from "@prisma/client";
 import { diffInMinutes } from "../utils/helpers.js";
 import moment from "moment";
 import { JsonObject } from "@prisma/client/runtime/client";
+import { MiniMe } from "../actions/minime.js";
+import { Store } from "../actions/store.js";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 
@@ -469,11 +471,26 @@ export const useItem = async (id: string, value: number) => {
 
   items.splice(items.findIndex((el) => el == value)!, 1);
 
+  const { type } = Store.getItemType(value);
+  let minime: JsonObject | null = null;
+
+  if (!items.includes(value)) {
+    minime = await getMinime(id);
+
+    if (minime?.[type] == value) delete minime[type];
+  }
+
   await prisma.user.update({
     data: {
       items: {
         set: items,
       },
+      minime:
+        minime != null
+          ? {
+              set: minime,
+            }
+          : {},
     },
     where: {
       id,
@@ -571,6 +588,24 @@ export const putOnMinime = async (
         ...prev,
         ...data,
       },
+    },
+    where: {
+      id,
+    },
+  });
+};
+
+export const takeFromMinime = async (
+  id: string,
+  prev: JsonObject,
+  piece: string,
+) => {
+  const new_minime = { ...prev };
+  delete new_minime[piece];
+
+  await prisma.user.update({
+    data: {
+      minime: new_minime,
     },
     where: {
       id,
