@@ -80,7 +80,8 @@ export class Gamble {
 
     if (this.#show_new_emoji) emojis.push("<a:Raven_Yes:1387726723285520394>");
 
-    return getRandomFromArray(emojis);
+    // return getRandomFromArray(emojis);
+    return "<a:Raven_Yes:1387726723285520394>";
   }
 
   async #sendGambleMessage() {
