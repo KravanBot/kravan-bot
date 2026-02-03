@@ -325,7 +325,9 @@ export class Gamble {
 
   #getLuckySequence(delta: number) {
     const value = Math.max(10, Math.floor(this.#bet / 2));
-    // const value = 10;
+
+    const random_symbol = getRandomFromArray(["", "-"]);
+    const random_value = parseInt(`${random_symbol}${value}`);
 
     const sequences: {
       name: string;
@@ -403,8 +405,8 @@ export class Gamble {
       },
       {
         name: "ALL-NIGHT GRIND 🎲",
-        description: `${userMention("898439107959746580")} stayed up the whole night gambling for you, chasing wins nonstop, and managed to get ${value.toLocaleString()} coins`,
-        additional: value,
+        description: `${userMention("898439107959746580")} stayed up the whole night gambling for you, chasing wins nonstop, and managed to get ${random_value.toLocaleString()} coins`,
+        additional: random_value,
         thumbnail:
           "https://images-ext-1.discordapp.net/external/kvtMxM_bxmggsKiJRPuCXdQMOBK4p2Nm6ifpef2hKrE/https/cdn.discordapp.com/avatars/898439107959746580/a_d1f2b0cac319c9809f36933a9a25017b.gif?width=141&height=141",
         img: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWZndHlpbzMxbHA0cTl1Zm4xZHB2ZnVtd29kdDVjbnZhNnBsbWt5YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/04kchVZaVs2LP3rlng/giphy.gif",
