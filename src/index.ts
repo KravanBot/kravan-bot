@@ -43,6 +43,7 @@ import { Currency, ItemId, Store } from "./actions/store.js";
 import { getRandomFromArray, validateNotInJail } from "./utils/helpers.js";
 import { Meme } from "./actions/meme.js";
 import { MiniMe } from "./actions/minime.js";
+import { Flame } from "./actions/flame.js";
 
 configDotenv();
 
@@ -322,6 +323,13 @@ const commands = [
           items_as_string_option.slice(ItemId.START_SHIRTS, ItemId.COUNT),
         )
         .setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("flame")
+    .setDescription("Get a flaming of a member of the server")
+    .addUserOption((option) =>
+      option.setName("target").setDescription("The member to flame"),
     ),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
@@ -1040,6 +1048,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await interaction.reply(
           `SUCCESSFULLY WORE ${Store.ITEMS.get(item)?.name}!`,
         );
+
+        break;
+      }
+
+      case "flame": {
+        new Flame(interaction);
 
         break;
       }

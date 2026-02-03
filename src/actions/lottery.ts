@@ -87,7 +87,7 @@ export class Lottery {
     const average_or_total: "average" | "total" = getRandomFromArray([
       "average",
       "total",
-    ]);
+    ])!;
 
     const default_questions: QuestionT[] = [
       {

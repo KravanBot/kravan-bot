@@ -2,7 +2,9 @@ import { Message, TextChannel } from "discord.js";
 import { client } from "../index.js";
 import { isInJail } from "../db/prisma.js";
 
-export const getRandomFromArray = <T>(arr: T[]): T => {
+export const getRandomFromArray = <T>(arr: T[]): T | null => {
+  if (!arr.length) return null;
+
   return arr[Math.floor(Math.random() * arr.length)]!;
 };
 

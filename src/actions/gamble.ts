@@ -81,7 +81,7 @@ export class Gamble {
 
     if (this.#show_new_emoji) emojis.push("<a:Raven_Yes:1387726723285520394>");
 
-    return getRandomFromArray(emojis);
+    return getRandomFromArray(emojis)!;
   }
 
   async #sendGambleMessage() {
@@ -298,12 +298,13 @@ export class Gamble {
     let clicked = "exit";
 
     try {
-      clicked = (
-        await msg.awaitMessageComponent({
-          filter: (i) => i.user.id === this.#interaction.user.id,
-          time: 60_000,
-        })
-      ).customId;
+      const response = await msg.awaitMessageComponent({
+        filter: (i) => i.user.id === this.#interaction.user.id,
+        time: 60_000,
+      });
+      await response.deferUpdate();
+
+      clicked = response.customId;
     } catch {}
 
     switch (clicked) {
@@ -344,7 +345,7 @@ export class Gamble {
             : "Ranni blessed u with double ur profit!",
         additional: Math.abs(delta),
         thumbnail:
-          "https://images-ext-1.discordapp.net/external/A2LqMVrjhBYIHCEmmiKlr_NeUcXUW0121R3aEyZr-DY/https/cdn.discordapp.com/avatars/1260205513795174434/eb36b363bde1d4f592af5625b098a61b.webp?format=webp&width=141&height=141",
+          "https://images-ext-1.discordapp.net/external/rwqmQ7YDJj74gHeTqr4D_wSEpgVr0CGZNAF4dlJt30E/%3Fsize%3D256/https/cdn.discordapp.com/avatars/1260205513795174434/deb21ad92e975807f6c08cc354a13c89.png?format=webp&quality=lossless&width=141&height=141",
         img: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExN2tsd2x3aTZ4ODg0d2dneTdvaWZ1cWlnNmZmNnV3eTV5Nnd6Y3RvdyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KPPltOgm0hEtbjjDN0/giphy.gif",
       },
       {
@@ -400,7 +401,7 @@ export class Gamble {
         description: `Teru invaded your country and took your loved ones captive. She spares their lives for ${value.toLocaleString()} coins`,
         additional: -value,
         thumbnail:
-          "https://images-ext-1.discordapp.net/external/e6jfZPmsfCN8z2FnCfSHHWhh6IZ2ojdJsw7FEk9pVEA/https/cdn.discordapp.com/avatars/709841153763180545/fa19a1f558640c92d4e2c52df61c12cd.webp?format=webp&width=141&height=141",
+          "https://images-ext-1.discordapp.net/external/fVIT4Sj2FTcl2vQ1Fo3koKevl2ODpR6IQoPNIU2cRus/https/cdn.discordapp.com/guilds/1236751656331509967/users/709841153763180545/avatars/752a9f259dbefd742f6f01a38b0da9fe.webp?format=webp&width=141&height=141",
         img: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZm91d3Q1ZTU1YTR0d3poMXZyaWhvNXA0M2hkdjY0NGl6aHhzMjB2YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qBogOUbxKWN3WXm/giphy.gif",
       },
       {
@@ -415,10 +416,10 @@ export class Gamble {
 
     const selected =
       Math.floor(Math.random() * 2) <= 0
-        ? getRandomFromArray(sequences.filter((el) => el.additional > 0))
-        : getRandomFromArray(sequences.filter((el) => el.additional < 0));
+        ? getRandomFromArray(sequences.filter((el) => el.additional > 0))!
+        : getRandomFromArray(sequences.filter((el) => el.additional < 0))!;
 
-    const is_img_url = selected.img.startsWith("https");
+    const is_img_url = selected!.img.startsWith("https");
     const attachment_name = is_img_url
       ? undefined
       : selected.img.split("/").at(-1)!;
