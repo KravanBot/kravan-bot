@@ -221,17 +221,18 @@ export class Gamble {
         : is_emoji_bad
           ? value * (Math.floor(this.#bet / 2) + (this.#bet % 2))
           : 0;
+      sum += value >= 3 ? this.#bet * Math.pow(2, value - 2) : 0;
+
+      sum *= is_emoji_bad ? -1 : 1;
 
       sum +=
-        value >= 3
-          ? this.#bet * Math.pow(2, value - 2)
-          : this.#show_new_emoji &&
-              value == 2 &&
-              Array.from(counts.values()).filter((val) => val == 2).length == 2
-            ? Math.floor((this.#bet * 3) / 4)
-            : 0;
+        this.#show_new_emoji &&
+        value == 2 &&
+        Array.from(counts.values()).filter((val) => val == 2).length == 2
+          ? Math.floor((this.#bet * 3) / 4)
+          : 0;
 
-      return sum * (is_emoji_bad ? -1 : 1);
+      return sum;
     };
 
     const results = Array.from(
