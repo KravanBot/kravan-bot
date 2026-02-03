@@ -60,7 +60,16 @@ export class Gamble {
 
   async #canGamble() {
     if (!(await hasEnoughCoins(this.#interaction.user.id, this.#bet))) {
-      this.#interaction.reply("U A BROKE MF U CANT BET THIS MUCH");
+      const func = this.#interaction.replied
+        ? this.#interaction.editReply
+        : this.#interaction.reply;
+
+      await func({
+        content: "U A BROKE MF U CANT BET THIS MUCH",
+        embeds: [],
+        components: [],
+        files: [],
+      });
       return false;
     }
 

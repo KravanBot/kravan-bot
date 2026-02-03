@@ -103,6 +103,10 @@ export class Flame {
       id: "1438937358790692997",
       flames: ["508655899309506570"],
     },
+    {
+      id: "1468286930113401007",
+      flames: ["609097048662343700"],
+    },
   ];
 
   #interaction: InteractionT;
