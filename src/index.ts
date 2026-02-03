@@ -568,7 +568,6 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
             try {
               const guild = interaction.guild!;
-              await guild.members.fetch();
 
               const role = (await guild.roles.fetch(FIRST_PLACE_ROLE_ID))!;
 
@@ -589,7 +588,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           for (const user of result)
             usernames.set(
               user.id,
-              (await client.users.fetch(user.id)).username,
+              client.users.cache.get(user.id)?.username ?? "",
             );
 
           await interaction.reply({
