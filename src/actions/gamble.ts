@@ -6,6 +6,7 @@ import {
   CacheType,
   ChatInputCommandInteraction,
   Message,
+  userMention,
 } from "discord.js";
 import { addCoins, getUserCoins, hasEnoughCoins } from "../db/prisma.js";
 import { getRandomFromArray } from "../utils/helpers.js";
@@ -218,7 +219,7 @@ export class Gamble {
           : this.#show_new_emoji &&
               value == 2 &&
               Array.from(counts.values()).filter((val) => val == 2).length == 2
-            ? this.#bet
+            ? Math.floor((this.#bet * 3) / 4)
             : 0;
 
       return sum * (is_emoji_bad ? -1 : 1);
@@ -399,6 +400,14 @@ export class Gamble {
         thumbnail:
           "https://images-ext-1.discordapp.net/external/e6jfZPmsfCN8z2FnCfSHHWhh6IZ2ojdJsw7FEk9pVEA/https/cdn.discordapp.com/avatars/709841153763180545/fa19a1f558640c92d4e2c52df61c12cd.webp?format=webp&width=141&height=141",
         img: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZm91d3Q1ZTU1YTR0d3poMXZyaWhvNXA0M2hkdjY0NGl6aHhzMjB2YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xT8qBogOUbxKWN3WXm/giphy.gif",
+      },
+      {
+        name: "ALL-NIGHT GRIND 🎲",
+        description: `${userMention("898439107959746580")} stayed up the whole night gambling for you, chasing wins nonstop, and managed to get ${value.toLocaleString()} coins`,
+        additional: value,
+        thumbnail:
+          "https://images-ext-1.discordapp.net/external/kvtMxM_bxmggsKiJRPuCXdQMOBK4p2Nm6ifpef2hKrE/https/cdn.discordapp.com/avatars/898439107959746580/a_d1f2b0cac319c9809f36933a9a25017b.gif?width=141&height=141",
+        img: "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdWZndHlpbzMxbHA0cTl1Zm4xZHB2ZnVtd29kdDVjbnZhNnBsbWt5YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/04kchVZaVs2LP3rlng/giphy.gif",
       },
     ];
 
