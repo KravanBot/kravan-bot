@@ -10,6 +10,7 @@ export enum ItemId {
   BUBI,
   KRAVAN_HEART,
   PONGO,
+  PISS_ON_GOOBIE,
 
   START_PANTS,
   JEANS,
@@ -92,6 +93,12 @@ export class Store {
       name: "😸 Pongo",
       description: "Beanie's street cat",
       amount: 10,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.PISS_ON_GOOBIE, {
+      name: "💦 Piss on goobie",
+      description: "Best shirt here fr",
+      amount: 5,
       currency: Currency.GEM,
     })
     .set(ItemId.START_PANTS, null)

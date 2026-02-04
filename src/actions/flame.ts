@@ -119,6 +119,34 @@ export class Flame {
       id: "1468626429083259085",
       flames: ["508655899309506570"],
     },
+    {
+      id: "1468628285184544831",
+      flames: ["898439107959746580"],
+    },
+    {
+      id: "1468629015471456296",
+      flames: ["609097048662343700"],
+    },
+    {
+      id: "1468631990155612273",
+      flames: ["1260205513795174434"],
+    },
+    {
+      id: "1468633773137596416",
+      flames: ["133282052350017536"],
+    },
+    {
+      id: "1468633973684178996",
+      flames: ["609097048662343700"],
+    },
+    {
+      id: "1468634917289070918",
+      flames: ["508655899309506570"],
+    },
+    {
+      id: "1468634941498851449",
+      flames: ["508655899309506570"],
+    },
   ];
 
   #interaction: InteractionT;
@@ -156,7 +184,8 @@ export class Flame {
 
     for (const flame of flames)
       flames_as_string +=
-        this.#interaction.guild?.members.cache.get(flame)?.displayName + ", ";
+        (this.#interaction.guild?.members.cache.get(flame)?.displayName ??
+          "Couldnt fetch the name but prob goobie") + ", ";
 
     const payload = {
       content: `${message.content ? `"${message.content}"\n\n` : ""}${flames_as_string}wanna talk about it?`,
