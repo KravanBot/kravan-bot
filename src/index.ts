@@ -150,7 +150,7 @@ const commands = [
     .addNumberOption((option) =>
       option
         .setName("amount")
-        .setDescription("The amount you want to donate")
+        .setDescription("The amount you want to donate (>= 10)")
         .setMinValue(10)
         .setRequired(true),
     ),
@@ -632,6 +632,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         const from = interaction.user;
         const to = interaction.options.getUser("target", true);
         const amount = interaction.options.getNumber("amount", true);
+
+        if (amount < 10) return;
 
         if (from.id == to.id || to.bot) return;
 

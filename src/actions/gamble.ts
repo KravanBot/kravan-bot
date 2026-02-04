@@ -157,7 +157,11 @@ export class Gamble {
       if (!(await this.#checkRevealClicked(msg))) break;
     }
 
-    if (this.#revealed < 0) return await this.#interaction.deleteReply();
+    if (this.#revealed < 0) {
+      current_gambles.delete(this.#interaction.user.id);
+
+      return await this.#interaction.deleteReply();
+    }
 
     await edit();
 
