@@ -363,15 +363,19 @@ client.once("clientReady", async () => {
   lottery = new Lottery();
   new Leveling();
 
-  const emoji = client.guilds.cache
-    .get(RANNI_GUILD_ID)
-    ?.emojis?.cache?.get("1464281133813596254");
+  const ranni_guild = client.guilds.cache.get(RANNI_GUILD_ID);
 
-  if (emoji && emoji.available)
-    gem_emoji = {
-      message: `:${emoji.name}:`,
-      embed: `<:${emoji.name}:${emoji.id}>`,
-    };
+  if (ranni_guild) {
+    await ranni_guild.members.fetch();
+
+    const emoji = ranni_guild.emojis?.cache?.get("1464281133813596254");
+
+    if (emoji && emoji.available)
+      gem_emoji = {
+        message: `:${emoji.name}:`,
+        embed: `<:${emoji.name}:${emoji.id}>`,
+      };
+  }
 
   console.log("All set!");
 });
