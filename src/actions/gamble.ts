@@ -148,6 +148,7 @@ export class Gamble {
         components: [
           new ActionRowBuilder<ButtonBuilder>().addComponents(...components),
         ],
+        files: [],
       });
     };
 

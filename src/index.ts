@@ -357,16 +357,21 @@ const isGuildValid = (guild: Guild) => {
 
 let lottery: Lottery;
 let counting: Counting;
+let num_of_members: number;
+let ranni_guild: Guild | undefined;
 
 client.once("clientReady", async () => {
   counting = new Counting();
   lottery = new Lottery();
   new Leveling();
 
-  const ranni_guild = client.guilds.cache.get(RANNI_GUILD_ID);
+  ranni_guild = client.guilds.cache.get(RANNI_GUILD_ID);
 
   if (ranni_guild) {
-    await ranni_guild.members.fetch();
+    await ranni_guild.channels.fetch();
+
+    const members = await ranni_guild.members.fetch();
+    num_of_members = members.filter((member) => !member.user.bot).size;
 
     const emoji = ranni_guild.emojis?.cache?.get("1464281133813596254");
 
@@ -384,6 +389,31 @@ client.on("guildCreate", async (guild) => {
   if (isGuildValid(guild)) return;
 
   await guild.leave();
+});
+
+const updateNumOfMembers = async (guild_id: string, dir: 1 | -1 | 0 = 0) => {
+  if (guild_id != RANNI_GUILD_ID) return;
+
+  const CHANNEL_ID = "1311508100733472778";
+
+  num_of_members += dir;
+
+  const channel = ranni_guild?.channels.cache.get(CHANNEL_ID);
+  if (!channel) return;
+
+  const channel_name_without_number = channel.name.split(":");
+
+  await ranni_guild?.channels.cache
+    .get(CHANNEL_ID)
+    ?.setName(`${channel_name_without_number}: ${num_of_members}`);
+};
+
+client.on("guildMemberAdd", async (member) => {
+  await updateNumOfMembers(member.guild.id, 1);
+});
+
+client.on("guildMemberRemove", async (member) => {
+  await updateNumOfMembers(member.guild.id, -1);
 });
 
 client.on("interactionCreate", async (interaction: Interaction) => {
