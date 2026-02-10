@@ -102,7 +102,7 @@ export class Counting {
     }
 
     this.#last_number = 0;
-    this.#last_counter_id = "";
+    this.#last_counter_id = null;
     this.#event = COUNT_EVENT.NORMAL;
     this.#trapped_by = null;
     this.#last_msg = null;
@@ -227,7 +227,7 @@ export class Counting {
     interaction: ChatInputCommandInteraction<CacheType>,
   ) {
     await this.#lock(async () => {
-      if (this.#last_counter_id == null)
+      if (!this.#last_counter_id)
         return await interaction.reply(
           `Count is currently 0. Start it dummy like everyone knows its 1 cmon free coins`,
         );
@@ -288,6 +288,8 @@ export class Counting {
             }
 
             // sent by user
+
+            if (this.#event && this.#last_counter_id != null) return false;
 
             if (this.#last_counter_id != null) continue;
 
