@@ -217,7 +217,12 @@ export class Counting {
           break;
       }
 
-      if (this.#last_number! > 0 && this.#last_number! < 50) return;
+      if (
+        this.#last_number! > 0 &&
+        this.#last_number! < 50 &&
+        this.#event != COUNT_EVENT.REVERSE
+      )
+        return;
 
       this.#changeEvent(message);
     }, false);
