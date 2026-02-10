@@ -109,11 +109,14 @@ export class Counting {
   }
 
   async #changeEvent(message: MessageT) {
-    if (Math.floor(Math.random() * 10) != 0) return;
-
-    if (this.#event == COUNT_EVENT.NORMAL)
-      this.#event = getRandomFromArray([COUNT_EVENT.BOOM, COUNT_EVENT.REVERSE]);
-    else this.#event = COUNT_EVENT.NORMAL;
+    if ((this.#last_number ?? 0) <= 0) this.#event = COUNT_EVENT.NORMAL;
+    else if (Math.floor(Math.random() * 10) != 0) return;
+    else
+      this.#event = getRandomFromArray(
+        [COUNT_EVENT.NORMAL, COUNT_EVENT.BOOM, COUNT_EVENT.REVERSE].filter(
+          (event) => event != this.#event,
+        ),
+      );
 
     await (message.channel as TextChannel).send(
       `Event changed to ${this.#event}`,
@@ -213,6 +216,8 @@ export class Counting {
 
           break;
       }
+
+      if (this.#last_number! > 0 && this.#last_number! < 50) return;
 
       this.#changeEvent(message);
     }, false);
