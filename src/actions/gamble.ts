@@ -403,14 +403,14 @@ export class Gamble {
           "https://images-ext-1.discordapp.net/external/wN38Q6t1nHa0xXycCaJqBUyVNcdIYF22Ggo7H2WeHSg/https/cdn.discordapp.com/avatars/133282052350017536/3dc22cb19049d7b675c9365f224cd565.webp?format=webp&width=141&height=141",
         img: "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExNTV1eHNvczZxYjFhYWtxbjRqamNwZXZqcXpxb3FkNDNqbW85am14eiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3oKIP73vEZmJjFNXtC/giphy.gif",
       },
-      {
-        name: "Drop ur pants 👖",
-        description: `Mayaya complimented with a 'Nice cock', u excitingly dropped ur pants and she tipped u ${value.toLocaleString()} coins`,
-        additional: value,
-        thumbnail:
-          "https://images-ext-1.discordapp.net/external/Wgiuq3nMi7tybLKo7BG_8BRtxNbeJ0ok7S5LXqeY2hc/https/cdn.discordapp.com/guilds/1236751656331509967/users/756137226202513449/avatars/d668a8acf3a50617434a25d176dcb3d1.webp?format=webp&width=141&height=141",
-        img: "./assets/gifs/mayaya_sequence.gif",
-      },
+      // {
+      //   name: "Drop ur pants 👖",
+      //   description: `Mayaya complimented with a 'Nice cock', u excitingly dropped ur pants and she tipped u ${value.toLocaleString()} coins`,
+      //   additional: value,
+      //   thumbnail:
+      //     "https://images-ext-1.discordapp.net/external/Wgiuq3nMi7tybLKo7BG_8BRtxNbeJ0ok7S5LXqeY2hc/https/cdn.discordapp.com/guilds/1236751656331509967/users/756137226202513449/avatars/d668a8acf3a50617434a25d176dcb3d1.webp?format=webp&width=141&height=141",
+      //   img: "./assets/gifs/mayaya_sequence.gif",
+      // },
       {
         name: "TAKE COVER 🗡️",
         description: `Teru invaded your country and took your loved ones captive. She spares their lives for ${value.toLocaleString()} coins`,

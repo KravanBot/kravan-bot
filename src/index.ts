@@ -284,7 +284,7 @@ const commands = [
         .setName("category")
         .setDescription("The category")
         .setChoices(
-          ...["gay", "furry", "aura"].map((el) => ({
+          ...["gay", "furry", "aura", "good boy"].map((el) => ({
             name: el,
             value: el,
           })),
@@ -987,6 +987,25 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                     `${userMention(target.id)} has ${result == 0 ? "" : getRandomFromArray(["+", "-"])}${result < 0 ? "♾️" : (result * 10).toLocaleString()} aura 🗿`,
                   )
                   .setColor(0xffffff),
+              ],
+            });
+
+            break;
+          }
+
+          case "good boy": {
+            const result = Math.floor(Math.random() * 101);
+
+            await interaction.reply({
+              embeds: [
+                new CustomEmbed()
+                  .setTitle(
+                    "<:paimonsmug:1432750456031154237> Good boy rate <:paimonsmug:1432750456031154237>",
+                  )
+                  .setDescription(
+                    `${userMention(target.id)} is ${result}% a good boy <:catblush:1391399088884420638>`,
+                  )
+                  .setColor(0x804aff),
               ],
             });
 
