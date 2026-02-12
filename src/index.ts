@@ -44,6 +44,7 @@ import { getRandomFromArray, validateNotInJail } from "./utils/helpers.js";
 import { Meme } from "./actions/meme.js";
 import { MiniMe } from "./actions/minime.js";
 import { Flame } from "./actions/flame.js";
+import moment from "moment";
 
 configDotenv();
 
@@ -380,6 +381,34 @@ client.once("clientReady", async () => {
         message: `:${emoji.name}:`,
         embed: `<:${emoji.name}:${emoji.id}>`,
       };
+
+    setTimeout(
+      () => {
+        setInterval(
+          async () => {
+            if (!ranni_guild) return;
+
+            await ranni_guild.members.fetch();
+
+            const SERVER_BOOSTER_ROLE = "1311474973948379177";
+            const boosters =
+              ranni_guild.members.cache
+                .values()
+                .filter((member) =>
+                  member.roles.cache.has(SERVER_BOOSTER_ROLE),
+                ) ?? [];
+
+            for (const booster of boosters) await addGems(booster.id, 50);
+          },
+          1000 * 60 * 60 * 24 * moment().utc().daysInMonth(),
+        );
+      },
+      moment()
+        .utc()
+        .startOf("month")
+        .add(1, "month")
+        .diff(moment().utc(), "milliseconds"),
+    );
   }
 
   console.log("All set!");
