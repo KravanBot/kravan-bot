@@ -288,11 +288,6 @@ export class Gamble {
     embeds.push(
       new CustomEmbed()
         .setColor(0x345eeb)
-        .setDescription(
-          gets_bonus_on_profit
-            ? `YOUR PROFIT WAS INCREASED BY 20% FOR HAVING NO LIFE AND BEING LEVEL 100+ 🤑`
-            : null,
-        )
         .setThumbnail(this.#interaction.user.avatarURL())
         .addFields([
           {
