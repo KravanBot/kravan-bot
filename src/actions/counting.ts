@@ -343,8 +343,8 @@ export class Counting {
       if (this.#trapped_by)
         return await interaction.reply("NUMBER IS ALREADY TRAPPED");
 
-      if (Math.abs(this.#last_number!) < 10)
-        return await interaction.reply("U CAN TRAP ONLY AFTER COUNTING TO 10");
+      if (Math.abs(this.#last_number!) < 50)
+        return await interaction.reply("U CAN TRAP ONLY AFTER COUNTING TO 50");
 
       if (!(await hasEnoughCoins(interaction.user.id, cost)))
         return await interaction.reply(
