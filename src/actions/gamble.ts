@@ -273,7 +273,7 @@ export class Gamble {
     ).cache;
 
     const gets_bonus_on_profit =
-      delta > 0 &&
+      delta >= 5 &&
       [
         "1236751656385773628",
         "1236751656377520217",
@@ -305,7 +305,7 @@ export class Gamble {
           },
           {
             name: delta < 0 ? "Loss" : "Profit",
-            value: `🪙 ${delta.toLocaleString()}`,
+            value: `🪙 ${delta.toLocaleString()}${gets_bonus_on_profit ? " (+20%)" : ""}`,
             inline: true,
           },
           {
