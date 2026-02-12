@@ -5,6 +5,7 @@ import {
   ButtonStyle,
   CacheType,
   ChatInputCommandInteraction,
+  GuildMemberRoleManager,
   Message,
   userMention,
 } from "discord.js";
@@ -266,11 +267,32 @@ export class Gamble {
     }
 
     delta = Math.floor(winnings) - losses;
+
+    const member_roles = (
+      this.#interaction.member?.roles as GuildMemberRoleManager
+    ).cache;
+
+    const gets_bonus_on_profit =
+      delta > 0 &&
+      [
+        "1236751656385773628",
+        "1236751656377520217",
+        "1311398318319861810",
+        "1311398075218264124",
+        "1236751656377520215",
+      ].some((id) => member_roles.has(id));
+    if (gets_bonus_on_profit) delta = Math.floor(delta * 1.2);
+
     const new_balance = await addCoins(this.#interaction.user.id, delta);
 
     embeds.push(
       new CustomEmbed()
         .setColor(0x345eeb)
+        .setDescription(
+          gets_bonus_on_profit
+            ? `YOUR PROFIT WAS INCREASED BY 20% FOR HAVING NO LIFE AND BEING LEVEL 100+ 🤑`
+            : null,
+        )
         .setThumbnail(this.#interaction.user.avatarURL())
         .addFields([
           {
