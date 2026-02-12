@@ -1,6 +1,8 @@
 import { ComponentType, Message, OmitPartialGroupDMChannel } from "discord.js";
-import { addCoins } from "../db/prisma.js";
+import { addCoins, addGems } from "../db/prisma.js";
 import { validateNotInJail } from "../utils/helpers.js";
+import { Currency } from "./store.js";
+import { gem_emoji } from "../index.js";
 
 export class Leveling {
   static CHANNEL_ID = "1236751656897478689";
@@ -26,14 +28,24 @@ export class Leveling {
     if (isNaN(new_level)) return;
 
     const target_id = message.mentions.users.at(0)!.id;
-    const reward = Math.max(Math.floor((new_level * 3) / 10), 1);
+    const reward =
+      new_level == 50
+        ? { type: Currency.GEM, amount: 5 }
+        : {
+            type: Currency.COIN,
+            amount: Math.max(Math.floor((new_level * 3) / 10), 1),
+          };
 
     await validateNotInJail(target_id);
 
-    await addCoins(target_id, reward);
+    if (reward.type == Currency.COIN) await addCoins(target_id, reward.amount);
+    else await addGems(target_id, reward.amount);
 
     await message.reply(
-      `Nice! u got +${reward} coins 🪙 (go gamble what r u waiting for)`,
+      `Nice! u got +${reward.amount} ${reward.type == Currency.COIN ? "coins 🪙" : "gems 💎"} (go gamble what r u waiting for)`.replaceAll(
+        "💎",
+        gem_emoji.message,
+      ),
     );
   }
 }
