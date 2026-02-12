@@ -8,6 +8,7 @@ import {
   userMention,
   Guild,
   GuildMemberRoleManager,
+  TextChannel,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -390,15 +391,43 @@ client.once("clientReady", async () => {
 
             await ranni_guild.members.fetch();
 
-            const SERVER_BOOSTER_ROLE = "1311474973948379177";
+            const SERVER_BOOSTER_ROLE_ID = "1311474973948379177";
+            const GAMBLING_CHANNEL_ID = "1459659790417399960";
+
             const boosters =
-              ranni_guild.members.cache
-                .values()
-                .filter((member) =>
-                  member.roles.cache.has(SERVER_BOOSTER_ROLE),
-                ) ?? [];
+              Array.from(ranni_guild.members.cache.values()).filter((member) =>
+                member.roles.cache.has(SERVER_BOOSTER_ROLE_ID),
+              ) ?? [];
 
             for (const booster of boosters) await addGems(booster.id, 50);
+
+            await (
+              client.channels.cache.get(GAMBLING_CHANNEL_ID) as TextChannel
+            ).send({
+              embeds: [
+                new CustomEmbed()
+                  .setTitle(
+                    "<:ServerBooster:1390962352924655697> MONTHLY REWARD <:ServerBooster:1390962352924655697>",
+                  )
+                  .setDescription("Thank you all for boosting the server 💗")
+                  .setColor(0xff4de1)
+                  .setFields([
+                    {
+                      name: "👤 Members",
+                      value: boosters
+                        .map((booster) => userMention(booster.id))
+                        .join(" "),
+                    },
+                    {
+                      name: "🎁 Gift",
+                      value: `${gem_emoji.embed} 50`,
+                    },
+                  ])
+                  .setImage(
+                    "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExanIwcWRjbHZseHF2bm9oM3JpdnphdGl5dXJmMnp5Z3RleGw1ZTdlbyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ji3BtQLFZrNRIUJa38/giphy.gif",
+                  ),
+              ],
+            });
           },
           1000 * 60 * 60 * 24 * moment().utc().daysInMonth(),
         );
