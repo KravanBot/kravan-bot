@@ -190,92 +190,83 @@ export class Store {
     .set(ItemId.END_MASK, null);
 
   static getStoreEmbeds() {
-    const values = Array.from(this.ITEMS.values());
-    const convertToFields = (arr: typeof values) =>
-      arr.map((item) => ({
-        name: `${item!.name} (${item!.currency == Currency.COIN ? "🪙" : "💎"} ${item!.amount.toLocaleString()})`.replaceAll(
-          "💎",
-          gem_emoji.embed,
-        ),
-        value: `${item!.description}`,
-        inline: true,
-      }));
+    const convertToFields = (arr: ItemId[]) =>
+      arr.map((id) => {
+        const item = this.ITEMS.get(id)!;
+
+        return {
+          name: `${item!.name} (${item!.currency == Currency.COIN ? "🪙" : "💎"} ${item!.amount.toLocaleString()})`.replaceAll(
+            "💎",
+            gem_emoji.embed,
+          ),
+          value: `${item!.description}`,
+          inline: true,
+        };
+      });
 
     return [
       new CustomEmbed()
         .setDescription("Items/Perks that u can use (and give)")
         .setColor(0x8f34eb)
-        .setFields(convertToFields(values.slice(0, ItemId.START_SHIRTS))),
+        .setFields(
+          convertToFields([ItemId.ALARM, ItemId.BOUQUET, ItemId.DIAMOND]),
+        ),
 
       new CustomEmbed()
         .setDescription("Drip your mini-me with a shirt")
         .setColor(0x34c6eb)
         .setFields(
-          convertToFields(
-            values.slice(ItemId.START_SHIRTS + 1, ItemId.START_PANTS),
-          ),
+          convertToFields([
+            ItemId.BUBI,
+            ItemId.KRAVAN_HEART,
+            ItemId.PONGO,
+            ItemId.PISS_ON_GOOBIE,
+          ]),
         ),
 
       new CustomEmbed()
         .setDescription("Drip your mini-me with some pants")
         .setColor(0xabff24)
-        .setFields(
-          convertToFields(
-            values.slice(ItemId.START_PANTS + 1, ItemId.START_SHOES),
-          ),
-        ),
+        .setFields(convertToFields([ItemId.JEANS, ItemId.LEAF])),
 
       new CustomEmbed()
         .setDescription("One two buckle your mini-me's shoes")
         .setColor(0xf5c63b)
-        .setFields(
-          convertToFields(
-            values.slice(ItemId.START_SHOES + 1, ItemId.START_WIGS),
-          ),
-        ),
+        .setFields(convertToFields([ItemId.RED_SNEAKERS])),
 
       new CustomEmbed()
         .setDescription("Put a wig on your mini-me u dont want it to be bald")
         .setColor(0xfc7830)
         .setFields(
-          convertToFields(
-            values.slice(ItemId.START_WIGS + 1, ItemId.START_HATS),
-          ),
+          convertToFields([
+            ItemId.MILES_MORALES,
+            ItemId.SOKKA,
+            ItemId.JANE_PORTER,
+            ItemId.TANGLED,
+          ]),
         ),
 
       new CustomEmbed()
         .setDescription("A cute hat/topper for your mini-me")
         .setColor(0xff443d)
         .setFields(
-          convertToFields(
-            values.slice(ItemId.START_HATS + 1, ItemId.START_EXPRESSION),
-          ),
+          convertToFields([ItemId.PROPELLER, ItemId.SPROUT, ItemId.PIKACHU]),
         ),
 
       new CustomEmbed()
         .setDescription("Add your mini-me an expression")
         .setColor(0xff3665)
-        .setFields(
-          convertToFields(
-            values.slice(ItemId.START_EXPRESSION + 1, ItemId.START_BRACELET),
-          ),
-        ),
+        .setFields(convertToFields([ItemId.BOTOX_LIPS])),
 
       new CustomEmbed()
         .setDescription("Wear something on your hand")
         .setColor(0xff6ed3)
-        .setFields(
-          convertToFields(
-            values.slice(ItemId.START_BRACELET + 1, ItemId.START_MASK),
-          ),
-        ),
+        .setFields(convertToFields([ItemId.SNAKE])),
 
       new CustomEmbed()
         .setDescription("Hide your mini-me's ugly ahh face with a mask")
         .setColor(0xff78fd)
-        .setFields(
-          convertToFields(values.slice(ItemId.START_MASK + 1, ItemId.END_MASK)),
-        ),
+        .setFields(convertToFields([ItemId.KRAVAN])),
     ];
   }
 
