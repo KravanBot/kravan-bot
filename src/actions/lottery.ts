@@ -12,7 +12,7 @@ import {
   getRandomFromArray,
   truncateNumber,
 } from "../utils/helpers.js";
-import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
+import { addCoins } from "../db/prisma.js";
 import { CustomEmbed } from "../utils/embed.js";
 import { client } from "../index.js";
 

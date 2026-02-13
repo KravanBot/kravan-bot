@@ -1171,7 +1171,11 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       }
     }
   } catch (e: any) {
-    await interaction.reply(JSON.parse(e.message));
+    try {
+      await interaction.reply(JSON.parse(e.message));
+    } catch (e) {
+      console.log(e);
+    }
   }
 });
 

@@ -28,6 +28,7 @@ export enum ItemId {
   START_HATS,
   PROPELLER,
   SPROUT,
+  PIKACHU,
 
   START_EXPRESSION,
   BOTOX_LIPS,
@@ -157,6 +158,12 @@ export class Store {
       name: "🌱 Sprout",
       description: "A sprout coming out yo huge head",
       amount: 2,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.PIKACHU, {
+      name: "⚡ Pikachu",
+      description: "SO CUTE CMON BUY BUY",
+      amount: 10,
       currency: Currency.GEM,
     })
     .set(ItemId.START_EXPRESSION, null)
