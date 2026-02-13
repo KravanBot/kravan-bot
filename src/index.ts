@@ -321,9 +321,7 @@ const commands = [
       option
         .setName("item")
         .setDescription("The item to put")
-        .setChoices(
-          items_as_string_option.slice(ItemId.START_SHIRTS, ItemId.COUNT),
-        )
+        .setChoices(items_as_string_option.slice(ItemId.START_SHIRTS))
         .setRequired(true),
     ),
 

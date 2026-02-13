@@ -37,8 +37,9 @@ export enum ItemId {
 
   START_MASK,
   KRAVAN,
+  END_MASK,
 
-  COUNT,
+  PIKACHU,
 }
 
 export enum Currency {
@@ -159,12 +160,12 @@ export class Store {
       amount: 2,
       currency: Currency.GEM,
     })
-    // .set(ItemId.PIKACHU, {
-    //   name: "⚡ Pikachu",
-    //   description: "SO CUTE CMON BUY BUY",
-    //   amount: 10,
-    //   currency: Currency.GEM,
-    // })
+    .set(ItemId.PIKACHU, {
+      name: "⚡ Pikachu",
+      description: "SO CUTE CMON BUY BUY",
+      amount: 10,
+      currency: Currency.GEM,
+    })
     .set(ItemId.START_EXPRESSION, null)
     .set(ItemId.BOTOX_LIPS, {
       name: "👄 Botox Lips",
@@ -186,7 +187,7 @@ export class Store {
       amount: 100,
       currency: Currency.GEM,
     })
-    .set(ItemId.COUNT, null);
+    .set(ItemId.END_MASK, null);
 
   static getStoreEmbeds() {
     const values = Array.from(this.ITEMS.values());
@@ -273,7 +274,7 @@ export class Store {
         .setDescription("Hide your mini-me's ugly ahh face with a mask")
         .setColor(0xff78fd)
         .setFields(
-          convertToFields(values.slice(ItemId.START_MASK + 1, ItemId.COUNT)),
+          convertToFields(values.slice(ItemId.START_MASK + 1, ItemId.END_MASK)),
         ),
     ];
   }
@@ -281,6 +282,8 @@ export class Store {
   static getItemType(item: number) {
     let type = "";
     let result = 0;
+
+    item = Array.from(this.ITEMS.keys()).indexOf(item);
 
     if (item > ItemId.START_MASK) {
       type = "mask";
