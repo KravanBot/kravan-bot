@@ -276,31 +276,16 @@ export class Store {
 
     item = Array.from(this.ITEMS.keys()).indexOf(item);
 
-    if (item > ItemId.START_MASK) {
-      type = "mask";
-      result = ItemId.START_MASK;
-    } else if (item > ItemId.START_BRACELET) {
-      type = "bracelet";
-      result = ItemId.START_BRACELET;
-    } else if (item > ItemId.START_EXPRESSION) {
-      type = "expression";
-      result = ItemId.START_EXPRESSION;
-    } else if (item > ItemId.START_HATS) {
-      type = "hat";
-      result = ItemId.START_HATS;
-    } else if (item > ItemId.START_WIGS) {
-      type = "wig";
-      result = ItemId.START_WIGS;
-    } else if (item > ItemId.START_SHOES) {
-      type = "shoes";
-      result = ItemId.START_SHOES;
-    } else if (item > ItemId.START_PANTS) {
-      type = "pants";
-      result = ItemId.START_PANTS;
-    } else if (item > ItemId.START_SHIRTS) {
-      type = "shirt";
-      result = ItemId.START_SHIRTS;
-    }
+    for (result = item; result >= 0 && !!this.ITEMS.get(result); result--) {}
+
+    if (result == ItemId.START_MASK) type = "mask";
+    else if (result == ItemId.START_BRACELET) type = "bracelet";
+    else if (result == ItemId.START_EXPRESSION) type = "expression";
+    else if (result == ItemId.START_HATS) type = "hat";
+    else if (result == ItemId.START_WIGS) type = "wig";
+    else if (result == ItemId.START_SHOES) type = "shoes";
+    else if (result == ItemId.START_PANTS) type = "pants";
+    else if (result == ItemId.START_SHIRTS) type = "shirt";
 
     return {
       type,
