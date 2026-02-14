@@ -190,6 +190,8 @@ export class Store {
     .set(ItemId.END_MASK, null);
 
   static getStoreEmbeds() {
+    console.log(this.getItemType(ItemId.BOTOX_LIPS));
+
     const convertToFields = (arr: ItemId[]) =>
       arr.map((id) => {
         const item = this.ITEMS.get(id)!;
@@ -274,18 +276,23 @@ export class Store {
     let type = "";
     let result = 0;
 
-    item = Array.from(this.ITEMS.keys()).indexOf(item);
+    const keys = Array.from(this.ITEMS.keys());
+    const values = Array.from(this.ITEMS.values());
 
-    for (result = item; result >= 0 && !!this.ITEMS.get(result); result--) {}
+    item = keys.indexOf(item);
 
-    if (result == ItemId.START_MASK) type = "mask";
-    else if (result == ItemId.START_BRACELET) type = "bracelet";
-    else if (result == ItemId.START_EXPRESSION) type = "expression";
-    else if (result == ItemId.START_HATS) type = "hat";
-    else if (result == ItemId.START_WIGS) type = "wig";
-    else if (result == ItemId.START_SHOES) type = "shoes";
-    else if (result == ItemId.START_PANTS) type = "pants";
-    else if (result == ItemId.START_SHIRTS) type = "shirt";
+    for (result = item; result >= 0 && !!values.at(result); result--) {}
+
+    const type_index = keys.at(result);
+
+    if (type_index == ItemId.START_MASK) type = "mask";
+    else if (type_index == ItemId.START_BRACELET) type = "bracelet";
+    else if (type_index == ItemId.START_EXPRESSION) type = "expression";
+    else if (type_index == ItemId.START_HATS) type = "hat";
+    else if (type_index == ItemId.START_WIGS) type = "wig";
+    else if (type_index == ItemId.START_SHOES) type = "shoes";
+    else if (type_index == ItemId.START_PANTS) type = "pants";
+    else if (type_index == ItemId.START_SHIRTS) type = "shirt";
 
     return {
       type,
