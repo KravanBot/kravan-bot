@@ -103,13 +103,13 @@ export class HideAndSeek {
   #interaction: InteractionT;
 
   #seeker: string | null;
-  #hiders: string[];
+  #hiders: Map<string, string>;
   #map: Map<number, string[]>;
 
   constructor(interaction: InteractionT) {
     this.#interaction = interaction;
     this.#seeker = null;
-    this.#hiders = [];
+    this.#hiders = new Map();
     this.#map = new Map();
 
     (async () => {
@@ -129,144 +129,151 @@ export class HideAndSeek {
   }
 
   async #sendLobby() {
-    return await new Promise<{ hiders: string[]; seeker: string | null }>(
-      async (res, rej) => {
-        const hiders: string[] = [];
-        const seekers: string[] = [];
+    return await new Promise<{
+      hiders: Map<string, string>;
+      seeker: string | null;
+    }>(async (res, rej) => {
+      const hiders: Map<string, string> = new Map();
+      const seekers: Map<string, string> = new Map();
 
-        const end_time = moment().add(5, "minutes");
+      const end_time = moment().add(5, "minutes");
 
-        const replyOptions = () => {
-          return {
-            content: "",
-            embeds: [
-              new CustomEmbed()
-                .setTitle("HIDE & SEEK")
-                .setDescription(
-                  `Game will start <t:${Math.floor(end_time.valueOf() / 1000)}:R> or when reaching 10 players`,
-                )
-                .setFields(
-                  {
-                    name: "🙈 Hiders",
-                    value: hiders.map((hider) => userMention(hider)).join(" "),
-                    inline: true,
-                  },
-                  {
-                    name: "🔍 Seekers",
-                    value: seekers.map((hider) => userMention(hider)).join(" "),
-                    inline: true,
-                  },
-                  {
-                    name: "🏆 Prize Pool",
-                    value: `🪙 ${(hiders.length + seekers.length) * HideAndSeek.#COST}`,
-                  },
-                ),
-            ],
-            components: [
-              new ActionRowBuilder<ButtonBuilder>().setComponents(
-                new ButtonBuilder()
-                  .setCustomId("hider")
-                  .setLabel("🙈 Hider")
-                  .setStyle(ButtonStyle.Secondary),
-                new ButtonBuilder()
-                  .setCustomId("seeker")
-                  .setLabel("🔍 Seeker")
-                  .setStyle(ButtonStyle.Secondary),
-                new ButtonBuilder()
-                  .setCustomId("start")
-                  .setLabel("✅ Start")
-                  .setStyle(ButtonStyle.Success),
-                new ButtonBuilder()
-                  .setCustomId("exit")
-                  .setLabel("❌ Exit")
-                  .setStyle(ButtonStyle.Danger),
+      const replyOptions = () => {
+        return {
+          content: "",
+          embeds: [
+            new CustomEmbed()
+              .setTitle("HIDE & SEEK")
+              .setDescription(
+                `Game will start <t:${Math.floor(end_time.valueOf() / 1000)}:R> or when reaching 10 players`,
+              )
+              .setFields(
+                {
+                  name: "🙈 Hiders",
+                  value: Array.from(hiders.keys())
+                    .map((hider) => userMention(hider))
+                    .join(" "),
+                  inline: true,
+                },
+                {
+                  name: "🔍 Seekers",
+                  value: Array.from(seekers.keys())
+                    .map((hider) => userMention(hider))
+                    .join(" "),
+                  inline: true,
+                },
+                {
+                  name: "🏆 Prize Pool",
+                  value: `🪙 ${(hiders.size + seekers.size) * HideAndSeek.#COST}`,
+                },
               ),
-            ],
-          };
+          ],
+          components: [
+            new ActionRowBuilder<ButtonBuilder>().setComponents(
+              new ButtonBuilder()
+                .setCustomId("hider")
+                .setLabel("🙈 Hider")
+                .setStyle(ButtonStyle.Secondary),
+              new ButtonBuilder()
+                .setCustomId("seeker")
+                .setLabel("🔍 Seeker")
+                .setStyle(ButtonStyle.Secondary),
+              new ButtonBuilder()
+                .setCustomId("start")
+                .setLabel("✅ Start")
+                .setStyle(ButtonStyle.Success),
+              new ButtonBuilder()
+                .setCustomId("exit")
+                .setLabel("❌ Exit")
+                .setStyle(ButtonStyle.Danger),
+            ),
+          ],
         };
+      };
 
-        await this.#interaction.deferReply();
+      await this.#interaction.deferReply();
 
-        const collector = (
-          await this.#interaction.editReply(replyOptions())
-        ).createMessageComponentCollector({
-          time: 300_000,
-        });
+      const collector = (
+        await this.#interaction.editReply(replyOptions())
+      ).createMessageComponentCollector({
+        time: 300_000,
+      });
 
-        collector.on("collect", async (request) => {
-          await request.deferUpdate();
+      collector.on("collect", async (request) => {
+        await request.deferUpdate();
 
-          switch (request.customId) {
-            case "hider":
-              if (hiders.includes(request.user.id)) break;
+        switch (request.customId) {
+          case "hider":
+            if (hiders.has(request.user.id)) break;
 
-              if (seekers.includes(request.user.id))
-                seekers.splice(seekers.indexOf(request.user.id), 1);
+            if (seekers.has(request.user.id)) seekers.delete(request.user.id);
 
-              hiders.push(request.user.id);
+            hiders.set(request.user.id, request.user.avatarURL() ?? "");
 
-              if (hiders.length + seekers.length >= 8) {
-                collector.stop();
-                break;
-              }
-
-              await request.editReply(replyOptions());
-              break;
-
-            case "seeker":
-              if (seekers.includes(request.user.id)) break;
-
-              if (hiders.includes(request.user.id))
-                hiders.splice(hiders.indexOf(request.user.id), 1);
-
-              seekers.push(request.user.id);
-
-              if (hiders.length + seekers.length >= 8) {
-                collector.stop();
-                break;
-              }
-
-              await request.editReply(replyOptions());
-
-              break;
-
-            case "start":
-              //   if (
-              //     request.user.id == this.#interaction.user.id &&
-              //     hiders.length + seekers.length >= 2
-              //   )
+            if (hiders.size + seekers.size >= 8) {
               collector.stop();
-
               break;
+            }
 
-            case "exit":
-              if (seekers.includes(request.user.id)) {
-                seekers.splice(seekers.indexOf(request.user.id), 1);
-                await request.editReply(replyOptions());
-              } else if (hiders.includes(request.user.id)) {
-                hiders.splice(hiders.indexOf(request.user.id), 1);
-                await request.editReply(replyOptions());
-              }
+            await request.editReply(replyOptions());
+            break;
 
+          case "seeker":
+            if (seekers.has(request.user.id)) break;
+
+            if (hiders.has(request.user.id)) hiders.delete(request.user.id);
+
+            seekers.set(request.user.id, request.user.avatarURL() ?? "");
+
+            if (hiders.size + seekers.size >= 8) {
+              collector.stop();
               break;
-          }
+            }
+
+            await request.editReply(replyOptions());
+
+            break;
+
+          case "start":
+            //   if (
+            //     request.user.id == this.#interaction.user.id &&
+            //     hiders.length + seekers.length >= 2
+            //   )
+            collector.stop();
+
+            break;
+
+          case "exit":
+            if (seekers.has(request.user.id)) {
+              seekers.delete(request.user.id);
+              await request.editReply(replyOptions());
+            } else if (hiders.has(request.user.id)) {
+              hiders.delete(request.user.id);
+              await request.editReply(replyOptions());
+            }
+
+            break;
+        }
+      });
+
+      collector.on("end", () => {
+        //   if (hiders.length + seekers.length < 2) throw new Error();
+
+        const seeker = getRandomFromArray(Array.from(seekers.keys()));
+
+        if (seeker) seekers.delete(seeker);
+
+        for (const seeker of seekers) hiders.set(seeker[0], seeker[1]);
+
+        return res({
+          hiders,
+          seeker,
         });
-
-        collector.on("end", () => {
-          //   if (hiders.length + seekers.length < 2) throw new Error();
-
-          const seeker = getRandomFromArray(seekers);
-
-          if (seeker)
-            hiders.push(...seekers.toSpliced(seekers.indexOf(seeker), 1));
-
-          return res({ hiders, seeker });
-        });
-      },
-    );
+      });
+    });
   }
 
-  async #waitForPlayersToHide(hiders: string[]) {
+  async #waitForPlayersToHide(hiders: Map<string, string>) {
     await this.#interaction.editReply({
       content: "Loading...",
       embeds: [],
@@ -307,7 +314,7 @@ export class HideAndSeek {
       });
 
       const collector = msg.createMessageComponentCollector({
-        filter: (i) => hiders.includes(i.user.id),
+        filter: (i) => hiders.has(i.user.id),
         time: 60_000,
       });
 
@@ -318,11 +325,11 @@ export class HideAndSeek {
 
         spots.set(request.user.id, spot);
 
-        if (spots.size >= hiders.length) collector.stop();
+        if (spots.size >= hiders.size) collector.stop();
       });
 
       collector.on("end", () => {
-        for (const id of hiders)
+        for (const id of Array.from(hiders.keys()))
           if (!spots.has(id)) spots.set(id, Math.floor(Math.random() * 10) + 1);
 
         this.#map = Array.from(spots.entries()).reduce((prev, [id, spot]) => {
@@ -338,7 +345,7 @@ export class HideAndSeek {
 
   async #seekPlayers() {
     const { attempts, min_to_win } =
-      HideAndSeek.#SEEKER_DATA[this.#hiders.length]!;
+      HideAndSeek.#SEEKER_DATA[this.#hiders.size]!;
     const spots_discovered: Set<number> = new Set();
 
     const msg = await this.#interaction.editReply({
@@ -359,7 +366,7 @@ export class HideAndSeek {
 
       //   await this.#getCanvasAttachment(spots_discovered, false);
 
-      if (found_by_seeker >= this.#hiders.length || attempt >= attempts)
+      if (found_by_seeker >= this.#hiders.size || attempt >= attempts)
         throw new Error();
     };
 
@@ -375,7 +382,7 @@ export class HideAndSeek {
         winners.push(this.#seeker ?? client.user!.id);
 
       const prize = Math.floor(
-        ((this.#hiders.length + (this.#seeker ? 1 : 0)) * HideAndSeek.#COST) /
+        ((this.#hiders.size + (this.#seeker ? 1 : 0)) * HideAndSeek.#COST) /
           winners.length,
       );
 
@@ -495,7 +502,7 @@ export class HideAndSeek {
 
             context.drawImage(
               await loadImage(
-                ranni_guild?.members.cache.get(user)?.avatarURL() ??
+                this.#hiders.get(user) ||
                   "https://media.tenor.com/nqSIHZTpwXAAAAAe/discord-pfp.png",
               ),
               start_x + i * SIZE,
