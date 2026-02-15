@@ -46,6 +46,7 @@ import { Meme } from "./actions/meme.js";
 import { MiniMe } from "./actions/minime.js";
 import { Flame } from "./actions/flame.js";
 import moment from "moment";
+import { HideAndSeek } from "./actions/hide-n-sick.js";
 
 configDotenv();
 
@@ -331,6 +332,10 @@ const commands = [
     .addUserOption((option) =>
       option.setName("target").setDescription("The member to flame"),
     ),
+
+  new SlashCommandBuilder()
+    .setName("hide-n-seek")
+    .setDescription("Play hide and seek with fellow members"),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
@@ -358,7 +363,7 @@ const isGuildValid = (guild: Guild) => {
 let lottery: Lottery;
 let counting: Counting;
 let num_of_members: number;
-let ranni_guild: Guild | undefined;
+export let ranni_guild: Guild | undefined;
 
 client.once("clientReady", async () => {
   counting = new Counting();
@@ -1164,6 +1169,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
       case "flame": {
         new Flame(interaction);
+
+        break;
+      }
+
+      case "hide-n-seek": {
+        new HideAndSeek(interaction);
 
         break;
       }
