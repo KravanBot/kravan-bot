@@ -10,7 +10,7 @@ import {
 import { CustomEmbed } from "../utils/embed.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import moment from "moment";
-import { client, ranni_guild } from "../index.js";
+import { client } from "../index.js";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import fs from "fs/promises";
 
@@ -323,6 +323,8 @@ export class HideAndSeek {
 
         const spot = parseInt(request.customId);
 
+        if (spots.has(request.user.id)) return;
+
         spots.set(request.user.id, spot);
 
         if (spots.size >= hiders.size) collector.stop();
@@ -491,8 +493,7 @@ export class HideAndSeek {
         const drawRow = async (row_num: 1 | 2) => {
           const row = row_num == 1 ? first_row : second_row;
 
-          const start_x =
-            cords.x + SIZE / 2 - (Math.ceil(row.length / 2) * SIZE) / 2;
+          const start_x = cords.x - (row.length - 1) * (SIZE / 2);
           let start_y = cords.y;
 
           if (second_row.length) start_y += row_num == 1 ? SIZE / -2 : SIZE / 2;
