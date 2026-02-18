@@ -13,53 +13,103 @@ import moment from "moment";
 import { client } from "../index.js";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import fs from "fs/promises";
+import path from "path";
 
 type InteractionT = ChatInputCommandInteraction<CacheType>;
+
+enum RoomsE {
+  REYNA = 1,
+  JETT,
+}
 
 export class HideAndSeek {
   static #COST = 10;
   static #ONE_TO_TEN_ARR = new Array(10).fill(0).map((_, idx) => idx + 1);
-  static #PATH = "./assets/hide-n-seek/1.jpg";
-  static #SPOTS: Record<number, { x: number; y: number }> = {
-    1: {
-      x: 425,
-      y: 275,
+  static #PATH = "./assets/hide-n-seek";
+  static #SPOTS: Record<RoomsE, Record<number, { x: number; y: number }>> = {
+    [RoomsE.REYNA]: {
+      1: {
+        x: 425,
+        y: 275,
+      },
+      2: {
+        x: 343,
+        y: 432,
+      },
+      3: {
+        x: 416,
+        y: 432,
+      },
+      4: {
+        x: 725,
+        y: 310,
+      },
+      5: {
+        x: 725,
+        y: 377,
+      },
+      6: {
+        x: 576,
+        y: 612,
+      },
+      7: {
+        x: 276,
+        y: 675,
+      },
+      8: {
+        x: 296,
+        y: 734,
+      },
+      9: {
+        x: 647,
+        y: 588,
+      },
+      10: {
+        x: 758,
+        y: 663,
+      },
     },
-    2: {
-      x: 343,
-      y: 432,
-    },
-    3: {
-      x: 416,
-      y: 432,
-    },
-    4: {
-      x: 725,
-      y: 310,
-    },
-    5: {
-      x: 725,
-      y: 377,
-    },
-    6: {
-      x: 576,
-      y: 612,
-    },
-    7: {
-      x: 276,
-      y: 675,
-    },
-    8: {
-      x: 296,
-      y: 734,
-    },
-    9: {
-      x: 647,
-      y: 588,
-    },
-    10: {
-      x: 758,
-      y: 663,
+    [RoomsE.JETT]: {
+      1: {
+        x: 353,
+        y: 347,
+      },
+      2: {
+        x: 313,
+        y: 438,
+      },
+      3: {
+        x: 653,
+        y: 281,
+      },
+      4: {
+        x: 316,
+        y: 724,
+      },
+      5: {
+        x: 361,
+        y: 724,
+      },
+      6: {
+        x: 548,
+        y: 732,
+      },
+      7: {
+        x: 714,
+        y: 675,
+      },
+      8: {
+        x: 902,
+        y: 777,
+      },
+      9: {
+        x: 108,
+        y: 120,
+      },
+      10: {
+        x: 733,
+        y: 86,
+      },
     },
   };
 
@@ -105,12 +155,14 @@ export class HideAndSeek {
   #seeker: string | null;
   #hiders: Map<string, string>;
   #map: Map<number, string[]>;
+  #room: RoomsE;
 
   constructor(interaction: InteractionT) {
     this.#interaction = interaction;
     this.#seeker = null;
     this.#hiders = new Map();
     this.#map = new Map();
+    this.#room = getRandomFromArray([RoomsE.REYNA, RoomsE.JETT])!;
 
     (async () => {
       try {
@@ -310,7 +362,11 @@ export class HideAndSeek {
               ),
           ),
         ],
-        files: [new AttachmentBuilder(HideAndSeek.#PATH).setName("place.jpg")],
+        files: [
+          new AttachmentBuilder(
+            path.join(HideAndSeek.#PATH, `${this.#room}.jpg`),
+          ).setName("place.jpg"),
+        ],
       });
 
       const collector = msg.createMessageComponentCollector({
@@ -467,8 +523,12 @@ export class HideAndSeek {
   }
 
   async #createCanvas(spots_discovered: Set<number>, show_hidden: boolean) {
-    const background = await loadImage(await fs.readFile(HideAndSeek.#PATH));
-    const x = await loadImage(await fs.readFile("./assets/hide-n-seek/x.png"));
+    const background = await loadImage(
+      await fs.readFile(path.join(HideAndSeek.#PATH, `${this.#room}.jpg`)),
+    );
+    const x = await loadImage(
+      await fs.readFile(path.join(HideAndSeek.#PATH, "x.png")),
+    );
 
     const canvas = createCanvas(background.width, background.height);
     const context = canvas.getContext("2d");
@@ -479,7 +539,7 @@ export class HideAndSeek {
 
     const drawSpots = async (spots: Set<number>) => {
       for (const spot of spots) {
-        const cords = HideAndSeek.#SPOTS[spot]!;
+        const cords = HideAndSeek.#SPOTS[this.#room][spot]!;
         const users_in_spot = this.#map.get(spot) ?? [];
 
         if (!users_in_spot.length) {
