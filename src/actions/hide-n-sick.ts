@@ -22,44 +22,44 @@ export class HideAndSeek {
   static #PATH = "./assets/hide-n-seek/1.jpg";
   static #SPOTS: Record<number, { x: number; y: number }> = {
     1: {
-      x: 1167,
-      y: 866,
+      x: 425,
+      y: 275,
     },
     2: {
-      x: 780,
-      y: 1100,
+      x: 343,
+      y: 432,
     },
     3: {
-      x: 894,
-      y: 2768,
+      x: 416,
+      y: 432,
     },
     4: {
-      x: 1671,
-      y: 2173,
+      x: 725,
+      y: 310,
     },
     5: {
-      x: 1436,
-      y: 1222,
+      x: 725,
+      y: 377,
     },
     6: {
-      x: 2014,
-      y: 1222,
+      x: 576,
+      y: 612,
     },
     7: {
-      x: 2856,
-      y: 671,
+      x: 276,
+      y: 675,
     },
     8: {
-      x: 2869,
-      y: 1231,
+      x: 296,
+      y: 734,
     },
     9: {
-      x: 2836,
-      y: 2330,
+      x: 647,
+      y: 588,
     },
     10: {
-      x: 3008,
-      y: 3024,
+      x: 758,
+      y: 663,
     },
   };
 
@@ -475,7 +475,7 @@ export class HideAndSeek {
 
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-    const SIZE = 230;
+    const SIZE = 45;
 
     const drawSpots = async (spots: Set<number>) => {
       for (const spot of spots) {
