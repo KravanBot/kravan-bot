@@ -309,6 +309,8 @@ export class HideAndSeek {
       });
 
       collector.on("end", () => {
+        if (hiders.size + seekers.size < 2) throw new Error();
+
         const seeker = getRandomFromArray(Array.from(seekers.keys()));
 
         if (seeker) seekers.delete(seeker);
