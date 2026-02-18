@@ -96,7 +96,7 @@ export class HideAndSeek {
       },
       7: {
         x: 714,
-        y: 675,
+        y: 732,
       },
       8: {
         x: 902,
@@ -287,11 +287,11 @@ export class HideAndSeek {
             break;
 
           case "start":
-            //   if (
-            //     request.user.id == this.#interaction.user.id &&
-            //     hiders.length + seekers.length >= 2
-            //   )
-            collector.stop();
+            if (
+              request.user.id == this.#interaction.user.id &&
+              hiders.size + seekers.size >= 2
+            )
+              collector.stop();
 
             break;
 
@@ -309,8 +309,6 @@ export class HideAndSeek {
       });
 
       collector.on("end", () => {
-        //   if (hiders.length + seekers.length < 2) throw new Error();
-
         const seeker = getRandomFromArray(Array.from(seekers.keys()));
 
         if (seeker) seekers.delete(seeker);
