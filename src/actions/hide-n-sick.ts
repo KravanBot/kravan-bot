@@ -181,7 +181,7 @@ export class HideAndSeek {
   }
 
   async #sendLobby() {
-    return await new Promise<{
+    return new Promise<{
       hiders: Map<string, string>;
       seeker: string | null;
     }>(async (res, rej) => {
@@ -309,7 +309,7 @@ export class HideAndSeek {
       });
 
       collector.on("end", () => {
-        if (hiders.size + seekers.size < 2) throw new Error();
+        if (hiders.size + seekers.size < 2) return rej();
 
         const seeker = getRandomFromArray(Array.from(seekers.keys()));
 
