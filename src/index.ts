@@ -777,7 +777,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         if (!(await hasEnoughCoins(target.id, 20)))
           return await interaction.reply(
-            "TRYING TO STEAL FROM THE POOR? WOW MAN",
+            "WHY WOULD U WANT TO STEAL PENNIES FIND SOME1 ELSE TO STEAL FROM",
           );
 
         if (!(await updateTheft(interaction.user.id)))
