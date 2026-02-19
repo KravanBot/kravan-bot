@@ -775,9 +775,15 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         if (target.bot || target.id == interaction.user.id) return;
 
-        if (!(await hasEnoughCoins(target.id, 20))) return;
+        if (!(await hasEnoughCoins(target.id, 20)))
+          return await interaction.reply(
+            "TRYING TO STEAL FROM THE POOR? WOW MAN",
+          );
 
-        if (!(await updateTheft(interaction.user.id))) return;
+        if (!(await updateTheft(interaction.user.id)))
+          return await interaction.reply(
+            "DOUBLING DOWN AFTER ALREADY STEALING 2DAY IS CRAZY WORK",
+          );
 
         new Steal(interaction.user, target, interaction);
 
