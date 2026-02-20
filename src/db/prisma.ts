@@ -4,7 +4,7 @@ import { diffInMinutes } from "../utils/helpers.js";
 import moment from "moment";
 import { JsonObject } from "@prisma/client/runtime/client";
 import { MiniMe } from "../actions/minime.js";
-import { Store } from "../actions/store.js";
+import { Currency, Store } from "../actions/store.js";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 
@@ -155,6 +155,12 @@ export const hasEnoughCoins = async (id: string, min: number) => {
   return data.coins >= min;
 };
 
+export const hasEnoughGems = async (id: string, min: number) => {
+  const data = await getUserCoins(id);
+
+  return data.gems >= min;
+};
+
 export const addToBank = async (
   id: string,
   amount: number,
@@ -269,6 +275,33 @@ export const takeGems = async (id: string, amount: number) => {
       id,
     },
   });
+};
+
+export const addCurrency = async (
+  id: string,
+  amount: number,
+  currency: Currency,
+) => {
+  if (currency == Currency.COIN) return await addCoins(id, amount);
+  else return await addGems(id, amount);
+};
+
+export const takeCurrency = async (
+  id: string,
+  amount: number,
+  currency: Currency,
+) => {
+  if (currency == Currency.COIN) return await takeCoins(id, amount);
+  else return await takeGems(id, amount);
+};
+
+export const hasEnoughCurrency = async (
+  id: string,
+  amount: number,
+  currency: Currency,
+) => {
+  if (currency == Currency.COIN) return await hasEnoughCoins(id, amount);
+  else return await hasEnoughGems(id, amount);
 };
 
 export const getJackpot = async () => {

@@ -335,7 +335,25 @@ const commands = [
 
   new SlashCommandBuilder()
     .setName("hide-n-seek")
-    .setDescription("Play hide and seek with fellow members"),
+    .setDescription("Play hide and seek with fellow members")
+    .addNumberOption((option) =>
+      option
+        .setName("bet")
+        .setDescription("The amount each participant needs to bet")
+        .setRequired(true)
+        .setMinValue(1)
+        .setMaxValue(100_000_000),
+    )
+    .addStringOption((option) =>
+      option
+        .setName("currency")
+        .setDescription("The currency for the bet")
+        .setRequired(true)
+        .setChoices(
+          { name: "🪙 Coin", value: Currency.COIN.toString() },
+          { name: "💎 Gem", value: Currency.GEM.toString() },
+        ),
+    ),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
@@ -893,14 +911,14 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         const amount = Math.max(
           Math.min(
             interaction.options.getNumber("amount", true),
-            data.coins - (min + 100),
+            data.coins - min,
           ),
           0,
         );
 
-        if (amount <= 0)
+        if (amount < 100)
           return await interaction.reply(
-            `You must leave ${min.toLocaleString()} coins in wallet!`,
+            `You must leave 🪙 ${min.toLocaleString()} coins in wallet!`,
           );
 
         try {

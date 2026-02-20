@@ -10,11 +10,21 @@ import {
 import { CustomEmbed } from "../utils/embed.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import moment from "moment";
-import { client } from "../index.js";
+import { client, gem_emoji } from "../index.js";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import fs from "fs/promises";
 import path from "path";
-import { addCoins, hasEnoughCoins, takeCoins } from "../db/prisma.js";
+import {
+  addCoins,
+  addCurrency,
+  hasEnoughCoins,
+  hasEnoughCurrency,
+  hasEnoughGems,
+  takeCoins,
+  takeCurrency,
+  takeGems,
+} from "../db/prisma.js";
+import { Currency } from "./store.js";
 
 type InteractionT = ChatInputCommandInteraction<CacheType>;
 
@@ -24,7 +34,6 @@ enum RoomsE {
 }
 
 export class HideAndSeek {
-  static #COST = 10;
   static #ONE_TO_TEN_ARR = new Array(10).fill(0).map((_, idx) => idx + 1);
   static #PATH = "./assets/hide-n-seek";
   static #SPOTS: Record<RoomsE, Record<number, { x: number; y: number }>> = {
@@ -157,6 +166,7 @@ export class HideAndSeek {
   #hiders: Map<string, string>;
   #map: Map<number, string[]>;
   #room: RoomsE;
+  #bet: { amount: number; currency: Currency };
 
   constructor(interaction: InteractionT) {
     this.#interaction = interaction;
@@ -164,6 +174,10 @@ export class HideAndSeek {
     this.#hiders = new Map();
     this.#map = new Map();
     this.#room = getRandomFromArray([RoomsE.REYNA, RoomsE.JETT])!;
+    this.#bet = {
+      amount: interaction.options.getNumber("bet", true),
+      currency: parseInt(interaction.options.getString("currency", true)),
+    };
 
     (async () => {
       try {
@@ -216,8 +230,21 @@ export class HideAndSeek {
                   inline: true,
                 },
                 {
+                  name: "💸 Bet",
+                  value:
+                    `${this.#bet.currency == Currency.COIN ? "🪙" : "💎"} ${this.#bet.amount}`.replace(
+                      "💎",
+                      gem_emoji.embed,
+                    ),
+                },
+                {
                   name: "🏆 Prize Pool",
-                  value: `🪙 ${(hiders.size + seekers.size) * HideAndSeek.#COST}`,
+                  value:
+                    `${this.#bet.currency == Currency.COIN ? "🪙" : "💎"} ${(hiders.size + seekers.size) * this.#bet.amount}`.replace(
+                      "💎",
+                      gem_emoji.embed,
+                    ),
+                  inline: true,
                 },
               ),
           ],
@@ -260,8 +287,18 @@ export class HideAndSeek {
             if (hiders.has(request.user.id)) break;
 
             if (seekers.has(request.user.id)) seekers.delete(request.user.id);
-            else if (await hasEnoughCoins(request.user.id, HideAndSeek.#COST))
-              await takeCoins(request.user.id, HideAndSeek.#COST);
+            else if (
+              await hasEnoughCurrency(
+                request.user.id,
+                this.#bet.amount,
+                this.#bet.currency,
+              )
+            )
+              await takeCurrency(
+                request.user.id,
+                this.#bet.amount,
+                this.#bet.currency,
+              );
             else return;
 
             hiders.set(request.user.id, request.user.avatarURL() ?? "");
@@ -278,8 +315,18 @@ export class HideAndSeek {
             if (seekers.has(request.user.id)) break;
 
             if (hiders.has(request.user.id)) hiders.delete(request.user.id);
-            else if (await hasEnoughCoins(request.user.id, HideAndSeek.#COST))
-              await takeCoins(request.user.id, HideAndSeek.#COST);
+            else if (
+              await hasEnoughCurrency(
+                request.user.id,
+                this.#bet.amount,
+                this.#bet.currency,
+              )
+            )
+              await takeCurrency(
+                request.user.id,
+                this.#bet.amount,
+                this.#bet.currency,
+              );
             else return;
 
             seekers.set(request.user.id, request.user.avatarURL() ?? "");
@@ -303,15 +350,18 @@ export class HideAndSeek {
             break;
 
           case "exit":
-            if (seekers.has(request.user.id)) {
-              seekers.delete(request.user.id);
-              await addCoins(request.user.id, HideAndSeek.#COST);
-              await request.editReply(replyOptions());
-            } else if (hiders.has(request.user.id)) {
-              hiders.delete(request.user.id);
-              await addCoins(request.user.id, HideAndSeek.#COST);
-              await request.editReply(replyOptions());
-            }
+            if (!hiders.has(request.user.id) && !seekers.has(request.user.id))
+              return;
+
+            seekers.delete(request.user.id);
+            hiders.delete(request.user.id);
+
+            await addCurrency(
+              request.user.id,
+              this.#bet.amount,
+              this.#bet.currency,
+            );
+            await request.editReply(replyOptions());
 
             break;
         }
@@ -323,7 +373,7 @@ export class HideAndSeek {
             ...Array.from(hiders.keys()),
             ...Array.from(seekers.keys()),
           ])
-            await addCoins(id, HideAndSeek.#COST);
+            await addCurrency(id, this.#bet.amount, this.#bet.currency);
 
           return rej();
         }
@@ -457,11 +507,12 @@ export class HideAndSeek {
         winners.push(this.#seeker ?? client.user!.id);
 
       const prize = Math.floor(
-        ((this.#hiders.size + (this.#seeker ? 1 : 0)) * HideAndSeek.#COST) /
+        ((this.#hiders.size + (this.#seeker ? 1 : 0)) * this.#bet.amount) /
           winners.length,
       );
 
-      for (const winner of winners) await addCoins(winner, prize);
+      for (const winner of winners)
+        await addCurrency(winner, prize, this.#bet.currency);
 
       await this.#interaction.editReply({
         content: "Loading...",
