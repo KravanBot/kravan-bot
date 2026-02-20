@@ -493,8 +493,15 @@ export class HideAndSeek {
         files: [await this.#getCanvasAttachment(spots_discovered, false)],
       });
 
-      if (found_by_seeker >= this.#hiders.size || attempt >= attempts)
+      if (found_by_seeker >= this.#hiders.size || attempt >= attempts) {
+        await new Promise<void>((res) => {
+          setTimeout(() => {
+            return res();
+          }, 1000);
+        });
+
         throw new Error();
+      }
     };
 
     const handleResults = async () => {
@@ -543,7 +550,11 @@ export class HideAndSeek {
               },
               {
                 name: "🏆 Prize",
-                value: `🪙 ${prize}`,
+                value:
+                  `${this.#bet.currency == Currency.COIN ? "🪙" : "💎"} ${prize}`.replaceAll(
+                    "💎",
+                    gem_emoji.embed,
+                  ),
               },
             ])
             .setImage("attachment://place.jpg"),

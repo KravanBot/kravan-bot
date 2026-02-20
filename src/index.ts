@@ -462,10 +462,6 @@ client.once("clientReady", async () => {
     );
   }
 
-  const entries = await prisma.user.findMany({ select: { id: true } });
-
-  for (const entry of entries) await takeCoins(entry.id, 1);
-
   console.log("All set!");
 });
 
