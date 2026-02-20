@@ -14,6 +14,7 @@ import { client } from "../index.js";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import fs from "fs/promises";
 import path from "path";
+import { addCoins, hasEnoughCoins, takeCoins } from "../db/prisma.js";
 
 type InteractionT = ChatInputCommandInteraction<CacheType>;
 
@@ -259,6 +260,9 @@ export class HideAndSeek {
             if (hiders.has(request.user.id)) break;
 
             if (seekers.has(request.user.id)) seekers.delete(request.user.id);
+            else if (await hasEnoughCoins(request.user.id, HideAndSeek.#COST))
+              await takeCoins(request.user.id, HideAndSeek.#COST);
+            else return;
 
             hiders.set(request.user.id, request.user.avatarURL() ?? "");
 
@@ -274,6 +278,9 @@ export class HideAndSeek {
             if (seekers.has(request.user.id)) break;
 
             if (hiders.has(request.user.id)) hiders.delete(request.user.id);
+            else if (await hasEnoughCoins(request.user.id, HideAndSeek.#COST))
+              await takeCoins(request.user.id, HideAndSeek.#COST);
+            else return;
 
             seekers.set(request.user.id, request.user.avatarURL() ?? "");
 
@@ -407,7 +414,7 @@ export class HideAndSeek {
     const spots_discovered: Set<number> = new Set();
 
     const msg = await this.#interaction.editReply({
-      content: `Everyone chose a spot! Seeker, its time for u to cook... You have 2 minutes and ${attempts} attempts to find at least ${min_to_win} to gain profit!`,
+      content: `Everyone chose a spot! ${userMention(this.#seeker ?? client.user!.id)}, its time for u to cook...\nYou have ${attempts} attempts to find at least ${min_to_win} <t:${Math.floor(new Date().valueOf() / 1000) + 2 * 60}:R> to gain profit!`,
     });
 
     let attempt = 0;
@@ -422,7 +429,7 @@ export class HideAndSeek {
 
       found_by_seeker += this.#map.get(spot)?.length ?? 0;
 
-      //   await this.#getCanvasAttachment(spots_discovered, false);
+      await this.#getCanvasAttachment(spots_discovered, false);
 
       if (found_by_seeker >= this.#hiders.size || attempt >= attempts)
         throw new Error();
@@ -443,6 +450,8 @@ export class HideAndSeek {
         ((this.#hiders.size + (this.#seeker ? 1 : 0)) * HideAndSeek.#COST) /
           winners.length,
       );
+
+      for (const winner of winners) await addCoins(winner, prize);
 
       await this.#interaction.editReply({
         content: "Loading...",
