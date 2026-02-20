@@ -179,11 +179,11 @@ export class HideAndSeek {
       interaction.options.getString("currency", true),
     );
     this.#bet = {
-      amount: interaction.options.getNumber("bet", true),
-      currency: Math.min(
-        parseInt(interaction.options.getString("currency", true)),
+      amount: Math.min(
+        interaction.options.getNumber("bet", true),
         currency == Currency.COIN ? 500_000_000 : 5,
       ),
+      currency,
     };
 
     (async () => {
