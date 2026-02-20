@@ -25,6 +25,7 @@ import {
   hasEnoughCoins,
   hasItem,
   isInJail,
+  prisma,
   putOnMinime,
   takeCoins,
   takeFromBank,
@@ -460,6 +461,10 @@ client.once("clientReady", async () => {
         .diff(moment().utc(), "milliseconds"),
     );
   }
+
+  const entries = await prisma.user.findMany({ select: { id: true } });
+
+  for (const entry of entries) await addCoins(entry.id, 1);
 
   console.log("All set!");
 });

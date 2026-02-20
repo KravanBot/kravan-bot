@@ -489,7 +489,9 @@ export class HideAndSeek {
 
       found_by_seeker += this.#map.get(spot)?.length ?? 0;
 
-      await this.#getCanvasAttachment(spots_discovered, false);
+      await this.#interaction.editReply({
+        files: [await this.#getCanvasAttachment(spots_discovered, false)],
+      });
 
       if (found_by_seeker >= this.#hiders.size || attempt >= attempts)
         throw new Error();
