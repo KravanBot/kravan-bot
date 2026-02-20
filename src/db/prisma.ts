@@ -84,7 +84,15 @@ export const takeCoins = async (id: string, amount: number) => {
   const current_data = await getUserCoins(id);
   const new_data = { ...current_data };
 
+  const min = Math.min(
+    Math.ceil(
+      (new_data.coins + new_data.bank + new_data.gems * 100_000_000) * 0.15,
+    ),
+    500_000_000,
+  );
+
   new_data.coins -= amount;
+  new_data.coins -= min;
 
   const coins_overflow = Math.max(0, 0 - new_data.coins);
 
@@ -103,6 +111,7 @@ export const takeCoins = async (id: string, amount: number) => {
   }
 
   new_data.gems = Math.max(0, new_data.gems);
+  new_data.coins += min;
 
   await prisma.user.upsert({
     select: {
