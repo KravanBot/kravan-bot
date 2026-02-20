@@ -884,8 +884,19 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         await validateNotInJail(interaction.user.id);
 
-        const amount = interaction.options.getNumber("amount", true);
         const data = await getUserCoins(interaction.user.id);
+        const amount = Math.max(
+          Math.min(
+            interaction.options.getNumber("amount", true),
+            data.coins - 10_000,
+          ),
+          0,
+        );
+
+        if (amount <= 0)
+          return await interaction.reply(
+            "You must have 10,000 coins in wallet to deposit!",
+          );
 
         try {
           const takenAmount = await takeCoins(
@@ -913,12 +924,15 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         await validateNotInJail(interaction.user.id);
 
-        const amount = interaction.options.getNumber("amount", true);
         const data = await getUserCoins(interaction.user.id);
+        const amount = Math.min(
+          interaction.options.getNumber("amount", true),
+          data.bank,
+        );
 
-        if (data.bank < amount)
+        if (amount < 100)
           return await interaction.reply(
-            `You only have 🪙 ${data.bank.toLocaleString()} in your bank!`,
+            "You dont have enough in bank (min. 🪙 100)",
           );
 
         const wallet_space = 500_000_000 - data.coins;

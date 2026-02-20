@@ -198,7 +198,7 @@ export class HideAndSeek {
             new CustomEmbed()
               .setTitle("HIDE & SEEK")
               .setDescription(
-                `Game will start <t:${Math.floor(end_time.valueOf() / 1000)}:R> or when reaching 10 players`,
+                `Game will start <t:${Math.floor(end_time.valueOf() / 1000)}:R> or when reaching 8 players`,
               )
               .setFields(
                 {
@@ -305,9 +305,11 @@ export class HideAndSeek {
           case "exit":
             if (seekers.has(request.user.id)) {
               seekers.delete(request.user.id);
+              await addCoins(request.user.id, HideAndSeek.#COST);
               await request.editReply(replyOptions());
             } else if (hiders.has(request.user.id)) {
               hiders.delete(request.user.id);
+              await addCoins(request.user.id, HideAndSeek.#COST);
               await request.editReply(replyOptions());
             }
 
