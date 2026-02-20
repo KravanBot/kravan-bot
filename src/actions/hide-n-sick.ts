@@ -315,8 +315,16 @@ export class HideAndSeek {
         }
       });
 
-      collector.on("end", () => {
-        if (hiders.size + seekers.size < 2) return rej();
+      collector.on("end", async () => {
+        if (hiders.size + seekers.size < 2) {
+          for (const id of [
+            ...Array.from(hiders.keys()),
+            ...Array.from(seekers.keys()),
+          ])
+            await addCoins(id, HideAndSeek.#COST);
+
+          return rej();
+        }
 
         const seeker = getRandomFromArray(Array.from(seekers.keys()));
 
