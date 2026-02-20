@@ -174,9 +174,16 @@ export class HideAndSeek {
     this.#hiders = new Map();
     this.#map = new Map();
     this.#room = getRandomFromArray([RoomsE.REYNA, RoomsE.JETT])!;
+
+    const currency: Currency = parseInt(
+      interaction.options.getString("currency", true),
+    );
     this.#bet = {
       amount: interaction.options.getNumber("bet", true),
-      currency: parseInt(interaction.options.getString("currency", true)),
+      currency: Math.min(
+        parseInt(interaction.options.getString("currency", true)),
+        currency == Currency.COIN ? 500_000_000 : 5,
+      ),
     };
 
     (async () => {

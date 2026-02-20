@@ -343,7 +343,7 @@ const commands = [
         .setDescription("The amount each participant needs to bet")
         .setRequired(true)
         .setMinValue(1)
-        .setMaxValue(100_000_000),
+        .setMaxValue(500_000_000),
     )
     .addStringOption((option) =>
       option
