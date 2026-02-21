@@ -39,13 +39,6 @@ export const addCoins = async (id: string, amount: number) => {
 
   const new_data = { ...current_data };
 
-  const min = Math.min(
-    Math.ceil(
-      (new_data.coins + new_data.bank + new_data.gems * 100_000_000) * 0.15,
-    ),
-    500_000_000,
-  );
-
   new_data.coins += amount;
 
   const coins_overflow = Math.max(0, new_data.coins - 500_000_000);

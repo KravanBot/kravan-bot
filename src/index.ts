@@ -48,6 +48,7 @@ import { MiniMe } from "./actions/minime.js";
 import { Flame } from "./actions/flame.js";
 import moment from "moment";
 import { HideAndSeek } from "./actions/hide-n-sick.js";
+import { Trivia } from "./actions/trivia.js";
 
 configDotenv();
 
@@ -337,6 +338,28 @@ const commands = [
   new SlashCommandBuilder()
     .setName("hide-n-seek")
     .setDescription("Play hide and seek with fellow members")
+    .addNumberOption((option) =>
+      option
+        .setName("bet")
+        .setDescription("The amount each participant needs to bet")
+        .setRequired(true)
+        .setMinValue(1)
+        .setMaxValue(500_000_000),
+    )
+    .addStringOption((option) =>
+      option
+        .setName("currency")
+        .setDescription("The currency for the bet")
+        .setRequired(true)
+        .setChoices(
+          { name: "🪙 Coin", value: Currency.COIN.toString() },
+          { name: "💎 Gem", value: Currency.GEM.toString() },
+        ),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("trivia")
+    .setDescription("Play a trivia game with fellow members")
     .addNumberOption((option) =>
       option
         .setName("bet")
@@ -1219,6 +1242,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
       case "hide-n-seek": {
         new HideAndSeek(interaction);
+
+        break;
+      }
+
+      case "trivia": {
+        new Trivia(interaction);
 
         break;
       }

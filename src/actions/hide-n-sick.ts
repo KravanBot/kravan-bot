@@ -528,7 +528,8 @@ export class HideAndSeek {
       );
 
       for (const winner of winners)
-        await addCurrency(winner, prize, this.#bet.currency);
+        if (winner != client.user!.id)
+          await addCurrency(winner, prize, this.#bet.currency);
 
       await this.#interaction.editReply({
         content: "Loading...",

@@ -208,7 +208,7 @@ export class Flame {
           "Couldnt fetch the name but prob goobie") + ", ";
 
     const payload = {
-      content: `${message.content ? `"${message.content}"\n\n` : ""}${flames_as_string}wanna talk about it?`,
+      content: `${flames_as_string}wanna talk about it?`,
       embeds: [...message.embeds],
       files: [...message.attachments.values()],
     };
