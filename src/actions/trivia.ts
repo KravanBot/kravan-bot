@@ -24,9 +24,9 @@ export class Trivia {
   static #PATH = "./assets/trivia";
   static #DIFFICULTY_DATA: Map<string, { time_limit: number; emoji: string }> =
     new Map()
-      .set("easy", { time_limit: 30, emoji: "😁" })
-      .set("medium", { time_limit: 45, emoji: "😐" })
-      .set("hard", { time_limit: 60, emoji: "😈" });
+      .set("easy", { time_limit: 10, emoji: "😁" })
+      .set("medium", { time_limit: 20, emoji: "😐" })
+      .set("hard", { time_limit: 30, emoji: "😈" });
 
   #interaction: InteractionT;
   #bet: {
@@ -242,6 +242,15 @@ export class Trivia {
           (answer) => answer == question.correct_answer,
         );
 
+        const difficulty_data = Trivia.#DIFFICULTY_DATA.get(
+          question.difficulty,
+        )!;
+
+        difficulty_data.time_limit +=
+          (question.question.length +
+            all_answers.reduce((acc, answer) => acc + answer.length, 0)) *
+          0.5;
+
         for (let i = 0; i < all_answers.length; i++)
           buttons.push(
             new ButtonBuilder()
@@ -271,12 +280,12 @@ export class Trivia {
                 },
                 {
                   name: "📈 Difficulty",
-                  value: `${Trivia.#DIFFICULTY_DATA.get(question.difficulty)!.emoji} ${question.difficulty}`,
+                  value: `${difficulty_data.emoji} ${question.difficulty}`,
                   inline: true,
                 },
                 {
                   name: "🕑 Round ends",
-                  value: `<t:${Math.floor(moment().add(Trivia.#DIFFICULTY_DATA.get(question.difficulty)!.time_limit, "seconds").valueOf() / 1000)}:R>`,
+                  value: `<t:${Math.floor(moment().add(difficulty_data.time_limit, "seconds").valueOf() / 1000)}:R>`,
                   inline: true,
                 },
               )
@@ -289,8 +298,7 @@ export class Trivia {
         });
 
         const collector = msg.createMessageComponentCollector({
-          time:
-            Trivia.#DIFFICULTY_DATA.get(question.difficulty)!.time_limit * 1000,
+          time: difficulty_data.time_limit * 1000,
           filter: (interaction) => players_still_in.has(interaction.user.id),
         });
 
