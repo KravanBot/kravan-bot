@@ -407,7 +407,7 @@ export class Trivia {
           .setDescription("The game has ended. Lets check the results!")
           .setColor(0x6929ff)
           .setThumbnail(
-            "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTk4ejdnbXFpcW02cTQ4dGhueWE3czYweG81ZGEwMmJndHVoYXExOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/EWWdvQngcLt6g/giphy.gif",
+            "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZnI1ajhqbG4xcXl2MWpyMm1sMDc1anM3Zng0NmVoY3d0d2FzbXppcyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/E3xZrhHq5pql7bWrLu/giphy.gif",
           )
           .setFields(
             {
