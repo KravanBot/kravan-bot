@@ -247,12 +247,11 @@ export class Trivia {
         )!;
 
         difficulty_data.time_limit +=
-          (question.question.split(" ").length +
-            all_answers.reduce(
-              (acc, answer) => acc + answer.split(" ").length,
-              0,
-            )) *
-          0.5;
+          question.question.split(" ").length +
+          all_answers.reduce(
+            (acc, answer) => acc + answer.split(" ").length,
+            0,
+          );
 
         for (let i = 0; i < all_answers.length; i++)
           buttons.push(
