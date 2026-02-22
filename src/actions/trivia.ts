@@ -173,11 +173,11 @@ export class Trivia {
             break;
 
           case "start":
-            if (
-              request.user.id == this.#interaction.user.id &&
-              this.#players.size >= 2
-            )
-              collector.stop();
+            // if (
+            //   request.user.id == this.#interaction.user.id &&
+            //   this.#players.size >= 2
+            // )
+            collector.stop();
 
             break;
 
@@ -198,12 +198,12 @@ export class Trivia {
       });
 
       collector.on("end", async () => {
-        if (this.#players.size < 2) {
-          for (const id of [...Array.from(this.#players.keys())])
-            await addCurrency(id, this.#bet.amount, this.#bet.currency);
+        // if (this.#players.size < 2) {
+        //   for (const id of [...Array.from(this.#players.keys())])
+        //     await addCurrency(id, this.#bet.amount, this.#bet.currency);
 
-          return rej();
-        }
+        //   return rej();
+        // }
 
         return res();
       });
