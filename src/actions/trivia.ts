@@ -84,6 +84,10 @@ export class Trivia {
           embeds: [
             new CustomEmbed()
               .setTitle("❓ TRIVIA ❓")
+              .setColor(0x1981ff)
+              .setImage(
+                "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExZGZqNmEwc2JlMGc3eWR2dzgwcDJnbmNnNTZ5MzV0ZHJzaWR1Ymh3ayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/RTDL9rkccjS6ii2Qcd/giphy.gif",
+              )
               .setDescription(
                 `Game will start <t:${Math.floor(end_time.valueOf() / 1000)}:R> or when reaching 8 players`,
               )
@@ -270,7 +274,7 @@ export class Trivia {
             new ButtonBuilder()
               .setCustomId(`answer_${i}`)
               .setLabel(String.fromCharCode("A".charCodeAt(0) + i))
-              .setStyle(ButtonStyle.Primary),
+              .setStyle(ButtonStyle.Secondary),
           );
 
         const msg = await this.#interaction.editReply({
@@ -278,6 +282,7 @@ export class Trivia {
           embeds: [
             new CustomEmbed()
               .setTitle(question.question)
+              .setColor(0xffca0a)
               .setDescription(
                 all_answers
                   .map(
@@ -337,6 +342,7 @@ export class Trivia {
             embeds: [
               new CustomEmbed()
                 .setTitle(question.question)
+                .setColor(0xffca0a)
                 .setFields(
                   {
                     name: "📚 Category",
@@ -397,8 +403,12 @@ export class Trivia {
       content: "",
       embeds: [
         new CustomEmbed()
-          .setTitle("Trivia Results")
-          .setDescription(`The game has ended. Lets check the results!`)
+          .setTitle("🎲 Trivia Results 🎲")
+          .setDescription("The game has ended. Lets check the results!")
+          .setColor(0x6929ff)
+          .setThumbnail(
+            "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTk4ejdnbXFpcW02cTQ4dGhueWE3czYweG81ZGEwMmJndHVoYXExOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/EWWdvQngcLt6g/giphy.gif",
+          )
           .setFields(
             {
               name: "🏆 Winner(s)",
