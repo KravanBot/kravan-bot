@@ -16,12 +16,20 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 import fs from "fs/promises";
 import path from "path";
 import he from "he";
+import { getRandomFromArray } from "../utils/helpers.js";
 
 type InteractionT = ChatInputCommandInteraction<CacheType>;
 
 export class Trivia {
   static #API_URL = "https://opentdb.com/api.php?amount=10";
   static #PATH = "./assets/trivia";
+  static #MAPS = new Map<
+    number,
+    { x: number; y: number; size: number; gap: number }
+  >()
+    .set(1, { x: 534, y: 216, size: 194, gap: 25 })
+    .set(2, { x: 450, y: 155, size: 221, gap: 45 });
+
   static #DIFFICULTY_DATA: Map<string, { time_limit: number; emoji: string }> =
     new Map()
       .set("easy", { time_limit: 10, emoji: "😁" })
@@ -34,6 +42,7 @@ export class Trivia {
     currency: Currency;
   };
   #players: Map<string, string>;
+  #map: number;
 
   constructor(interaction: InteractionT) {
     this.#interaction = interaction;
@@ -50,6 +59,7 @@ export class Trivia {
     };
 
     this.#players = new Map();
+    this.#map = getRandomFromArray(Array.from(Trivia.#MAPS.keys()))!;
 
     (async () => {
       try {
@@ -73,13 +83,13 @@ export class Trivia {
           content: "",
           embeds: [
             new CustomEmbed()
-              .setTitle("TRIVIA")
+              .setTitle("❓ TRIVIA ❓")
               .setDescription(
                 `Game will start <t:${Math.floor(end_time.valueOf() / 1000)}:R> or when reaching 8 players`,
               )
               .setFields(
                 {
-                  name: "❓ Players",
+                  name: "👥 Contestants",
                   value: Array.from(this.#players.keys())
                     .map((hider) => userMention(hider))
                     .join(" "),
@@ -418,18 +428,13 @@ export class Trivia {
 
   async #createCanvas(still_in_game: Map<string, string>) {
     const background = await loadImage(
-      await fs.readFile(path.join(Trivia.#PATH, "bg.jpg")),
+      await fs.readFile(path.join(Trivia.#PATH, `${this.#map}.jpg`)),
     );
 
     const canvas = createCanvas(background.width, background.height);
     const context = canvas.getContext("2d");
 
     context.drawImage(background, 0, 0, canvas.width, canvas.height);
-
-    const SIZE = 75;
-
-    const x = 360;
-    const y = 165;
 
     for (let i = 0; i < this.#players.size; i++) {
       const player = Array.from(this.#players.entries())[i];
@@ -442,12 +447,14 @@ export class Trivia {
 
       if (!still_in_game.has(id)) context.filter = "grayscale(100%)";
 
+      const { x, y, size, gap } = Trivia.#MAPS.get(this.#map)!;
+
       context.drawImage(
         avatar,
-        x + (i % 4) * (SIZE + 10),
-        y + Math.floor(i / 4) * (SIZE + 10),
-        SIZE,
-        SIZE,
+        x + (i % 4) * (size + gap),
+        y + Math.floor(i / 4) * (size + gap),
+        size,
+        size,
       );
       context.filter = "none";
     }
