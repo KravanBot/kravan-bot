@@ -24,9 +24,9 @@ export class Trivia {
   static #PATH = "./assets/trivia";
   static #DIFFICULTY_DATA: Map<string, { time_limit: number; emoji: string }> =
     new Map()
-      .set("easy", { time_limit: 15, emoji: "😁" })
-      .set("medium", { time_limit: 15, emoji: "😐" })
-      .set("hard", { time_limit: 15, emoji: "😈" });
+      .set("easy", { time_limit: 30, emoji: "😁" })
+      .set("medium", { time_limit: 45, emoji: "😐" })
+      .set("hard", { time_limit: 60, emoji: "😈" });
 
   #interaction: InteractionT;
   #bet: {
