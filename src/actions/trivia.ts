@@ -242,10 +242,11 @@ export class Trivia {
 
   async #showdown() {
     const questions = await this.#getQuestions();
-    const players_answered: Map<string, number> = new Map();
     const players_still_in: Map<string, string> = new Map(this.#players);
 
     for (const question of questions) {
+      const players_answered: Map<string, number> = new Map();
+
       await new Promise<void>(async (res, rej) => {
         const buttons: ButtonBuilder[] = [];
 
