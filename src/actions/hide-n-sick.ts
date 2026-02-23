@@ -33,6 +33,8 @@ enum RoomsE {
   JETT,
   SKYE,
   HARBOR,
+  CLOVE,
+  RAZE,
 }
 
 export class HideAndSeek {
@@ -207,6 +209,90 @@ export class HideAndSeek {
         y: 715,
       },
     },
+    [RoomsE.CLOVE]: {
+      1: {
+        x: 281,
+        y: 278,
+      },
+      2: {
+        x: 281,
+        y: 449,
+      },
+      3: {
+        x: 735,
+        y: 265,
+      },
+      4: {
+        x: 715,
+        y: 366,
+      },
+      5: {
+        x: 560,
+        y: 365,
+      },
+      6: {
+        x: 269,
+        y: 739,
+      },
+      7: {
+        x: 354,
+        y: 739,
+      },
+      8: {
+        x: 469,
+        y: 678,
+      },
+      9: {
+        x: 646,
+        y: 732,
+      },
+      10: {
+        x: 712,
+        y: 732,
+      },
+    },
+    [RoomsE.RAZE]: {
+      1: {
+        x: 381,
+        y: 321,
+      },
+      2: {
+        x: 349,
+        y: 321,
+      },
+      3: {
+        x: 438,
+        y: 459,
+      },
+      4: {
+        x: 285,
+        y: 660,
+      },
+      5: {
+        x: 366,
+        y: 660,
+      },
+      6: {
+        x: 649,
+        y: 328,
+      },
+      7: {
+        x: 702,
+        y: 328,
+      },
+      8: {
+        x: 547,
+        y: 599,
+      },
+      9: {
+        x: 590,
+        y: 718,
+      },
+      10: {
+        x: 668,
+        y: 599,
+      },
+    },
   };
 
   static #SEEKER_DATA: Record<
@@ -264,6 +350,8 @@ export class HideAndSeek {
       RoomsE.JETT,
       RoomsE.SKYE,
       RoomsE.HARBOR,
+      RoomsE.CLOVE,
+      RoomsE.RAZE,
     ])!;
 
     const currency: Currency = parseInt(
