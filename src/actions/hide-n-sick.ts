@@ -31,6 +31,8 @@ type InteractionT = ChatInputCommandInteraction<CacheType>;
 enum RoomsE {
   REYNA = 1,
   JETT,
+  SKYE,
+  HARBOR,
 }
 
 export class HideAndSeek {
@@ -121,6 +123,90 @@ export class HideAndSeek {
         y: 86,
       },
     },
+    [RoomsE.SKYE]: {
+      1: {
+        x: 278,
+        y: 369,
+      },
+      2: {
+        x: 278,
+        y: 425,
+      },
+      3: {
+        x: 709,
+        y: 274,
+      },
+      4: {
+        x: 741,
+        y: 359,
+      },
+      5: {
+        x: 709,
+        y: 426,
+      },
+      6: {
+        x: 738,
+        y: 663,
+      },
+      7: {
+        x: 738,
+        y: 716,
+      },
+      8: {
+        x: 309,
+        y: 731,
+      },
+      9: {
+        x: 137,
+        y: 769,
+      },
+      10: {
+        x: 901,
+        y: 240,
+      },
+    },
+    [RoomsE.HARBOR]: {
+      1: {
+        x: 380,
+        y: 289,
+      },
+      2: {
+        x: 456,
+        y: 237,
+      },
+      3: {
+        x: 446,
+        y: 437,
+      },
+      4: {
+        x: 742,
+        y: 363,
+      },
+      5: {
+        x: 742,
+        y: 413,
+      },
+      6: {
+        x: 742,
+        y: 672,
+      },
+      7: {
+        x: 674,
+        y: 738,
+      },
+      8: {
+        x: 509,
+        y: 689,
+      },
+      9: {
+        x: 401,
+        y: 689,
+      },
+      10: {
+        x: 236,
+        y: 715,
+      },
+    },
   };
 
   static #SEEKER_DATA: Record<
@@ -173,7 +259,12 @@ export class HideAndSeek {
     this.#seeker = null;
     this.#hiders = new Map();
     this.#map = new Map();
-    this.#room = getRandomFromArray([RoomsE.REYNA, RoomsE.JETT])!;
+    this.#room = getRandomFromArray([
+      RoomsE.REYNA,
+      RoomsE.JETT,
+      RoomsE.SKYE,
+      RoomsE.HARBOR,
+    ])!;
 
     const currency: Currency = parseInt(
       interaction.options.getString("currency", true),
