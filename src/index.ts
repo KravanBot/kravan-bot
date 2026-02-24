@@ -49,6 +49,7 @@ import { Flame } from "./actions/flame.js";
 import moment from "moment";
 import { HideAndSeek } from "./actions/hide-n-sick.js";
 import { Trivia } from "./actions/trivia.js";
+import { WebSocketServer } from "ws";
 
 configDotenv();
 
@@ -1293,3 +1294,12 @@ client.on("messageDelete", async (message) => {
 });
 
 client.login(TOKEN);
+
+const wss = new WebSocketServer({ port: 8080 });
+
+wss.on("connection", (ws) => {
+  console.log("Streamerbot connected!");
+  ws.on("message", (message) => {
+    console.log("Received:", message.toString());
+  });
+});
