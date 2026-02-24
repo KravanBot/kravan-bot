@@ -466,15 +466,19 @@ export class Trivia {
 
       const avatar = await loadImage(avatar_url);
 
-      if (!still_in_game.has(id)) context.filter = "grayscale(100%)";
-
       const { x, y, size, gap } = Trivia.#MAPS.get(this.#map)!;
 
       const x_top_left = x + (i % 4) * (size + gap);
       const y_top_left = y + Math.floor(i / 4) * (size + gap);
 
-      context.drawImage(avatar, x_top_left, y_top_left, size, size);
-      context.filter = "none";
+      if (!still_in_game.has(id)) {
+        context.save();
+        context.filter = "grayscale(100%)";
+        context.drawImage(avatar, x_top_left, y_top_left, size, size);
+        context.restore();
+      } else {
+        context.drawImage(avatar, x_top_left, y_top_left, size, size);
+      }
 
       const answer = players_answered?.get(id);
 
