@@ -484,16 +484,17 @@ export class Trivia {
 
       if (answer === undefined) continue;
 
-      context.font = "24px Arial";
-      context.fillStyle = "white";
-      context.strokeStyle = "black";
-      context.lineWidth = 2;
-      context.textBaseline = "top";
+      const answer_path = path.join(Trivia.#PATH, `answers/${answer}.png`);
 
-      const text = String.fromCharCode("A".charCodeAt(0) + answer);
+      const answer_image = await loadImage(await fs.readFile(answer_path));
 
-      context.strokeText(text, x_top_left + 16, y_top_left + 16);
-      context.fillText(text, x_top_left + 16, y_top_left + 16);
+      context.drawImage(
+        answer_image,
+        x_top_left + 16,
+        y_top_left + 16,
+        Math.floor(size / 4),
+        Math.floor(size / 4),
+      );
     }
 
     return canvas;
