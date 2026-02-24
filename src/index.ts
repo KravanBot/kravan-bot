@@ -1303,3 +1303,5 @@ wss.on("connection", (ws) => {
     console.log("Received:", message.toString());
   });
 });
+
+console.log("websocket server started on port 8080");
