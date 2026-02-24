@@ -86,8 +86,7 @@ export class Counting {
       );
       await message.react("6️⃣");
       await message.react("7️⃣");
-    } else if (this.#last_number == 19) {
-      // last number was 6, send 6 7 gif
+    } else if (this.#last_number == 21) {
       await message.reply(
         "https://media1.tenor.com/m/Y3DynYhvucQAAAAd/whats-9-plus-10-meme.gif",
       );

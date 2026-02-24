@@ -1302,7 +1302,16 @@ wss.on("connection", (ws) => {
   console.log("Streamerbot connected!");
 
   ws.on("message", (message) => {
-    console.log("Received:", message.toString());
+    try {
+      const { event, data } = JSON.parse(message.toString());
+
+      switch (event) {
+        case "goodboyCounterChanged":
+          break;
+      }
+    } catch (e) {
+      console.error("Error parsing message:", e);
+    }
   });
 });
 

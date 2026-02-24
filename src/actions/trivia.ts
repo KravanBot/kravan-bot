@@ -478,6 +478,8 @@ export class Trivia {
 
       const answer = players_answered?.get(id);
 
+      console.log(answer);
+
       if (answer === undefined) continue;
 
       context.font = "20px Arial";
