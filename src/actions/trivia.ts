@@ -478,7 +478,7 @@ export class Trivia {
 
       const answer = players_answered?.get(id);
 
-      if (!answer) continue;
+      if (answer === undefined) continue;
 
       context.font = "20px Arial";
       context.fillStyle = "white";
