@@ -373,7 +373,12 @@ export class Trivia {
                 .setImage("attachment://bg.jpg"),
             ],
             components: [],
-            files: [await this.#getCanvasAttachment(players_still_in)],
+            files: [
+              await this.#getCanvasAttachment(
+                players_still_in,
+                players_answered,
+              ),
+            ],
           });
 
           await new Promise<void>((res) => {
@@ -439,7 +444,10 @@ export class Trivia {
     });
   }
 
-  async #createCanvas(still_in_game: Map<string, string>) {
+  async #createCanvas(
+    still_in_game: Map<string, string>,
+    players_answered?: Map<string, number>,
+  ) {
     const background = await loadImage(
       await fs.readFile(path.join(Trivia.#PATH, `${this.#map}.jpg`)),
     );
@@ -462,21 +470,35 @@ export class Trivia {
 
       const { x, y, size, gap } = Trivia.#MAPS.get(this.#map)!;
 
-      context.drawImage(
-        avatar,
-        x + (i % 4) * (size + gap),
-        y + Math.floor(i / 4) * (size + gap),
-        size,
-        size,
-      );
+      const x_top_left = x + (i % 4) * (size + gap);
+      const y_top_left = y + Math.floor(i / 4) * (size + gap);
+
+      context.drawImage(avatar, x_top_left, y_top_left, size, size);
       context.filter = "none";
+
+      const answer = players_answered?.get(id);
+
+      if (!answer) continue;
+
+      context.font = "20px Arial";
+      context.fillStyle = "white";
+      context.strokeStyle = "black";
+      context.lineWidth = 2;
+
+      const text = String.fromCharCode("A".charCodeAt(0) + answer);
+
+      context.strokeText(text, x_top_left + 16, y_top_left + 16);
+      context.fillText(text, x_top_left + 16, y_top_left + 16);
     }
 
     return canvas;
   }
 
-  async #getCanvasAttachment(still_in_game: Map<string, string>) {
-    const canvas = await this.#createCanvas(still_in_game);
+  async #getCanvasAttachment(
+    still_in_game: Map<string, string>,
+    players_answered?: Map<string, number>,
+  ) {
+    const canvas = await this.#createCanvas(still_in_game, players_answered);
 
     const attachment_name = "bg.jpg";
 

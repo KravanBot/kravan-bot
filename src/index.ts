@@ -1300,6 +1300,7 @@ const wss = new WebSocketServer({ port: PORT });
 
 wss.on("connection", (ws) => {
   console.log("Streamerbot connected!");
+
   ws.on("message", (message) => {
     console.log("Received:", message.toString());
   });
