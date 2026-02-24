@@ -478,14 +478,13 @@ export class Trivia {
 
       const answer = players_answered?.get(id);
 
-      console.log(answer);
-
       if (answer === undefined) continue;
 
-      context.font = "20px Arial";
+      context.font = "24px Arial";
       context.fillStyle = "white";
       context.strokeStyle = "black";
       context.lineWidth = 2;
+      context.textBaseline = "top";
 
       const text = String.fromCharCode("A".charCodeAt(0) + answer);
 
