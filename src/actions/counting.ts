@@ -88,7 +88,7 @@ export class Counting {
       await message.react("7️⃣");
     } else if (this.#last_number == 21) {
       await message.reply(
-        "https://media1.tenor.com/m/Y3DynYhvucQAAAAd/whats-9-plus-10-meme.gif",
+        "https://tenor.com/view/whats-9-plus-10-meme-9-plus-10-21-gif-7165493765559269828",
       );
       await message.react("2️⃣");
       await message.react("1️⃣");

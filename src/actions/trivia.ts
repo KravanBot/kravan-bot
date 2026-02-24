@@ -278,39 +278,54 @@ export class Trivia {
               .setStyle(ButtonStyle.Secondary),
           );
 
+        const getEmbed = () => {
+          const fields = [
+            {
+              name: "📚 Category",
+              value: question.category,
+              inline: true,
+            },
+            {
+              name: "📈 Difficulty",
+              value: `${difficulty_data.emoji} ${question.difficulty}`,
+              inline: true,
+            },
+            {
+              name: "🕑 Round ends",
+              value: `<t:${Math.floor(moment().add(difficulty_data.time_limit, "seconds").valueOf() / 1000)}:R>`,
+              inline: true,
+            },
+          ];
+
+          if (players_answered.size > 0)
+            fields.push({
+              name: "✅ Answered",
+              value: `${Array.from(players_answered.keys())
+                .map((id) => userMention(id))
+                .join(
+                  ", ",
+                )} (${players_answered.size}/${players_still_in.size})`,
+              inline: true,
+            });
+
+          return new CustomEmbed()
+            .setTitle(question.question)
+            .setColor(0xffca0a)
+            .setDescription(
+              all_answers
+                .map(
+                  (answer, i) =>
+                    `${String.fromCharCode("A".charCodeAt(0) + i)}. ${answer}`,
+                )
+                .join("\n"),
+            )
+            .setFields(...fields)
+            .setImage("attachment://bg.jpg");
+        };
+
         const msg = await this.#interaction.editReply({
           content: "",
-          embeds: [
-            new CustomEmbed()
-              .setTitle(question.question)
-              .setColor(0xffca0a)
-              .setDescription(
-                all_answers
-                  .map(
-                    (answer, i) =>
-                      `${String.fromCharCode("A".charCodeAt(0) + i)}. ${answer}`,
-                  )
-                  .join("\n"),
-              )
-              .setFields(
-                {
-                  name: "📚 Category",
-                  value: question.category,
-                  inline: true,
-                },
-                {
-                  name: "📈 Difficulty",
-                  value: `${difficulty_data.emoji} ${question.difficulty}`,
-                  inline: true,
-                },
-                {
-                  name: "🕑 Round ends",
-                  value: `<t:${Math.floor(moment().add(difficulty_data.time_limit, "seconds").valueOf() / 1000)}:R>`,
-                  inline: true,
-                },
-              )
-              .setImage("attachment://bg.jpg"),
-          ],
+          embeds: [getEmbed()],
           components: [
             new ActionRowBuilder<ButtonBuilder>().setComponents(...buttons),
           ],
@@ -332,6 +347,10 @@ export class Trivia {
           players_answered.set(request.user.id, answer_index);
 
           if (players_answered.size >= players_still_in.size) collector.stop();
+          else
+            await this.#interaction.editReply({
+              embeds: [getEmbed()],
+            });
         });
 
         collector.on("end", async () => {
@@ -441,6 +460,7 @@ export class Trivia {
           .setImage("attachment://bg.jpg"),
       ],
       components: [],
+      files: [await this.#getCanvasAttachment(winners)],
     });
   }
 
