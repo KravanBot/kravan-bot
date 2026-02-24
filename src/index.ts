@@ -1295,7 +1295,8 @@ client.on("messageDelete", async (message) => {
 
 client.login(TOKEN);
 
-const wss = new WebSocketServer({ port: 8080 });
+const PORT = parseInt(process.env.PORT || "8080");
+const wss = new WebSocketServer({ port: PORT });
 
 wss.on("connection", (ws) => {
   console.log("Streamerbot connected!");
@@ -1304,4 +1305,4 @@ wss.on("connection", (ws) => {
   });
 });
 
-console.log("websocket server started on port 8080");
+console.log(`websocket server started on port ${PORT}`);
