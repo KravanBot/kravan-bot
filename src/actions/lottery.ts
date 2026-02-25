@@ -99,7 +99,7 @@ export class Lottery {
     await takeCoins(interaction.user.id, Lottery.COST);
     await this.#sendQuestion();
 
-    await tryToGetJackpot(interaction.user, this.#message!);
+    await tryToGetJackpot(interaction.user, interaction.channel!);
   }
 
   #generateQuestion(message: Message<boolean>) {
