@@ -6,11 +6,12 @@ import {
 } from "discord.js";
 import { client } from "../index.js";
 import { getRandomFromArray } from "../utils/helpers.js";
+import { prisma } from "../db/prisma.js";
 
 type InteractionT = ChatInputCommandInteraction<CacheType>;
 
 export class Flame {
-  static #FLAMING_CHANNEL_ID = "1386878625290256516";
+  static FLAMING_CHANNEL_ID = "1386878625290256516";
   static #MESSAGES: {
     id: string;
     flames: string[];
@@ -230,10 +231,11 @@ export class Flame {
   }
 
   async #sendRandomMessage() {
+    const messages = [...Flame.#MESSAGES, ...(await prisma.flame.findMany())];
     const random = getRandomFromArray(
       this.#flames
-        ? Flame.#MESSAGES.filter(({ flames }) => flames.includes(this.#flames!))
-        : Flame.#MESSAGES,
+        ? messages.filter(({ flames }) => flames.includes(this.#flames!))
+        : messages,
     );
 
     if (!random)
@@ -244,7 +246,7 @@ export class Flame {
     const { id, flames } = random;
 
     const channel = (await client.channels.fetch(
-      Flame.#FLAMING_CHANNEL_ID,
+      Flame.FLAMING_CHANNEL_ID,
     )) as TextChannel;
     const message = await channel.messages.fetch(id);
 

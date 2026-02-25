@@ -14,6 +14,12 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  LabelBuilder,
+  UserSelectMenuBuilder,
+  AttachmentBuilder,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -56,6 +62,7 @@ import moment from "moment";
 import { HideAndSeek } from "./actions/hide-n-sick.js";
 import { Trivia } from "./actions/trivia.js";
 import { WebSocketServer } from "ws";
+import { createCanvas } from "@napi-rs/canvas";
 
 configDotenv();
 
@@ -1301,6 +1308,160 @@ client.on("interactionCreate", async (interaction: Interaction) => {
   }
 });
 
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isButton()) return;
+
+  if (interaction.channelId != "1476252282134986814") return;
+
+  switch (interaction.customId) {
+    case "accept":
+      const modal = new ModalBuilder()
+        .setCustomId("flames")
+        .setTitle("Who does it flame?");
+
+      const flames_label = new LabelBuilder()
+        .setLabel("Who does it flame?")
+        .setDescription("Enter the user ID of the person it flames")
+        .setUserSelectMenuComponent(
+          new UserSelectMenuBuilder()
+            .setCustomId("flames_select")
+            .setPlaceholder("Select the user it flames")
+            .setMinValues(1)
+            .setMaxValues(1),
+        );
+
+      modal.addComponents(flames_label);
+
+      await interaction.showModal(modal);
+
+      break;
+
+    case "reject":
+      await interaction.message.delete();
+
+      break;
+  }
+});
+
+client.on("interactionCreate", async (interaction) => {
+  if (!interaction.isModalSubmit()) return;
+
+  switch (interaction.customId) {
+    case "flames":
+      const selected_user =
+        interaction.fields.getSelectedUsers("flames_select")?.at(0) ?? null;
+
+      if (selected_user == null) return;
+
+      const fields = interaction.message?.embeds[0]?.data.fields;
+
+      if (!fields) return;
+
+      const [username, content] = fields.map((field) => field.value);
+
+      if (!username || !content) return;
+
+      const getCanvas = async (
+        fontSize = 28,
+        fontFamily = "sans-serif",
+        padding = 20,
+        maxWidth = 600,
+        lineGap = 8,
+      ) => {
+        const measureCanvas = createCanvas(1, 1);
+        const measureCtx = measureCanvas.getContext("2d");
+
+        measureCtx.font = `${fontSize}px ${fontFamily}`;
+
+        const usernameText = `${username}: `;
+        const usernameWidth = measureCtx.measureText(usernameText).width;
+
+        const words = content.split(" ");
+        const lines: string[] = [];
+
+        let currentLine = "";
+        let isFirstLine = true;
+
+        for (const word of words) {
+          const testLine = currentLine ? `${currentLine} ${word}` : word;
+
+          const allowedWidth = isFirstLine
+            ? maxWidth - usernameWidth - padding * 2
+            : maxWidth - padding * 2;
+
+          const testWidth = measureCtx.measureText(testLine).width;
+
+          if (testWidth > allowedWidth) {
+            lines.push(currentLine);
+            currentLine = word;
+            isFirstLine = false;
+          } else {
+            currentLine = testLine;
+          }
+        }
+
+        if (currentLine) lines.push(currentLine);
+
+        const metrics = measureCtx.measureText("M");
+        const lineHeight =
+          metrics.actualBoundingBoxAscent +
+          metrics.actualBoundingBoxDescent +
+          lineGap;
+
+        const height = padding * 2 + lines.length * lineHeight - lineGap;
+
+        const canvas = createCanvas(maxWidth, Math.ceil(height));
+        const ctx = canvas.getContext("2d");
+
+        ctx.font = `${fontSize}px ${fontFamily}`;
+        ctx.textBaseline = "top";
+
+        let y = padding;
+
+        ctx.fillStyle = "#ff7417";
+        ctx.fillText(usernameText, padding, y);
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillText(lines[0]!, padding + usernameWidth, y);
+
+        for (let i = 1; i < lines.length; i++) {
+          y += lineHeight;
+          ctx.fillText(lines[i]!, padding, y);
+        }
+
+        return canvas;
+      };
+
+      const canvas = await getCanvas();
+
+      interaction.reply({
+        content: "✅ Flame request accepted!",
+        ephemeral: true,
+      });
+
+      await interaction.message?.delete();
+
+      const channel = client.channels.cache.get(Flame.FLAMING_CHANNEL_ID);
+
+      if (!channel || !channel.isSendable()) return;
+
+      const msg = await channel.send({
+        files: [
+          new AttachmentBuilder(canvas.toBuffer("image/jpeg"), {
+            name: "flame.jpg",
+          }),
+        ],
+      });
+
+      await prisma.flame.create({
+        data: {
+          id: msg.id,
+          flames: [selected_user.id],
+        },
+      });
+  }
+});
+
 client.on("messageCreate", async (message) => {
   try {
     switch (message.channelId) {
@@ -1370,11 +1531,11 @@ wss.on("connection", (ws) => {
                 .setTitle("New Flame Request 🔥")
                 .setFields([
                   {
-                    name: "Username",
+                    name: "👤 Username",
                     value: username,
                   },
                   {
-                    name: "Content",
+                    name: "💭 Content",
                     value: message,
                   },
                 ])
