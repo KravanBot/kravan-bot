@@ -10,7 +10,7 @@ import {
 import { Currency } from "./store.js";
 import moment from "moment";
 import { CustomEmbed } from "../utils/embed.js";
-import { gem_emoji } from "../index.js";
+import { client, gem_emoji, tryToGetJackpot } from "../index.js";
 import { addCurrency, hasEnoughCurrency, takeCurrency } from "../db/prisma.js";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import fs from "fs/promises";
@@ -462,6 +462,14 @@ export class Trivia {
       components: [],
       files: [await this.#getCanvasAttachment(winners)],
     });
+
+    for (const id of [...Array.from(this.#players.keys())]) {
+      const user = client.users.cache.get(id);
+
+      if (!user) continue;
+
+      await tryToGetJackpot(user, this.#interaction.channel!);
+    }
   }
 
   async #createCanvas(

@@ -12,9 +12,9 @@ import {
   getRandomFromArray,
   truncateNumber,
 } from "../utils/helpers.js";
-import { addCoins } from "../db/prisma.js";
+import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
 import { CustomEmbed } from "../utils/embed.js";
-import { client } from "../index.js";
+import { client, tryToGetJackpot } from "../index.js";
 
 type QuestionT = {
   question: string;
@@ -47,7 +47,12 @@ export class Lottery {
   }
 
   async handleInteraction(interaction: InteractionT) {
-    if (!this.#question || !this.#message) return;
+    if (!this.#question || !this.#message)
+      return await interaction.reply({
+        content:
+          "There is no active lottery right now. Please wait for the next stream!",
+        ephemeral: true,
+      });
 
     let value = truncateNumber(
       interaction.options.getNumber("answer", true),
@@ -57,30 +62,44 @@ export class Lottery {
     value = this.#question.allow_negative ? value : Math.abs(value);
 
     if (diffInMinutes(interaction.createdAt, this.#message.createdAt) > 30) {
-      if (interaction.user.id != "609097048662343700") return; // id for me (maybe add a role to let reveal an answer)
+      if (interaction.user.id != "609097048662343700")
+        return await interaction.reply({
+          content: "You missed the lottery! Wait for the next one :)",
+          ephemeral: true,
+        }); // id for me (maybe add a role to let reveal an answer)
 
-      await interaction.reply("Checking results...");
+      await interaction.reply({
+        content: "Checking results...",
+        ephemeral: true,
+      });
 
       await this.#postResults(value);
-
-      await interaction.deleteReply();
 
       return;
     }
 
     // already entered the lottery
-    if (this.#entries.has(interaction.user.id)) return;
+    if (this.#entries.has(interaction.user.id))
+      return await interaction.reply({
+        content: "You already entered the lottery! Wait for the next one :)",
+        ephemeral: true,
+      });
 
-    // if ((await getUserCoins(interaction.user.id)) < Lottery.COST) return;
+    if ((await getUserCoins(interaction.user.id)).coins < Lottery.COST)
+      return await interaction.reply({
+        content:
+          "You dont have enough coins to enter the lottery! Earn some more and try again :)",
+        ephemeral: true,
+      });
 
     this.#entries.set(interaction.user.id, value);
 
     await interaction.reply("Adding you to the lottery...");
 
-    // await takeCoins(interaction.user.id, Lottery.COST);
+    await takeCoins(interaction.user.id, Lottery.COST);
     await this.#sendQuestion();
 
-    await interaction.deleteReply();
+    await tryToGetJackpot(interaction.user, this.#message!);
   }
 
   #generateQuestion(message: Message<boolean>) {

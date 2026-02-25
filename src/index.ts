@@ -7,8 +7,10 @@ import {
   Interaction,
   userMention,
   Guild,
-  GuildMemberRoleManager,
   TextChannel,
+  Message,
+  User,
+  Channel,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -17,6 +19,7 @@ import {
   addGems,
   addItem,
   addToBank,
+  claimJackpot,
   getInventory,
   getJackpot,
   getMinime,
@@ -383,6 +386,28 @@ const commands = [
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
 const rest = new REST({ version: "10" }).setToken(TOKEN);
+
+export const tryToGetJackpot = async (user: User, channel: Channel) => {
+  if (!channel.isSendable()) return;
+
+  const jackpot = await claimJackpot(user.id);
+
+  if (!jackpot) return;
+
+  await channel.send({
+    embeds: [
+      new CustomEmbed()
+        .setTitle("JACKPOT WINNER 🤑🎉")
+        .setDescription(
+          `Congratulations ${userMention(user.id)} for winning the jackpot!!\n\nYou got 🪙 ${jackpot.coins.toLocaleString()} coins and 💎${jackpot.gems.toLocaleString()} gems!`,
+        )
+        .setThumbnail(user.avatarURL())
+        .setImage(
+          "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExdms5ZzdnYXZ0MmxrY2pmbGJiNHYzc21zZDF3dDJnMHBiajNnZG9rdCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/Sqfu14lSonVN219Zb6/giphy.gif",
+        ),
+    ],
+  });
+};
 
 const isGuildValid = (guild: Guild) => {
   return guilds.includes(guild.id);
@@ -791,6 +816,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           )} ${Math.floor(amount * 0.9).toLocaleString()} coins (10% fee) 🪙\n\n(Exucse me im gonna tear up 🥹)`,
         );
 
+        await tryToGetJackpot(from, interaction.channel!);
+
         break;
       }
 
@@ -806,9 +833,13 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         await addCoins(interaction.user.id, result);
 
-        return await interaction.reply(
+        await interaction.reply(
           `NICE! Streak is now ${result.toLocaleString()} days 🔥 You got +${result.toLocaleString()} coins 🪙`,
         );
+
+        await tryToGetJackpot(interaction.user, interaction.channel!);
+
+        break;
       }
 
       case "steal": {
@@ -871,12 +902,14 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           await takeCoins(interaction.user.id, total);
         else await takeGems(interaction.user.id, total);
 
-        await interaction.reply(
+        const msg = await interaction.reply(
           `SUCCESSFULLY PURCHASED THE ${item.name.toUpperCase()} ${quantity} TIMES FOR ${total.toLocaleString()} ${item.currency == Currency.COIN ? "COINS" : "GEMS"}!!`.replaceAll(
             "💎",
             gem_emoji.message,
           ),
         );
+
+        await tryToGetJackpot(interaction.user, interaction.channel!);
 
         break;
       }
@@ -1163,6 +1196,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           `${userMention(interaction.user.id)} GAVE ${userMention(target.id)} A ${Store.ITEMS.get(item)?.name}!!!`,
         );
 
+        await tryToGetJackpot(interaction.user, interaction.channel!);
+
         break;
       }
 
@@ -1201,6 +1236,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await interaction.reply(
           `SUCCESSFULLY SOLD ${amount} GEMS!! ${final_amount.toLocaleString()} COINS WERE ADDED TO UR BANK (2% fee)!!`,
         );
+
+        await tryToGetJackpot(interaction.user, interaction.channel!);
 
         break;
       }

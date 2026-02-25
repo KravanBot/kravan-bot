@@ -307,22 +307,24 @@ export const hasEnoughCurrency = async (
 export const getJackpot = async () => {
   const jackpot = await prisma.jackpot.findFirst();
 
-  return jackpot?.coins;
+  return jackpot;
 };
 
 export const addToJackpot = async (amount: number) => {
-  let jackpot = (await getJackpot()) ?? 0;
-
-  if (jackpot >= 1_000_000_000) return;
+  let jackpot = (await getJackpot()) ?? { coins: 0, gems: 0 };
 
   const amount_to_add = Math.max(Math.floor(amount / 1), 1);
 
-  jackpot = Math.min(jackpot + amount_to_add, 1_000_000_000);
+  jackpot.coins += jackpot.coins + amount_to_add;
+  const coins_overflow = Math.max(0, jackpot.coins - 2_000_000_000);
+
+  if (coins_overflow) {
+    jackpot.coins = coins_overflow;
+    jackpot.gems += Math.floor(coins_overflow / 100_000_000);
+  }
 
   await prisma.jackpot.updateManyAndReturn({
-    data: {
-      coins: jackpot,
-    },
+    data: jackpot,
   });
 };
 
@@ -332,6 +334,7 @@ export const clearJackpot = async () => {
   await prisma.jackpot.updateMany({
     data: {
       coins: 0,
+      gems: 0,
     },
   });
 
@@ -648,6 +651,19 @@ export const takeFromMinime = async (
       id,
     },
   });
+};
+
+export const claimJackpot = async (id: string) => {
+  if (Math.floor(Math.random() * 1_000) > 0) return null;
+
+  const jackpot = await clearJackpot();
+
+  if (!jackpot) return null;
+
+  await addCoins(id, jackpot.coins);
+  await addGems(id, jackpot.gems);
+
+  return jackpot;
 };
 
 export { prisma };

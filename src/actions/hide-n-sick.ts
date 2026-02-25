@@ -10,7 +10,7 @@ import {
 import { CustomEmbed } from "../utils/embed.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import moment from "moment";
-import { client, gem_emoji } from "../index.js";
+import { client, gem_emoji, tryToGetJackpot } from "../index.js";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import fs from "fs/promises";
 import path from "path";
@@ -749,6 +749,17 @@ export class HideAndSeek {
         components: [],
         files: [await this.#getCanvasAttachment(spots_discovered, true)],
       });
+
+      for (const id of [
+        ...Array.from(this.#hiders.keys()),
+        ...(this.#seeker ? [this.#seeker] : []),
+      ]) {
+        const user = client.users.cache.get(id);
+
+        if (!user) continue;
+
+        await tryToGetJackpot(user, this.#interaction.channel!);
+      }
     };
 
     if (this.#seeker) {

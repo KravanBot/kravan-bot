@@ -17,7 +17,7 @@ import {
   isInJail,
   takeCoins,
 } from "../db/prisma.js";
-import { client } from "../index.js";
+import { client, tryToGetJackpot } from "../index.js";
 import { CustomEmbed } from "../utils/embed.js";
 
 export class Duel {
@@ -150,6 +150,9 @@ export class Duel {
         embeds: [],
         components: [],
       });
+
+      await tryToGetJackpot(this.#initiator, game_msg.channel);
+      await tryToGetJackpot(this.#target, game_msg.channel);
     } catch (e) {
       await game_msg.edit({
         content: `Looks like ${userMention(

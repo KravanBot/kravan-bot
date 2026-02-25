@@ -12,7 +12,7 @@ import {
 import { addCoins, getUserCoins, hasEnoughCoins } from "../db/prisma.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import { CustomEmbed } from "../utils/embed.js";
-import { current_gambles } from "../index.js";
+import { current_gambles, tryToGetJackpot } from "../index.js";
 
 type InteractionT = ChatInputCommandInteraction<CacheType>;
 
@@ -324,6 +324,8 @@ export class Gamble {
       ],
       files: attachment ? [attachment] : [],
     });
+
+    await tryToGetJackpot(this.#interaction.user, msg.channel);
 
     current_gambles.delete(this.#interaction.user.id);
 

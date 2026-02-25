@@ -15,7 +15,7 @@ import {
 } from "../utils/helpers.js";
 import { addCoins, hasEnoughCoins, takeCoins } from "../db/prisma.js";
 import { Mutex } from "async-mutex";
-import { client } from "../index.js";
+import { client, tryToGetJackpot } from "../index.js";
 
 enum COUNT_EVENT {
   NORMAL = "Normal",
@@ -344,18 +344,28 @@ export class Counting {
       const cost = this.#getTrapCost();
 
       if (!this.#last_counter_id)
-        return await interaction.reply("COUNTING SEQUENCE MUST BEGIN FIRST");
+        return await interaction.reply({
+          content: "COUNTING SEQUENCE MUST BEGIN FIRST",
+          ephemeral: true,
+        });
 
       if (this.#trapped_by)
-        return await interaction.reply("NUMBER IS ALREADY TRAPPED");
+        return await interaction.reply({
+          content: "NUMBER IS ALREADY TRAPPED",
+          ephemeral: true,
+        });
 
       if (Math.abs(this.#last_number!) < 50)
-        return await interaction.reply("U CAN TRAP ONLY AFTER COUNTING TO 50");
+        return await interaction.reply({
+          content: "U CAN TRAP ONLY AFTER COUNTING TO 50",
+          ephemeral: true,
+        });
 
       if (!(await hasEnoughCoins(interaction.user.id, cost)))
-        return await interaction.reply(
-          "BROKIE U CANT AFFORD TRAPPING THIS NUMBER",
-        );
+        return await interaction.reply({
+          content: "BROKIE U CANT AFFORD TRAPPING THIS NUMBER",
+          ephemeral: true,
+        });
 
       try {
         await this.#last_msg!.reactions.removeAll();
@@ -370,11 +380,14 @@ export class Counting {
         await this.#last_msg!.reply("Be careful...");
 
         this.#trapped_by = interaction.user.id;
+
+        await tryToGetJackpot(interaction.user, this.#last_msg!.channel);
       } catch (e) {
         console.log(e);
-        await interaction.reply(
-          "Something went wrong. Maybe someone deleted his message...",
-        );
+        await interaction.reply({
+          content: "Something went wrong. Maybe someone deleted his message...",
+          ephemeral: true,
+        });
       }
     });
   }
