@@ -1068,11 +1068,13 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         break;
 
       case "jackpot": {
+        const jackpot = await getJackpot();
+
         await interaction.reply({
           embeds: [
             new CustomEmbed()
               .setTitle(
-                `JACKPOT IS AT 🪙 ${(await getJackpot())?.toLocaleString()}`,
+                `JACKPOT IS AT 🪙 ${jackpot?.coins.toLocaleString() ?? "0"} AND 💎 ${jackpot?.gems.toLocaleString() ?? "0"}`,
               )
               .setDescription(
                 "Go use the bot (count, gamble, level up, duel, buy, claim daily, donate, trap, join lottery), you might win it all...",
