@@ -1436,6 +1436,11 @@ client.on("interactionCreate", async (interaction) => {
 
       interaction.reply({
         content: "✅ Flame request accepted!",
+        files: [
+          new AttachmentBuilder(canvas.toBuffer("image/jpeg"), {
+            name: "flame.png",
+          }),
+        ],
         ephemeral: true,
       });
 
@@ -1445,20 +1450,20 @@ client.on("interactionCreate", async (interaction) => {
 
       if (!channel || !channel.isSendable()) return;
 
-      const msg = await channel.send({
-        files: [
-          new AttachmentBuilder(canvas.toBuffer("image/jpeg"), {
-            name: "flame.jpg",
-          }),
-        ],
-      });
+    // const msg = await channel.send({
+    //   files: [
+    //     new AttachmentBuilder(canvas.toBuffer("image/jpeg"), {
+    //       name: "flame.jpg",
+    //     }),
+    //   ],
+    // });
 
-      await prisma.flame.create({
-        data: {
-          id: msg.id,
-          flames: [selected_user.id],
-        },
-      });
+    // await prisma.flame.create({
+    //   data: {
+    //     id: msg.id,
+    //     flames: [selected_user.id],
+    //   },
+    // });
   }
 });
 
