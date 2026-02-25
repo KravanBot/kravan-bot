@@ -70,8 +70,6 @@ export class Steal {
           this.#victim.displayName
         }, reply to this message <t:${end_time}:R> to catch the filthy theif...`,
       );
-
-    await this.#interaction.deleteReply();
   }
 
   async #sendCaught(msg: string, image: string) {
