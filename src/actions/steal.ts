@@ -46,7 +46,10 @@ export class Steal {
   }
 
   async #sendMsg() {
-    await this.#interaction.reply("Loading...");
+    await this.#interaction.reply({
+      content: `Trying to steal from ${this.#victim.displayName} <a:evilcat:1432751141254467815>`,
+      ephemeral: true,
+    });
 
     const end_time = Math.floor(new Date().valueOf() / 1000 + 10 * 60);
 

@@ -303,7 +303,7 @@ export class Trivia {
               value: `${Array.from(players_answered.keys())
                 .map((id) => userMention(id))
                 .join(
-                  ", ",
+                  " ",
                 )} (${players_answered.size}/${players_still_in.size})`,
               inline: true,
             });
