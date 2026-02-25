@@ -1351,6 +1351,8 @@ wss.on("connection", (ws) => {
 
       const { event, data } = response;
 
+      console.log(response);
+
       switch (event) {
         case "goodboyCounterChanged":
           break;
