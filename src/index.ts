@@ -1418,11 +1418,16 @@ client.on("interactionCreate", async (interaction) => {
 
         let y = padding;
 
-        ctx.fillStyle = "#ff7417";
+        const usernameColor = "#c019fc";
+
+        ctx.fillStyle = usernameColor;
         ctx.fillText(usernameText, padding, y);
 
         ctx.fillStyle = "#ffffff";
         ctx.fillText(lines[0]!, padding + usernameWidth, y);
+
+        console.log(usernameText);
+        console.log(lines);
 
         for (let i = 1; i < lines.length; i++) {
           y += lineHeight;
@@ -1438,7 +1443,7 @@ client.on("interactionCreate", async (interaction) => {
         content: "✅ Flame request accepted!",
         files: [
           new AttachmentBuilder(canvas.toBuffer("image/jpeg"), {
-            name: "flame.png",
+            name: "flame.jpg",
           }),
         ],
         ephemeral: true,
