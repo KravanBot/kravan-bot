@@ -11,6 +11,9 @@ import {
   Message,
   User,
   Channel,
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -1351,10 +1354,47 @@ wss.on("connection", (ws) => {
 
       const { event, data } = response;
 
-      console.log(response);
-
       switch (event) {
-        case "goodboyCounterChanged":
+        case "flame":
+          const { username, message } = data;
+
+          const CHANNEL_ID = "1476252282134986814";
+
+          const channel = client.channels.cache.get(CHANNEL_ID) as TextChannel;
+
+          if (!channel) return;
+
+          channel.send({
+            embeds: [
+              new CustomEmbed()
+                .setTitle("New Flame Request 🔥")
+                .setFields([
+                  {
+                    name: "Username",
+                    value: username,
+                  },
+                  {
+                    name: "Content",
+                    value: message,
+                  },
+                ])
+                .setColor(0xff7417),
+            ],
+            components: [
+              new ActionRowBuilder<ButtonBuilder>().setComponents(
+                new ButtonBuilder()
+                  .setCustomId("accept")
+                  .setLabel("✅ Accept")
+                  .setStyle(ButtonStyle.Success),
+
+                new ButtonBuilder()
+                  .setCustomId("reject")
+                  .setLabel("❌ Reject")
+                  .setStyle(ButtonStyle.Danger),
+              ),
+            ],
+          });
+
           break;
       }
     } catch (e) {
