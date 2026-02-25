@@ -1342,7 +1342,14 @@ wss.on("connection", (ws) => {
 
   ws.on("message", (message) => {
     try {
-      const { event, data } = JSON.parse(message.toString());
+      const response = JSON.parse(message.toString());
+
+      if ("error" in response) {
+        console.log(response.error);
+        return;
+      }
+
+      const { event, data } = response;
 
       switch (event) {
         case "goodboyCounterChanged":

@@ -316,12 +316,16 @@ export const addToJackpot = async (amount: number) => {
   const amount_to_add = Math.max(Math.floor(amount / 1), 1);
 
   jackpot.coins += jackpot.coins + amount_to_add;
-  const coins_overflow = Math.max(0, jackpot.coins - 2_000_000_000);
+  let coins_overflow;
 
-  if (coins_overflow) {
-    jackpot.coins = coins_overflow;
-    jackpot.gems += Math.floor(coins_overflow / 100_000_000);
-  }
+  do {
+    if (coins_overflow) {
+      jackpot.coins -= coins_overflow;
+      jackpot.gems += Math.floor(coins_overflow / 100_000_000);
+    }
+
+    coins_overflow = Math.max(0, jackpot.coins - 2_000_000_000);
+  } while (coins_overflow);
 
   await prisma.jackpot.updateManyAndReturn({
     data: jackpot,
