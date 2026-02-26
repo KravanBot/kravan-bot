@@ -1700,7 +1700,7 @@ wss.on("connection", (ws) => {
       const { event, data } = response;
 
       switch (event) {
-        case "flame":
+        case "flame": {
           const { username, message } = data;
 
           const CHANNEL_ID = "1476252282134986814";
@@ -1741,6 +1741,27 @@ wss.on("connection", (ws) => {
           });
 
           break;
+        }
+
+        case "newClip": {
+          // const {username, url} = data;
+
+          // const channel = client.channels.cache.get("1387333680141439046");
+
+          // if (!channel?.isSendable()) return;
+
+          // channel.send({
+          //   embeds: [
+          //     new CustomEmbed()
+          //       .setTitle("🎬 NEW CLIP 🎬")
+          //       .setDescription()
+          //   ]
+          // })
+
+          console.log(data);
+
+          break;
+        }
       }
     } catch (e) {
       console.error("Error parsing message:", e);
