@@ -9,10 +9,17 @@ import {
   Message,
   userMention,
 } from "discord.js";
-import { addCoins, getUserCoins, hasEnoughCoins } from "../db/prisma.js";
+import {
+  addCoins,
+  getUserCoins,
+  hasEnoughCoins,
+  hasItem,
+} from "../db/prisma.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import { CustomEmbed } from "../utils/embed.js";
-import { current_gambles, tryToGetJackpot } from "../index.js";
+import { boosts, current_gambles, tryToGetJackpot } from "../index.js";
+import { ItemId, Store } from "./store.js";
+import moment from "moment";
 
 type InteractionT = ChatInputCommandInteraction<CacheType>;
 
@@ -113,6 +120,35 @@ export class Gamble {
           .setStyle(ButtonStyle.Primary),
       ];
 
+      let boost = boosts.get(this.#interaction.user.id) ?? null;
+
+      if (boost && moment().utc().isAfter(boost.end_time)) {
+        boost = null;
+        boosts.delete(this.#interaction.user.id);
+      }
+
+      if (
+        !boost &&
+        (await hasItem(this.#interaction.user.id, ItemId.GAMBLING_BOOST_15M))
+      )
+        components.push(
+          new ButtonBuilder()
+            .setCustomId(this.#getCustomId("15m-boost"))
+            .setLabel(`Use ${Store.ITEMS.get(ItemId.GAMBLING_BOOST_15M)!.name}`)
+            .setStyle(ButtonStyle.Secondary),
+        );
+
+      if (
+        !boost &&
+        (await hasItem(this.#interaction.user.id, ItemId.GAMBLING_BOOST_30M))
+      )
+        components.push(
+          new ButtonBuilder()
+            .setCustomId(this.#getCustomId("30m-boost"))
+            .setLabel(`Use ${Store.ITEMS.get(ItemId.GAMBLING_BOOST_30M)!.name}`)
+            .setStyle(ButtonStyle.Secondary),
+        );
+
       if (is_first)
         components.push(
           new ButtonBuilder()
@@ -136,7 +172,7 @@ export class Gamble {
                 Gamble.#good_emoji
               } - Earn your bet back\n- ${
                 Gamble.#bad_emoji
-              } - Half of your bet is being reduced`,
+              } - Half of your bet is being reduced${boost ? `\n\nYou currently have a ${boost.amount}% boost that ends in <t:${boost.end_time.valueOf()}:R> 🔥` : ""}`,
             )
             .setFields([
               {
@@ -196,6 +232,22 @@ export class Gamble {
         case this.#getCustomId("cancel"):
           this.#revealed = -1;
           return false;
+
+        case this.#getCustomId("15m-boost"):
+          boosts.set(this.#interaction.user.id, {
+            amount: 10,
+            end_time: moment().utc().add(15, "minutes").toDate(),
+          });
+
+          break;
+
+        case this.#getCustomId("30m-boost"):
+          boosts.set(this.#interaction.user.id, {
+            amount: 10,
+            end_time: moment().utc().add(30, "minutes").toDate(),
+          });
+
+          break;
       }
 
       return true;
@@ -272,7 +324,9 @@ export class Gamble {
       this.#interaction.member?.roles as GuildMemberRoleManager
     ).cache;
 
-    const gets_bonus_on_profit =
+    let profit_bonus = 0;
+
+    const gets_bonus_for_lvl =
       delta >= 5 &&
       [
         "1236751656385773628",
@@ -281,7 +335,14 @@ export class Gamble {
         "1311398075218264124",
         "1236751656377520215",
       ].some((id) => member_roles.has(id));
-    if (gets_bonus_on_profit) delta = Math.floor(delta * 1.2);
+    if (gets_bonus_for_lvl) profit_bonus += 20;
+
+    const boost = boosts.get(this.#interaction.user.id);
+
+    if (delta >= 10 && boost && moment().utc().isBefore(boost.end_time))
+      profit_bonus += 10;
+
+    delta = Math.floor(delta * ((100 + profit_bonus) / 100));
 
     const new_balance = await addCoins(this.#interaction.user.id, delta);
 
@@ -300,7 +361,7 @@ export class Gamble {
           },
           {
             name: delta < 0 ? "Loss" : "Profit",
-            value: `🪙 ${delta.toLocaleString()}${gets_bonus_on_profit ? " (+20%)" : ""}`,
+            value: `🪙 ${delta.toLocaleString()}${profit_bonus ? ` (+20%)` : ""}`,
             inline: true,
           },
           {

@@ -88,6 +88,8 @@ export let gem_emoji = { message: "💎", embed: "💎" };
 export const current_gambles: Set<string> = new Set();
 export const successful_steals: Map<string, { theif: string; amount: number }> =
   new Map();
+export const boosts: Map<string, { amount: number; end_time: Date }> =
+  new Map();
 
 const items_as_string_option = Array.from(Store.ITEMS)
   .filter(([_, data]) => !!data)

@@ -1,9 +1,7 @@
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "@prisma/client";
-import { diffInMinutes } from "../utils/helpers.js";
 import moment from "moment";
 import { JsonObject } from "@prisma/client/runtime/client";
-import { MiniMe } from "../actions/minime.js";
 import { Currency, Store } from "../actions/store.js";
 
 const connectionString = `${process.env.DATABASE_URL}`;

@@ -40,6 +40,8 @@ export enum ItemId {
   END_MASK,
 
   PIKACHU,
+  GAMBLING_BOOST_15M,
+  GAMBLING_BOOST_30M,
 }
 
 export enum Currency {
@@ -76,6 +78,18 @@ export class Store {
       description: "Get a shiny diamond",
       amount: 100_000_000,
       currency: Currency.COIN,
+    })
+    .set(ItemId.GAMBLING_BOOST_15M, {
+      name: "🚀 Boost",
+      description: "a 10% gambling boost for 15 minutes",
+      amount: 250,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.GAMBLING_BOOST_30M, {
+      name: "☄️ Big Boost",
+      description: "a 10% gambling boost for 30 minutes",
+      amount: 450,
+      currency: Currency.GEM,
     })
     .set(ItemId.START_SHIRTS, null)
     .set(ItemId.BUBI, {
@@ -211,7 +225,13 @@ export class Store {
         .setDescription("Items/Perks that u can use (and give)")
         .setColor(0x8f34eb)
         .setFields(
-          convertToFields([ItemId.ALARM, ItemId.BOUQUET, ItemId.DIAMOND]),
+          convertToFields([
+            ItemId.ALARM,
+            ItemId.BOUQUET,
+            ItemId.DIAMOND,
+            ItemId.GAMBLING_BOOST_15M,
+            ItemId.GAMBLING_BOOST_30M,
+          ]),
         ),
 
       new CustomEmbed()
