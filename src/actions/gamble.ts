@@ -175,7 +175,7 @@ export class Gamble {
                 Gamble.#good_emoji
               } - Earn your bet back\n- ${
                 Gamble.#bad_emoji
-              } - Half of your bet is being reduced${boost ? `\n\nYou currently have a ${boost.amount}% boost that ends in <t:${boost.end_time.valueOf()}:R> 🔥` : ""}`,
+              } - Half of your bet is being reduced${boost ? `\n\nYou currently have a ${boost.amount}% boost that ends in <t:${Math.floor(boost.end_time.valueOf() / 1000)}:R> 🔥` : ""}`,
             )
             .setFields([
               {
@@ -368,7 +368,7 @@ export class Gamble {
           },
           {
             name: delta < 0 ? "Loss" : "Profit",
-            value: `🪙 ${delta.toLocaleString()}${profit_bonus ? ` (+20%)` : ""}`,
+            value: `🪙 ${delta.toLocaleString()}${profit_bonus ? ` (+${profit_bonus}%)` : ""}`,
             inline: true,
           },
           {
