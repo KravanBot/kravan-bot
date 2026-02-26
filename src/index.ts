@@ -1413,6 +1413,9 @@ client.on("interactionCreate", async (interaction) => {
         const canvas = createCanvas(maxWidth, Math.ceil(height));
         const ctx = canvas.getContext("2d");
 
+        ctx.fillStyle = "#18181B";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         ctx.font = `${fontSize}px ${fontFamily}`;
         ctx.textBaseline = "top";
 
@@ -1426,9 +1429,6 @@ client.on("interactionCreate", async (interaction) => {
         ctx.fillStyle = "#ffffff";
         ctx.fillText(lines[0]!, padding + usernameWidth, y);
 
-        console.log(usernameText);
-        console.log(lines);
-
         for (let i = 1; i < lines.length; i++) {
           y += lineHeight;
           ctx.fillText(lines[i]!, padding, y);
@@ -1441,11 +1441,6 @@ client.on("interactionCreate", async (interaction) => {
 
       interaction.reply({
         content: "✅ Flame request accepted!",
-        files: [
-          new AttachmentBuilder(canvas.toBuffer("image/jpeg"), {
-            name: "flame.jpg",
-          }),
-        ],
         ephemeral: true,
       });
 
@@ -1455,20 +1450,20 @@ client.on("interactionCreate", async (interaction) => {
 
       if (!channel || !channel.isSendable()) return;
 
-    // const msg = await channel.send({
-    //   files: [
-    //     new AttachmentBuilder(canvas.toBuffer("image/jpeg"), {
-    //       name: "flame.jpg",
-    //     }),
-    //   ],
-    // });
+      const msg = await channel.send({
+        files: [
+          new AttachmentBuilder(canvas.toBuffer("image/jpeg"), {
+            name: "flame.jpg",
+          }),
+        ],
+      });
 
-    // await prisma.flame.create({
-    //   data: {
-    //     id: msg.id,
-    //     flames: [selected_user.id],
-    //   },
-    // });
+      await prisma.flame.create({
+        data: {
+          id: msg.id,
+          flames: [selected_user.id],
+        },
+      });
   }
 });
 
