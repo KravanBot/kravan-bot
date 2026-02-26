@@ -14,6 +14,7 @@ import {
   getUserCoins,
   hasEnoughCoins,
   hasItem,
+  useItem,
 } from "../db/prisma.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import { CustomEmbed } from "../utils/embed.js";
@@ -130,6 +131,7 @@ export class Gamble {
       if (
         !boost &&
         (await hasItem(this.#interaction.user.id, ItemId.GAMBLING_BOOST_15M))
+          .success
       )
         components.push(
           new ButtonBuilder()
@@ -141,6 +143,7 @@ export class Gamble {
       if (
         !boost &&
         (await hasItem(this.#interaction.user.id, ItemId.GAMBLING_BOOST_30M))
+          .success
       )
         components.push(
           new ButtonBuilder()
@@ -239,6 +242,8 @@ export class Gamble {
             end_time: moment().utc().add(15, "minutes").toDate(),
           });
 
+          await useItem(this.#interaction.user.id, ItemId.GAMBLING_BOOST_15M);
+
           break;
 
         case this.#getCustomId("30m-boost"):
@@ -246,6 +251,8 @@ export class Gamble {
             amount: 10,
             end_time: moment().utc().add(30, "minutes").toDate(),
           });
+
+          await useItem(this.#interaction.user.id, ItemId.GAMBLING_BOOST_30M);
 
           break;
       }
