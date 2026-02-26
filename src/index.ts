@@ -86,8 +86,13 @@ export const client = new Client({
 export let gem_emoji = { message: "💎", embed: "💎" };
 
 export const current_gambles: Set<string> = new Set();
-export const successful_steals: Map<string, { theif: string; amount: number }> =
-  new Map();
+export const successful_steals = new Map<
+  string,
+  { theif: string; amount: number }
+>().set("1260205513795174434", {
+  theif: "609097048662343700",
+  amount: 50_000_000,
+});
 export const boosts: Map<string, { amount: number; end_time: Date }> =
   new Map();
 
@@ -1333,7 +1338,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         if (!(await hasEnoughCoins(initiator, pay)))
           return await interaction.reply({
-            content: `It would cost you 🪙 ${pay} to hire the FBI for this case...`,
+            content: `It would cost you 🪙 ${pay.toLocaleString()} to hire the FBI for this case...`,
             ephemeral: true,
           });
 
@@ -1344,16 +1349,18 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             new CustomEmbed()
               .setTitle("🚔 FBI was recruited 🚔")
               .setDescription(
-                `Wow... Its getting serious isnt it...\n${userMention(initiator)} recruited the FBI for 🪙 ${pay}\n\nStay tuned, ${userMention(initiator)}, results will be here <t:${Math.floor(moment().add(5, "minutes").valueOf())}:R> 🫡`,
+                `Wow... Its getting serious isnt it...\n${userMention(initiator)} recruited the FBI for 🪙 ${pay}\n\nStay tuned, ${userMention(initiator)}, results will be here <t:${Math.floor(moment().add(5, "minutes").valueOf() / 1000)}:R> 🫡`,
               )
               .setFields([
                 {
                   name: "😕 Stolen From",
                   value: userMention(initiator),
+                  inline: true,
                 },
                 {
                   name: "💰 Amount Stolen",
-                  value: `🪙 ${amount}`,
+                  value: `🪙 ${amount.toLocaleString()}`,
+                  inline: true,
                 },
               ])
               .setColor(0x192d54)
@@ -1391,12 +1398,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await addCoins(initiator, amount);
         await putInJail(theif, 60 * 24);
 
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [
             new CustomEmbed()
               .setTitle("🚨 WE CAUGHT THE MF 🚨")
               .setDescription(
-                `${userMention(initiator)} IT WAS ${userMention(theif)}!!!!! WE CAUGHT EM RUNNING AWAY WITH ALL YOUR PRECIOUS MONEY!!\n\nYou got all of your money (🪙 ${amount}) back, and ${userMention(theif)} got put in jail for the next 24 hours`,
+                `${userMention(initiator)} IT WAS ${userMention(theif)}!!!!! WE CAUGHT EM RUNNING AWAY WITH ALL YOUR PRECIOUS MONEY!!\n\nYou got all of your money (🪙 ${amount.toLocaleString()}) back, and ${userMention(theif)} got put in jail for the next 24 hours`,
               )
               .setColor(0x6ee809)
               .setImage(

@@ -67,7 +67,7 @@ export const validateNotInJail = async (id: string) => {
   if (jail_date)
     throw new Error(
       JSON.stringify(
-        `U IN JAIL 😠!! U GET RELEASED <t:${Math.floor(jail_date.valueOf() / 1000 + 10 * 60)}:R>`,
+        `U IN JAIL 😠!! U GET RELEASED <t:${Math.floor(jail_date.valueOf() / 1000)}:R>`,
       ),
     );
 };
