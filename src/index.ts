@@ -89,10 +89,7 @@ export const current_gambles: Set<string> = new Set();
 export const successful_steals = new Map<
   string,
   { theif: string; amount: number }
->().set("1260205513795174434", {
-  theif: "609097048662343700",
-  amount: 50_000_000,
-});
+>();
 export const boosts: Map<string, { amount: number; end_time: Date }> =
   new Map();
 
@@ -1349,7 +1346,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             new CustomEmbed()
               .setTitle("🚔 FBI was recruited 🚔")
               .setDescription(
-                `Wow... Its getting serious isnt it...\n${userMention(initiator)} recruited the FBI for 🪙 ${pay}\n\nStay tuned, ${userMention(initiator)}, results will be here <t:${Math.floor(moment().add(5, "minutes").valueOf() / 1000)}:R> 🫡`,
+                `Wow... Its getting serious isnt it...\n${userMention(initiator)} recruited the FBI for 🪙 ${pay.toLocaleString()}\n\nStay tuned, ${userMention(initiator)}, results will be here <t:${Math.floor(moment().add(5, "minutes").valueOf() / 1000)}:R> 🫡`,
               )
               .setFields([
                 {
