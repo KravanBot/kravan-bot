@@ -9,7 +9,7 @@ import {
   User,
   userMention,
 } from "discord.js";
-import { client } from "../index.js";
+import { client, successful_steals } from "../index.js";
 import {
   addCoins,
   getUserCoins,
@@ -162,6 +162,11 @@ export class Steal {
 
       await takeCoins(this.#victim.id, amount);
       await addCoins(this.#theif.id, amount);
+
+      successful_steals.set(this.#victim.id, {
+        theif: this.#theif.id,
+        amount,
+      });
 
       await this.#msg?.edit({
         content: "",

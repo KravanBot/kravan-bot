@@ -38,6 +38,7 @@ import {
   hasItem,
   isInJail,
   prisma,
+  putInJail,
   putOnMinime,
   takeCoins,
   takeFromBank,
@@ -85,6 +86,8 @@ export const client = new Client({
 export let gem_emoji = { message: "💎", embed: "💎" };
 
 export const current_gambles: Set<string> = new Set();
+export const successful_steals: Map<string, { theif: string; amount: number }> =
+  new Map();
 
 const items_as_string_option = Array.from(Store.ITEMS)
   .filter(([_, data]) => !!data)
@@ -395,6 +398,10 @@ const commands = [
           { name: "💎 Gem", value: Currency.GEM.toString() },
         ),
     ),
+
+  new SlashCommandBuilder()
+    .setName("fbi")
+    .setDescription("Pay the FBI to find (maybe) who stole from you last!"),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
@@ -1194,6 +1201,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       }
 
       case "give": {
+        await validateNotInJail(interaction.user.id);
+
         const item = parseInt(interaction.options.getString("item", true));
         const target = interaction.options.getUser("target", true);
 
@@ -1223,6 +1232,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       }
 
       case "sell": {
+        await validateNotInJail(interaction.user.id);
+
         const current_balance = await getUserCoins(interaction.user.id);
 
         if (!current_balance.gems)
@@ -1301,6 +1312,96 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
       case "trivia": {
         new Trivia(interaction);
+
+        break;
+      }
+
+      case "fbi": {
+        const initiator = interaction.user.id;
+
+        if (!successful_steals.has(initiator))
+          return await interaction.reply({
+            content: "Hmmm... We cant remember who stole from you last time...",
+            ephemeral: true,
+          });
+
+        const { amount, theif } = successful_steals.get(initiator)!;
+
+        const pay = Math.ceil(amount / 2);
+
+        if (!(await hasEnoughCoins(initiator, pay)))
+          return await interaction.reply({
+            content: `It would cost you 🪙 ${pay} to hire the FBI for this case...`,
+            ephemeral: true,
+          });
+
+        await takeCoins(initiator, pay);
+
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle("🚔 FBI was recruited 🚔")
+              .setDescription(
+                `Wow... Its getting serious isnt it...\n${userMention(initiator)} recruited the FBI for 🪙 ${pay}\n\nStay tuned, ${userMention(initiator)}, results will be here <t:${Math.floor(moment().add(5, "minutes").valueOf())}:R> 🫡`,
+              )
+              .setFields([
+                {
+                  name: "😕 Stolen From",
+                  value: userMention(initiator),
+                },
+                {
+                  name: "💰 Amount Stolen",
+                  value: `🪙 ${amount}`,
+                },
+              ])
+              .setColor(0x192d54)
+              .setImage(
+                "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExYjY3aGprbGozOXR3OHQ3azJkdmloaWhkM3BtdjVlNjNrZDRlcXk1ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/SV5k9Ulnk9LdgYnjbe/giphy.gif",
+              ),
+          ],
+        });
+
+        successful_steals.delete(initiator);
+
+        await new Promise<void>((res) => {
+          setTimeout(() => {
+            res();
+          }, 300_000);
+        });
+
+        const is_fbi_successful = getRandomFromArray([true, false])!;
+
+        if (!is_fbi_successful)
+          return await interaction.editReply({
+            embeds: [
+              new CustomEmbed()
+                .setTitle("🫢 We are sorry... 🫢")
+                .setDescription(
+                  `Sorry ${userMention(initiator)}, The FBI could not catch the theif...`,
+                )
+                .setColor(0xf72d3a)
+                .setImage(
+                  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExa241Y2p5MGtqY2JhaW91aHdob2pnMWdhMWp2bzJlbXV4aXp1OWowbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/uoNADe3KKnGZUlEqPx/giphy.gif",
+                ),
+            ],
+          });
+
+        await addCoins(initiator, amount);
+        await putInJail(theif, 60 * 24);
+
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle("🚨 WE CAUGHT THE MF 🚨")
+              .setDescription(
+                `${userMention(initiator)} IT WAS ${userMention(theif)}!!!!! WE CAUGHT EM RUNNING AWAY WITH ALL YOUR PRECIOUS MONEY!!\n\nYou got all of your money (🪙 ${amount}) back, and ${userMention(theif)} got put in jail for the next 24 hours`,
+              )
+              .setColor(0x6ee809)
+              .setImage(
+                "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZmprZWxndzk4ajNoeGVhMXBkOTdldGg2cjQ1dnJnbnVxaXMycnA3MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/80D1Pe1m0jfConCfhn/giphy.gif",
+              ),
+          ],
+        });
 
         break;
       }
@@ -1478,6 +1579,8 @@ client.on("interactionCreate", async (interaction) => {
             : getRandomFromArray([
                 "#1E90FF",
                 "#8A2BE2",
+                "#ffe600",
+                "#ffe600",
                 "#2E8B57",
                 "#FF69B4",
                 "#FF4500",

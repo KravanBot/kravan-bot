@@ -320,8 +320,8 @@ export const addToJackpot = async (amount: number) => {
 
   do {
     if (coins_overflow) {
-      jackpot.coins -= coins_overflow;
-      jackpot.gems += Math.floor(coins_overflow / 100_000_000);
+      jackpot.gems += 20;
+      jackpot.coins = coins_overflow;
     }
 
     coins_overflow = Math.max(0, jackpot.coins - 2_000_000_000);
@@ -569,7 +569,7 @@ export const isInJail = async (id: string) => {
     },
   });
 
-  if (user?.jail && diffInMinutes(user.jail, moment().utc().toDate()) >= 10) {
+  if (user?.jail && moment.utc().isAfter(user.jail)) {
     await prisma.user.update({
       data: {
         jail: null,
@@ -585,8 +585,8 @@ export const isInJail = async (id: string) => {
   return user?.jail ?? null;
 };
 
-export const putInJail = async (id: string) => {
-  const date = moment().utc().toDate();
+export const putInJail = async (id: string, amount: number = 10) => {
+  const date = moment().utc().add(amount, "minutes").toDate();
 
   await prisma.user.upsert({
     create: {
@@ -658,7 +658,7 @@ export const takeFromMinime = async (
 };
 
 export const claimJackpot = async (id: string) => {
-  if (Math.floor(Math.random() * 1_000) > 0) return null;
+  if (Math.floor(Math.random() * 10_000) > 0) return null;
 
   const jackpot = await clearJackpot();
 
