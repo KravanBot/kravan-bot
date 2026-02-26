@@ -63,6 +63,9 @@ import { HideAndSeek } from "./actions/hide-n-sick.js";
 import { Trivia } from "./actions/trivia.js";
 import { WebSocketServer } from "ws";
 import { createCanvas } from "@napi-rs/canvas";
+import { GlobalFonts } from "@napi-rs/canvas";
+
+GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
 configDotenv();
 
@@ -1363,7 +1366,7 @@ client.on("interactionCreate", async (interaction) => {
 
       const getCanvas = async (
         fontSize = 28,
-        fontFamily = "sans-serif",
+        fontFamily = "Inter",
         padding = 20,
         maxWidth = 600,
         lineGap = 8,
