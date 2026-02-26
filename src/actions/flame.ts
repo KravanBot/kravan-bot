@@ -12,6 +12,7 @@ type InteractionT = ChatInputCommandInteraction<CacheType>;
 
 export class Flame {
   static FLAMING_CHANNEL_ID = "1386878625290256516";
+  static LOG_CHANNEL_ID = "1476348164893053030";
   static #MESSAGES: {
     id: string;
     flames: string[];

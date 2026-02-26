@@ -1311,6 +1311,37 @@ client.on("interactionCreate", async (interaction: Interaction) => {
   }
 });
 
+const sendFlameLog = async (
+  flame: { username: string; content: string },
+  success: boolean,
+  user_id: string,
+) => {
+  const channel = client.channels.cache.get(Flame.LOG_CHANNEL_ID);
+
+  if (!channel || !channel.isSendable()) return;
+
+  await channel.send({
+    embeds: [
+      new CustomEmbed()
+        .setTitle("Flame Log")
+        .setDescription(
+          `Flame request was ${success ? "accepted" : "rejected"} by ${userMention(user_id)}!`,
+        )
+        .setFields([
+          {
+            name: "Username",
+            value: flame.username,
+          },
+          {
+            name: "Content",
+            value: flame.content,
+          },
+        ])
+        .setColor(success ? "#6ade12" : "#e81c41"),
+    ],
+  });
+};
+
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isButton()) return;
 
@@ -1340,7 +1371,24 @@ client.on("interactionCreate", async (interaction) => {
       break;
 
     case "reject":
+      const fields = interaction.message?.embeds[0]?.data.fields;
+
+      if (!fields) return;
+
+      const [username, content] = fields.map((field) => field.value);
+
+      if (!username || !content) return;
+
       await interaction.message.delete();
+
+      await sendFlameLog(
+        {
+          username,
+          content,
+        },
+        false,
+        interaction.user.id,
+      );
 
       break;
   }
@@ -1424,7 +1472,17 @@ client.on("interactionCreate", async (interaction) => {
 
         let y = padding;
 
-        const usernameColor = "#c019fc";
+        const usernameColor =
+          username == "ranniria"
+            ? "#9452D3"
+            : getRandomFromArray([
+                "#1E90FF",
+                "#8A2BE2",
+                "#2E8B57",
+                "#FF69B4",
+                "#FF4500",
+                "#5F9EA0",
+              ])!;
 
         ctx.fillStyle = usernameColor;
         ctx.fillText(usernameText, padding, y);
@@ -1460,6 +1518,15 @@ client.on("interactionCreate", async (interaction) => {
           }),
         ],
       });
+
+      await sendFlameLog(
+        {
+          username,
+          content,
+        },
+        true,
+        interaction.user.id,
+      );
 
       await prisma.flame.create({
         data: {
