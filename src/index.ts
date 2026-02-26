@@ -1452,8 +1452,8 @@ client.on("interactionCreate", async (interaction) => {
 
       const msg = await channel.send({
         files: [
-          new AttachmentBuilder(canvas.toBuffer("image/jpeg"), {
-            name: "flame.jpg",
+          new AttachmentBuilder(canvas.toBuffer("image/png"), {
+            name: "flame.png",
           }),
         ],
       });
