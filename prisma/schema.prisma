@@ -19,6 +19,8 @@ model User {
   minime Json?
   last_steal Json?
   boost Json?
+  can_bribe_in DateTime?
+  can_steal_in DateTime?
 }
 
 model Flame {

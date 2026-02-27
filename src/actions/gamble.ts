@@ -11,14 +11,16 @@ import {
 } from "discord.js";
 import {
   addCoins,
+  getBoost,
   getUserCoins,
   hasEnoughCoins,
   hasItem,
+  setBoost,
   useItem,
 } from "../db/prisma.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import { CustomEmbed } from "../utils/embed.js";
-import { boosts, current_gambles, tryToGetJackpot } from "../index.js";
+import { current_gambles, tryToGetJackpot } from "../index.js";
 import { ItemId, Store } from "./store.js";
 import moment from "moment";
 
@@ -117,11 +119,11 @@ export class Gamble {
           .setStyle(ButtonStyle.Primary),
       ];
 
-      let boost = boosts.get(this.#interaction.user.id) ?? null;
+      let boost = await getBoost(this.#interaction.user.id);
 
       if (boost && moment().utc().isAfter(boost.end_time)) {
         boost = null;
-        boosts.delete(this.#interaction.user.id);
+        await setBoost(this.#interaction.user.id, null);
       }
 
       if (
@@ -233,21 +235,19 @@ export class Gamble {
           return false;
 
         case this.#getCustomId("15m-boost"):
-          boosts.set(this.#interaction.user.id, {
+          await setBoost(this.#interaction.user.id, {
             amount: 10,
-            end_time: moment().utc().add(15, "minutes").toDate(),
+            duration: 15,
           });
-
           await useItem(this.#interaction.user.id, ItemId.GAMBLING_BOOST_15M);
 
           break;
 
         case this.#getCustomId("30m-boost"):
-          boosts.set(this.#interaction.user.id, {
+          await setBoost(this.#interaction.user.id, {
             amount: 10,
-            end_time: moment().utc().add(30, "minutes").toDate(),
+            duration: 30,
           });
-
           await useItem(this.#interaction.user.id, ItemId.GAMBLING_BOOST_30M);
 
           break;
@@ -340,7 +340,7 @@ export class Gamble {
       ].some((id) => member_roles.has(id));
     if (gets_bonus_for_lvl) profit_bonus += 20;
 
-    const boost = boosts.get(this.#interaction.user.id);
+    const boost = await getBoost(this.#interaction.user.id);
 
     if (delta >= 10 && boost && moment().utc().isBefore(boost.end_time))
       profit_bonus += 10;

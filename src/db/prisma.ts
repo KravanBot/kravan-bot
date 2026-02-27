@@ -1,5 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg";
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import moment from "moment";
 import { JsonObject } from "@prisma/client/runtime/client";
 import { Currency, Store } from "../actions/store.js";
@@ -681,6 +681,137 @@ export const claimJackpot = async (id: string) => {
   await addGems(id, jackpot.gems);
 
   return jackpot;
+};
+
+export const getBoost = async (id: string) => {
+  return (await prisma.user.findUnique({
+    select: {
+      boost: true,
+    },
+    where: {
+      id,
+    },
+  })) as { amount: number; end_time: Date } | null;
+};
+
+export const setBoost = async (
+  id: string,
+  data: {
+    amount: number;
+    duration: number;
+  } | null,
+) => {
+  const boost = data
+    ? {
+        amount: data.amount,
+        end_time: moment().utc().add(data.duration, "minutes").toDate(),
+      }
+    : Prisma.JsonNull;
+
+  await prisma.user.upsert({
+    create: {
+      id,
+      boost,
+    },
+    update: {
+      boost,
+    },
+    where: {
+      id,
+    },
+  });
+};
+
+export const getLastSteal = async (id: string) => {
+  return (await prisma.user.findUnique({
+    select: {
+      last_steal: true,
+    },
+    where: {
+      id,
+    },
+  })) as { theif: string; amount: number } | null;
+};
+
+export const setLastSteal = async (
+  id: string,
+  data: {
+    theif: string;
+    amount: number;
+  } | null,
+) => {
+  await prisma.user.upsert({
+    create: {
+      id,
+      last_steal: data ?? Prisma.JsonNull,
+    },
+    update: {
+      last_steal: data ?? Prisma.JsonNull,
+    },
+    where: {
+      id,
+    },
+  });
+};
+
+export const getCanBribeIn = async (id: string) => {
+  return (
+    (
+      await prisma.user.findUnique({
+        select: {
+          can_bribe_in: true,
+        },
+        where: {
+          id,
+        },
+      })
+    )?.can_bribe_in ?? null
+  );
+};
+
+export const setCanBribeIn = async (id: string, end_time: Date | null) => {
+  await prisma.user.upsert({
+    create: {
+      id,
+      can_bribe_in: end_time,
+    },
+    update: {
+      can_bribe_in: end_time,
+    },
+    where: {
+      id,
+    },
+  });
+};
+
+export const getCanStealIn = async (id: string) => {
+  return (
+    (
+      await prisma.user.findUnique({
+        select: {
+          can_steal_in: true,
+        },
+        where: {
+          id,
+        },
+      })
+    )?.can_steal_in ?? null
+  );
+};
+
+export const setCanStealIn = async (id: string, end_time: Date | null) => {
+  await prisma.user.upsert({
+    create: {
+      id,
+      can_steal_in: end_time,
+    },
+    update: {
+      can_steal_in: end_time,
+    },
+    where: {
+      id,
+    },
+  });
 };
 
 export { prisma };

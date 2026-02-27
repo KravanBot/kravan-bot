@@ -9,12 +9,13 @@ import {
   User,
   userMention,
 } from "discord.js";
-import { client, successful_steals } from "../index.js";
+import { client } from "../index.js";
 import {
   addCoins,
   getUserCoins,
   hasEnoughCoins,
   putInJail,
+  setLastSteal,
   takeCoins,
   useItem,
 } from "../db/prisma.js";
@@ -162,8 +163,7 @@ export class Steal {
 
       await takeCoins(this.#victim.id, amount);
       await addCoins(this.#theif.id, amount);
-
-      successful_steals.set(this.#victim.id, {
+      await setLastSteal(this.#victim.id, {
         theif: this.#theif.id,
         amount,
       });

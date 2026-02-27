@@ -30,8 +30,11 @@ import {
   addToBank,
   claimJackpot,
   clearJail,
+  getCanBribeIn,
+  getCanStealIn,
   getInventory,
   getJackpot,
+  getLastSteal,
   getMinime,
   getTop5Richest,
   getUserCoins,
@@ -42,6 +45,9 @@ import {
   prisma,
   putInJail,
   putOnMinime,
+  setCanBribeIn,
+  setCanStealIn,
+  setLastSteal,
   takeCoins,
   takeFromBank,
   takeFromMinime,
@@ -88,14 +94,6 @@ export const client = new Client({
 export let gem_emoji = { message: "💎", embed: "💎" };
 
 export const current_gambles: Set<string> = new Set();
-export const successful_steals = new Map<
-  string,
-  { theif: string; amount: number }
->();
-export const boosts: Map<string, { amount: number; end_time: Date }> =
-  new Map();
-const can_bribe_in: Map<string, Date> = new Map();
-const can_steal_in: Map<string, Date> = new Map();
 
 const items_as_string_option = Array.from(Store.ITEMS)
   .filter(([_, data]) => !!data)
@@ -894,7 +892,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             "DOUBLING DOWN AFTER ALREADY STEALING 2DAY IS CRAZY WORK",
           );
 
-        const can_steal = can_steal_in.get(interaction.user.id);
+        const can_steal = await getCanStealIn(interaction.user.id);
 
         if (can_steal && moment().utc().isBefore(can_steal))
           return await interaction.reply({
@@ -902,12 +900,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             ephemeral: true,
           });
 
-        can_steal_in.delete(interaction.user.id);
-
         if (!(await hasEnoughCoins(target.id, 20)))
           return await interaction.reply(
             "WHY WOULD U WANT TO STEAL PENNIES FIND SOME1 ELSE TO STEAL FROM",
           );
+
+        await setCanStealIn(interaction.user.id, null);
 
         new Steal(interaction.user, target, interaction);
 
@@ -1350,14 +1348,15 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         const initiator = interaction.user.id;
 
         await validateNotInJail(initiator);
+        const last_steal = await getLastSteal(initiator);
 
-        if (!successful_steals.has(initiator))
+        if (!last_steal)
           return await interaction.reply({
             content: "Hmmm... We cant remember who stole from you last time...",
             ephemeral: true,
           });
 
-        const { amount, theif } = successful_steals.get(initiator)!;
+        const { amount, theif } = last_steal;
 
         const pay = Math.ceil(amount / 2);
 
@@ -1395,7 +1394,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           ],
         });
 
-        successful_steals.delete(initiator);
+        await setLastSteal(interaction.user.id, null);
 
         await new Promise<void>((res) => {
           setTimeout(() => {
@@ -1449,15 +1448,13 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             ephemeral: true,
           });
 
-        const can_bribe = can_bribe_in.get(interaction.user.id);
+        const can_bribe = await getCanBribeIn(interaction.user.id);
 
         if (can_bribe && moment().utc().isBefore(can_bribe))
           return await interaction.reply({
             content: `You already tried to bribe... Try again <t:${Math.floor(can_bribe.valueOf() / 1000)}:R>`,
             ephemeral: true,
           });
-
-        can_bribe_in.delete(interaction.user.id);
 
         const time_left = Math.floor(moment().utc().diff(jail, "hours"));
 
@@ -1477,7 +1474,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         const chosen = Math.floor(Math.random() * (max - min + 1)) + min;
 
         if (amount < chosen) {
-          can_bribe_in.set(
+          await setCanBribeIn(
             interaction.user.id,
             moment().utc().add(2, "hours").toDate(),
           );
@@ -1501,9 +1498,10 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           });
         }
 
+        await setCanBribeIn(interaction.user.id, null);
         await clearJail(interaction.user.id);
 
-        can_steal_in.set(interaction.user.id, jail);
+        await setCanStealIn(interaction.user.id, jail);
 
         await interaction.reply({
           embeds: [
