@@ -418,6 +418,7 @@ const commands = [
       option
         .setName("amount")
         .setDescription("The amount to bribe")
+        .setRequired(true)
         .setMinValue(1)
         .setMaxValue(48),
     ),
@@ -1463,13 +1464,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         const min = Math.max(time_left, 1);
         const max = min + Math.max(10, min);
 
-        const amount = interaction.options.getNumber("amount");
-
-        if (!amount)
-          return await interaction.reply({
-            content: `You are released <t:${Math.floor(time_left.valueOf() / 1000)}:R>. Bribe range is between 💎 ${min} and 💎 ${max}`,
-            ephemeral: true,
-          });
+        const amount = interaction.options.getNumber("amount", true);
 
         if (!hasEnoughGems(interaction.user.id, amount))
           return await interaction.reply({
