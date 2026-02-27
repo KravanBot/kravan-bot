@@ -49,7 +49,7 @@ export class Gamble {
     this.#show_new_emoji = false;
 
     (async () => {
-      await interaction.deferReply();
+      if (!interaction.replied) await interaction.deferReply();
 
       const balance = await getUserCoins(interaction.user.id);
 

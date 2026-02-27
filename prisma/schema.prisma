@@ -17,6 +17,8 @@ model User {
   jail DateTime?
   items Int[] @default([])
   minime Json?
+  last_steal Json?
+  boost Json?
 }
 
 model Flame {
