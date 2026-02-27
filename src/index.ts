@@ -1479,7 +1479,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         if (amount < chosen) {
           can_bribe_in.set(
             interaction.user.id,
-            moment().utc().add(6, "hours").toDate(),
+            moment().utc().add(3, "hours").toDate(),
           );
 
           return await interaction.reply({
