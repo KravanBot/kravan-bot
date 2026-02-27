@@ -707,12 +707,14 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         break;
 
       case "net-worth":
+        await interaction.deferReply();
+
         const user =
           interaction.options.getUser("target", false) ?? interaction.user;
 
         const data = await getUserCoins(user.id);
 
-        interaction.editReply({
+        await interaction.editReply({
           embeds: [
             new CustomEmbed()
               .setTitle("NET WORTH 💰")

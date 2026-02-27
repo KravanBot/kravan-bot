@@ -254,7 +254,7 @@ export class Flame {
     );
 
     if (!random)
-      return await this.#interaction.reply(
+      return await this.#interaction.editReply(
         "Looks like they are clean... For now...",
       );
 
