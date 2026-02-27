@@ -49,6 +49,8 @@ export class Gamble {
     this.#show_new_emoji = false;
 
     (async () => {
+      await interaction.deferReply();
+
       const balance = await getUserCoins(interaction.user.id);
 
       this.#bet = Math.max(
@@ -69,11 +71,7 @@ export class Gamble {
 
   async #canGamble() {
     if (!(await hasEnoughCoins(this.#interaction.user.id, this.#bet))) {
-      const func = this.#interaction.replied
-        ? this.#interaction.editReply.bind(this.#interaction)
-        : this.#interaction.reply.bind(this.#interaction);
-
-      await func({
+      await this.#interaction.editReply({
         content: "U A BROKE MF U CANT BET THIS MUCH",
         embeds: [],
         components: [],
@@ -104,8 +102,6 @@ export class Gamble {
 
   async #sendGambleMessage() {
     current_gambles.add(this.#interaction.user.id);
-
-    if (!this.#interaction.replied) await this.#interaction.reply("Loading...");
 
     const edit = async () => {
       const is_first = this.#revealed == 0;
@@ -175,7 +171,7 @@ export class Gamble {
                 Gamble.#good_emoji
               } - Earn your bet back\n- ${
                 Gamble.#bad_emoji
-              } - Half of your bet is being reduced${boost ? `\n\nYou currently have a ${boost.amount}% boost that ends in <t:${Math.floor(boost.end_time.valueOf() / 1000)}:R> 🔥` : ""}`,
+              } - Half of your bet is being reduced${boost ? `\n\nYou currently have a ${boost.amount}% boost that ends <t:${Math.floor(boost.end_time.valueOf() / 1000)}:R> 🔥` : ""}`,
             )
             .setFields([
               {

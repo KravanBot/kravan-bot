@@ -591,7 +591,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
   try {
     switch (interaction.commandName) {
       case "kraa":
-        await interaction.reply({
+        await interaction.editReply({
           embeds: [
             new CustomEmbed()
               .setColor(0x05b2f7)
@@ -714,7 +714,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         const data = await getUserCoins(user.id);
 
-        interaction.reply({
+        interaction.editReply({
           embeds: [
             new CustomEmbed()
               .setTitle("NET WORTH 💰")
