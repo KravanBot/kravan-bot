@@ -684,7 +684,7 @@ export const claimJackpot = async (id: string) => {
 };
 
 export const getBoost = async (id: string) => {
-  return (
+  const data = (
     await prisma.user.findUnique({
       select: {
         boost: true,
@@ -694,6 +694,8 @@ export const getBoost = async (id: string) => {
       },
     })
   )?.boost as { amount: number; end_time: Date } | null;
+
+  return data ? { ...data, end_time: new Date(data.end_time) } : null;
 };
 
 export const setBoost = async (
