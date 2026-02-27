@@ -684,14 +684,16 @@ export const claimJackpot = async (id: string) => {
 };
 
 export const getBoost = async (id: string) => {
-  return (await prisma.user.findUnique({
-    select: {
-      boost: true,
-    },
-    where: {
-      id,
-    },
-  })) as { amount: number; end_time: Date } | null;
+  return (
+    await prisma.user.findUnique({
+      select: {
+        boost: true,
+      },
+      where: {
+        id,
+      },
+    })
+  )?.boost as { amount: number; end_time: Date } | null;
 };
 
 export const setBoost = async (
@@ -723,14 +725,16 @@ export const setBoost = async (
 };
 
 export const getLastSteal = async (id: string) => {
-  return (await prisma.user.findUnique({
-    select: {
-      last_steal: true,
-    },
-    where: {
-      id,
-    },
-  })) as { theif: string; amount: number } | null;
+  return (
+    await prisma.user.findUnique({
+      select: {
+        last_steal: true,
+      },
+      where: {
+        id,
+      },
+    })
+  )?.last_steal as { theif: string; amount: number } | null;
 };
 
 export const setLastSteal = async (

@@ -244,6 +244,8 @@ export class Flame {
   }
 
   async #sendRandomMessage() {
+    await this.#interaction.deferReply();
+
     const messages = [...Flame.#MESSAGES, ...(await prisma.flame.findMany())];
     const random = getRandomFromArray(
       this.#flames
@@ -276,6 +278,6 @@ export class Flame {
       files: [...message.attachments.values()],
     };
 
-    await this.#interaction.reply(payload);
+    await this.#interaction.editReply(payload);
   }
 }
