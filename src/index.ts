@@ -1479,7 +1479,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         if (amount < chosen) {
           can_bribe_in.set(
             interaction.user.id,
-            moment().utc().add(3, "hours").toDate(),
+            moment().utc().add(2, "hours").toDate(),
           );
 
           return await interaction.reply({
@@ -1487,10 +1487,15 @@ client.on("interactionCreate", async (interaction: Interaction) => {
               new CustomEmbed()
                 .setTitle("😒 Bribe failed 😒")
                 .setDescription(
-                  "The bribe was not enough... the cruel officer took the gems to himself 👮",
+                  "The bribe was not enough... the cruel officer 👮 took the gems for himself, beat you up and put you in solitary confinement <a:animeStressed:1311475923006128129>",
                 )
                 .setImage(
-                  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnJlNDByZG1jdmF0YzVxYTlxM3R6Z2dxOGo4bWF3NXRkMTA4ODBhcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KbZTtakyTtrPWDaR4i/giphy.gif",
+                  getRandomFromArray([
+                    "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnJlNDByZG1jdmF0YzVxYTlxM3R6Z2dxOGo4bWF3NXRkMTA4ODBhcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KbZTtakyTtrPWDaR4i/giphy.gif",
+                    "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWFmY3R2bnRucjdydHUzN283M2k2d3Vrb2l1MWo2ZmZuNGJraDBnNiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/cYJcIxrBWk6S5qkqmL/giphy.gif",
+                    "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExbDd1OHMyam16a3dyMGRveW1lbG8zNjg2NWNlczR2ZmY1eHc1NXk1MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/7VZRBKNtnPLeQQZwZN/giphy.gif",
+                    "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMWZybm13eWtnMGxxbWcyMW12eXkxNXNuYzA5dDNqbmw4OXNnbXpiNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/SXZRHrdx9T5xLaowDT/giphy.gif",
+                  ])!,
                 ),
             ],
           });
@@ -1504,7 +1509,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           embeds: [
             new CustomEmbed()
               .setTitle("🤑 Bribe successful 🤑")
-              .setDescription("YOU ARE ON THE LOOSE!!! Keep a low profile...")
+              .setDescription("YOU ARE ON THE LOOSE!!! Keep a low profile... ")
               .setImage(
                 "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExanJxaWNlY3czeHlxdnpyejV3azNpdWRpcGtveG4wMTZvdHo2ZWRjaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/g0PheQ8s8E5Nr2H3pK/giphy.gif",
               ),
