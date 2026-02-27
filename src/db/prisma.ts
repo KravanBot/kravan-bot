@@ -600,6 +600,21 @@ export const putInJail = async (id: string, amount: number = 10) => {
   });
 };
 
+export const clearJail = async (id: string) => {
+  await prisma.user.upsert({
+    create: {
+      id,
+      jail: null,
+    },
+    update: {
+      jail: null,
+    },
+    where: {
+      id,
+    },
+  });
+};
+
 export const getMinime = async (id: string) => {
   return (
     await prisma.user.findUnique({

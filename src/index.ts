@@ -29,12 +29,14 @@ import {
   addItem,
   addToBank,
   claimJackpot,
+  clearJail,
   getInventory,
   getJackpot,
   getMinime,
   getTop5Richest,
   getUserCoins,
   hasEnoughCoins,
+  hasEnoughGems,
   hasItem,
   isInJail,
   prisma,
@@ -92,6 +94,8 @@ export const successful_steals = new Map<
 >();
 export const boosts: Map<string, { amount: number; end_time: Date }> =
   new Map();
+const can_bribe_in: Map<string, Date> = new Map();
+const can_steal_in: Map<string, Date> = new Map();
 
 const items_as_string_option = Array.from(Store.ITEMS)
   .filter(([_, data]) => !!data)
@@ -406,6 +410,17 @@ const commands = [
   new SlashCommandBuilder()
     .setName("fbi")
     .setDescription("Pay the FBI to find (maybe) who stole from you last!"),
+
+  new SlashCommandBuilder()
+    .setName("bribe")
+    .setDescription("Got caught? try bribing the police...")
+    .addNumberOption((option) =>
+      option
+        .setName("amount")
+        .setDescription("The amount to bribe")
+        .setMinValue(1)
+        .setMaxValue(48),
+    ),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
@@ -873,14 +888,24 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         if (target.bot || target.id == interaction.user.id) return;
 
-        if (!(await hasEnoughCoins(target.id, 20)))
-          return await interaction.reply(
-            "WHY WOULD U WANT TO STEAL PENNIES FIND SOME1 ELSE TO STEAL FROM",
-          );
-
         if (!(await updateTheft(interaction.user.id)))
           return await interaction.reply(
             "DOUBLING DOWN AFTER ALREADY STEALING 2DAY IS CRAZY WORK",
+          );
+
+        const can_steal = can_steal_in.get(interaction.user.id);
+
+        if (can_steal && moment().utc().isBefore(can_steal))
+          return await interaction.reply({
+            content: `You are on the loose!! You can try to steal <t:${Math.floor(can_steal.valueOf() / 1000)}:R>`,
+            ephemeral: true,
+          });
+
+        can_steal_in.delete(interaction.user.id);
+
+        if (!(await hasEnoughCoins(target.id, 20)))
+          return await interaction.reply(
+            "WHY WOULD U WANT TO STEAL PENNIES FIND SOME1 ELSE TO STEAL FROM",
           );
 
         new Steal(interaction.user, target, interaction);
@@ -1323,6 +1348,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       case "fbi": {
         const initiator = interaction.user.id;
 
+        await validateNotInJail(initiator);
+
         if (!successful_steals.has(initiator))
           return await interaction.reply({
             content: "Hmmm... We cant remember who stole from you last time...",
@@ -1405,6 +1432,86 @@ client.on("interactionCreate", async (interaction: Interaction) => {
               .setColor(0x6ee809)
               .setImage(
                 "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExZmprZWxndzk4ajNoeGVhMXBkOTdldGg2cjQ1dnJnbnVxaXMycnA3MSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/80D1Pe1m0jfConCfhn/giphy.gif",
+              ),
+          ],
+        });
+
+        break;
+      }
+
+      case "bribe": {
+        const jail = await isInJail(interaction.user.id);
+
+        if (!jail)
+          return await interaction.reply({
+            content: "You arent in jail 🥳",
+            ephemeral: true,
+          });
+
+        const can_bribe = can_bribe_in.get(interaction.user.id);
+
+        if (can_bribe && moment().utc().isBefore(can_bribe))
+          return await interaction.reply({
+            content: `You already tried to bribe... Try again <t:${Math.floor(can_bribe.valueOf() / 1000)}:R>`,
+            ephemeral: true,
+          });
+
+        can_bribe_in.delete(interaction.user.id);
+
+        const time_left = Math.floor(moment().utc().diff(jail, "hours"));
+
+        const min = Math.max(time_left, 1);
+        const max = min + Math.max(10, min);
+
+        const amount = interaction.options.getNumber("amount");
+
+        if (!amount)
+          return await interaction.reply({
+            content: `You are released <t:${Math.floor(time_left.valueOf() / 1000)}:R>. Bribe range is between 💎 ${min} and 💎 ${max}`,
+            ephemeral: true,
+          });
+
+        if (!hasEnoughGems(interaction.user.id, amount))
+          return await interaction.reply({
+            content: "You dont have enough gems!",
+            ephemeral: true,
+          });
+
+        await takeGems(interaction.user.id, amount);
+
+        const chosen = Math.floor(Math.random() * (max - min + 1)) + min;
+
+        if (amount < chosen) {
+          can_bribe_in.set(
+            interaction.user.id,
+            moment().utc().add(6, "hours").toDate(),
+          );
+
+          return await interaction.reply({
+            embeds: [
+              new CustomEmbed()
+                .setTitle("😒 Bribe failed 😒")
+                .setDescription(
+                  "The bribe was not enough... the cruel officer took the gems to himself 👮",
+                )
+                .setImage(
+                  "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnJlNDByZG1jdmF0YzVxYTlxM3R6Z2dxOGo4bWF3NXRkMTA4ODBhcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/KbZTtakyTtrPWDaR4i/giphy.gif",
+                ),
+            ],
+          });
+        }
+
+        await clearJail(interaction.user.id);
+
+        can_steal_in.set(interaction.user.id, jail);
+
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle("🤑 Bribe successful 🤑")
+              .setDescription("YOU ARE ON THE LOOSE!!! Keep a low profile...")
+              .setImage(
+                "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExanJxaWNlY3czeHlxdnpyejV3azNpdWRpcGtveG4wMTZvdHo2ZWRjaiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/g0PheQ8s8E5Nr2H3pK/giphy.gif",
               ),
           ],
         });
@@ -1744,7 +1851,14 @@ wss.on("connection", (ws) => {
         }
 
         case "newClip": {
-          // const {username, url} = data;
+          // const {
+          //   clipUrl,
+          //   clipTitle,
+          //   clipCreatorUserName,
+          //   clipThumbnailUrl,
+          //   clipDuration,
+          //   clipCreatedAt,
+          // } = data;
 
           // const channel = client.channels.cache.get("1387333680141439046");
 
@@ -1754,9 +1868,28 @@ wss.on("connection", (ws) => {
           //   embeds: [
           //     new CustomEmbed()
           //       .setTitle("🎬 NEW CLIP 🎬")
-          //       .setDescription()
-          //   ]
-          // })
+          //       .setFields([
+          //         {
+          //           name: "💬 Title",
+          //           value: clipTitle,
+          //         },
+          //         {
+          //           name: "👤 Creator",
+          //           value: clipCreatorUserName,
+          //           inline: true,
+          //         },
+          //         {
+          //           name: "⏰ Duration",
+          //           value: `${clipDuration} sec`,
+          //           inline: true,
+          //         },
+          //       ])
+          //       .setColor(0xe4e29e)
+          //       .setImage(clipThumbnailUrl)
+          //       .setFooter(clipCreatedAt)
+          //       .setURL(clipUrl),
+          //   ],
+          // });
 
           console.log(data);
 
