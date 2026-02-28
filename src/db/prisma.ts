@@ -315,14 +315,10 @@ export const addToJackpot = async (amount: number) => {
 
   if (!amount_to_add) return;
 
-  console.log(amount_to_add);
-
-  jackpot.coins += jackpot.coins + amount_to_add;
+  jackpot.coins += amount_to_add;
   let coins_overflow: number = 0;
 
   do {
-    console.log(coins_overflow);
-
     if (coins_overflow) {
       jackpot.gems += 20;
       jackpot.coins = coins_overflow;
