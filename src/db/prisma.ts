@@ -311,7 +311,9 @@ export const getJackpot = async () => {
 export const addToJackpot = async (amount: number) => {
   let jackpot = (await getJackpot()) ?? { coins: 0, gems: 0 };
 
-  const amount_to_add = Math.max(Math.floor(amount / 1), 1);
+  const amount_to_add = Math.floor(amount / 5);
+
+  if (!amount_to_add) return;
 
   jackpot.coins += jackpot.coins + amount_to_add;
   let coins_overflow;
