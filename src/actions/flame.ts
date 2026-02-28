@@ -246,12 +246,21 @@ export class Flame {
   async #sendRandomMessage() {
     await this.#interaction.deferReply();
 
-    const messages = [...Flame.#MESSAGES, ...(await prisma.flame.findMany())];
-    const random = getRandomFromArray(
-      this.#flames
-        ? messages.filter(({ flames }) => flames.includes(this.#flames!))
-        : messages,
-    );
+    const args = this.#flames
+      ? {
+          where: {
+            id: this.#flames,
+          },
+        }
+      : {};
+
+    const messages = [
+      ...(this.#flames
+        ? Flame.#MESSAGES.filter(({ flames }) => flames.includes(this.#flames!))
+        : Flame.#MESSAGES),
+      ...(await prisma.flame.findMany(args)),
+    ];
+    const random = getRandomFromArray(messages);
 
     if (!random)
       return await this.#interaction.editReply(

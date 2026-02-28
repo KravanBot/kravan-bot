@@ -418,7 +418,7 @@ const commands = [
         .setDescription("The amount to bribe")
         .setRequired(true)
         .setMinValue(1)
-        .setMaxValue(48),
+        .setMaxValue(50),
     ),
 ].map((cmd) => cmd.toJSON());
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];

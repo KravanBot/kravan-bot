@@ -82,13 +82,13 @@ export class Store {
     .set(ItemId.GAMBLING_BOOST_15M, {
       name: "🚀 Boost",
       description: "a 10% gambling boost for 15 minutes",
-      amount: 250,
+      amount: 100,
       currency: Currency.GEM,
     })
     .set(ItemId.GAMBLING_BOOST_30M, {
       name: "☄️ Big Boost",
       description: "a 10% gambling boost for 30 minutes",
-      amount: 450,
+      amount: 175,
       currency: Currency.GEM,
     })
     .set(ItemId.START_SHIRTS, null)
