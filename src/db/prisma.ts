@@ -77,7 +77,7 @@ export const addCoins = async (id: string, amount: number) => {
 export const takeCoins = async (id: string, amount: number) => {
   amount = Math.abs(amount);
 
-  await addToJackpot(Math.abs(amount));
+  await addToJackpot(amount);
 
   const current_data = await getUserCoins(id);
   const new_data = { ...current_data };
@@ -315,10 +315,14 @@ export const addToJackpot = async (amount: number) => {
 
   if (!amount_to_add) return;
 
+  console.log(amount_to_add);
+
   jackpot.coins += jackpot.coins + amount_to_add;
   let coins_overflow;
 
   do {
+    console.log(coins_overflow);
+
     if (coins_overflow) {
       jackpot.gems += 20;
       jackpot.coins = coins_overflow;
