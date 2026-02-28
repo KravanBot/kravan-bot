@@ -318,7 +318,7 @@ export const addToJackpot = async (amount: number) => {
   console.log(amount_to_add);
 
   jackpot.coins += jackpot.coins + amount_to_add;
-  let coins_overflow;
+  let coins_overflow: number = 0;
 
   do {
     console.log(coins_overflow);
