@@ -73,6 +73,7 @@ import { Trivia } from "./actions/trivia.js";
 import { WebSocketServer } from "ws";
 import { createCanvas } from "@napi-rs/canvas";
 import { GlobalFonts } from "@napi-rs/canvas";
+import { Twitch } from "./actions/twitch.js";
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
@@ -469,12 +470,14 @@ const isGuildValid = (guild: Guild) => {
 let lottery: Lottery;
 let counting: Counting;
 let num_of_members: number;
+let twitch: Twitch;
 export let ranni_guild: Guild | undefined;
 
 client.once("clientReady", async () => {
   counting = new Counting();
   lottery = new Lottery();
   new Leveling();
+  twitch = new Twitch();
 
   ranni_guild = client.guilds.cache.get(RANNI_GUILD_ID);
 
@@ -496,6 +499,56 @@ client.once("clientReady", async () => {
   let lastProcessedMonth: number = moment().utc().month();
 
   setInterval(async () => {
+    let last_clip_date = moment().utc();
+    const clips_channel = client.channels.cache.get("1387333680141439046");
+
+    const handleNewMinute = async () => {
+      if (!clips_channel?.isSendable()) return;
+
+      const clips = await twitch.getClips(last_clip_date);
+
+      if (clips.length) last_clip_date = moment(clips.at(-1)!.created_at);
+
+      console.log(clips);
+
+      // for (const {
+      //   title,
+      //   creator_name,
+      //   duration,
+      //   thumbnail_url,
+      //   created_at,
+      //   url,
+      // } of clips)
+      //   clips_channel.send({
+      //     embeds: [
+      //       new CustomEmbed()
+      //         .setTitle("🎬 NEW CLIP 🎬")
+      //         .setFields([
+      //           {
+      //             name: "💬 Title",
+      //             value: title,
+      //           },
+      //           {
+      //             name: "👤 Creator",
+      //             value: creator_name,
+      //             inline: true,
+      //           },
+      //           {
+      //             name: "⏰ Duration",
+      //             value: `${duration} sec`,
+      //             inline: true,
+      //           },
+      //         ])
+      //         .setColor(0xe4e29e)
+      //         .setImage(thumbnail_url)
+      //         .setFooter({
+      //           text: moment(created_at).format("Do MMM, YYYY HH:mm"),
+      //         })
+      //         .setURL(url),
+      //     ],
+      //   });
+    };
+
     const handleNewMonth = async () => {
       if (!ranni_guild) return;
 
@@ -547,6 +600,7 @@ client.once("clientReady", async () => {
       });
     };
 
+    await handleNewMinute();
     await handleNewMonth();
   }, 1000 * 60);
 
@@ -1796,31 +1850,8 @@ const wss = new WebSocketServer({ port: PORT });
 wss.on("connection", (ws) => {
   console.log("Streamerbot connected!");
 
-  ws.send(
-    JSON.stringify({
-      request: "Subscribe",
-      id: "subscribe-twitch-clips",
-      events: {
-        Twitch: ["TwitchClipCreated"],
-      },
-    }),
-  );
-
-  const testInterval = setInterval(() => {
-    ws.send(
-      JSON.stringify({
-        request: "GetVersion",
-        id: "test-connection",
-      }),
-    );
-  }, 5000);
-
-  ws.on("close", () => clearInterval(testInterval));
-
   ws.on("message", (message) => {
     try {
-      console.log(message.toString());
-
       const response = JSON.parse(message.toString());
 
       if ("error" in response) {
@@ -1828,11 +1859,7 @@ wss.on("connection", (ws) => {
         return;
       }
 
-      if (response.status === "ok" || !response.event) return;
-
-      let { event, data } = response;
-
-      if (typeof event == "object") event = event.type;
+      const { event, data } = response;
 
       switch (event) {
         case "flame": {
@@ -1875,11 +1902,6 @@ wss.on("connection", (ws) => {
             ],
           });
 
-          break;
-        }
-
-        case "TwitchClipCreated": {
-          console.log(data);
           break;
         }
       }
