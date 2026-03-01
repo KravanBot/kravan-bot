@@ -478,23 +478,25 @@ client.once("clientReady", async () => {
 
   ranni_guild = client.guilds.cache.get(RANNI_GUILD_ID);
 
-  if (ranni_guild) {
-    await ranni_guild.channels.fetch();
+  if (!ranni_guild) return;
 
-    const members = await ranni_guild.members.fetch();
-    num_of_members = members.filter((member) => !member.user.bot).size;
+  await ranni_guild.channels.fetch();
 
-    const emoji = ranni_guild.emojis?.cache?.get("1464281133813596254");
+  const members = await ranni_guild.members.fetch();
+  num_of_members = members.filter((member) => !member.user.bot).size;
 
-    if (emoji && emoji.available)
-      gem_emoji = {
-        message: `:${emoji.name}:`,
-        embed: `<:${emoji.name}:${emoji.id}>`,
-      };
+  const emoji = ranni_guild.emojis?.cache?.get("1464281133813596254");
 
-    let lastProcessedMonth: number | null = null;
+  if (emoji && emoji.available)
+    gem_emoji = {
+      message: `:${emoji.name}:`,
+      embed: `<:${emoji.name}:${emoji.id}>`,
+    };
 
-    setInterval(async () => {
+  let lastProcessedMonth: number = moment().utc().month();
+
+  setInterval(async () => {
+    const handleNewMonth = async () => {
       if (!ranni_guild) return;
 
       const now = moment().utc();
@@ -543,8 +545,10 @@ client.once("clientReady", async () => {
             ),
         ],
       });
-    }, 1000 * 60);
-  }
+    };
+
+    await handleNewMonth();
+  }, 1000 * 60);
 
   console.log("All set!");
 });
@@ -1792,6 +1796,16 @@ const wss = new WebSocketServer({ port: PORT });
 wss.on("connection", (ws) => {
   console.log("Streamerbot connected!");
 
+  ws.send(
+    JSON.stringify({
+      request: "Subscribe",
+      id: "subscribe-twitch-clips",
+      events: {
+        Twitch: ["TwitchClipCreated"],
+      },
+    }),
+  );
+
   ws.on("message", (message) => {
     try {
       const response = JSON.parse(message.toString());
@@ -1801,7 +1815,13 @@ wss.on("connection", (ws) => {
         return;
       }
 
-      const { event, data } = response;
+      console.log(response);
+
+      if (response.status === "ok" || !response.event) return;
+
+      let { event, data } = response;
+
+      if (typeof event == "object") event = event.type;
 
       switch (event) {
         case "flame": {
@@ -1847,49 +1867,8 @@ wss.on("connection", (ws) => {
           break;
         }
 
-        case "newClip": {
-          // const {
-          //   clipUrl,
-          //   clipTitle,
-          //   clipCreatorUserName,
-          //   clipThumbnailUrl,
-          //   clipDuration,
-          //   clipCreatedAt,
-          // } = data;
-
-          // const channel = client.channels.cache.get("1387333680141439046");
-
-          // if (!channel?.isSendable()) return;
-
-          // channel.send({
-          //   embeds: [
-          //     new CustomEmbed()
-          //       .setTitle("🎬 NEW CLIP 🎬")
-          //       .setFields([
-          //         {
-          //           name: "💬 Title",
-          //           value: clipTitle,
-          //         },
-          //         {
-          //           name: "👤 Creator",
-          //           value: clipCreatorUserName,
-          //           inline: true,
-          //         },
-          //         {
-          //           name: "⏰ Duration",
-          //           value: `${clipDuration} sec`,
-          //           inline: true,
-          //         },
-          //       ])
-          //       .setColor(0xe4e29e)
-          //       .setImage(clipThumbnailUrl)
-          //       .setFooter(clipCreatedAt)
-          //       .setURL(clipUrl),
-          //   ],
-          // });
-
+        case "TwitchClipCreated": {
           console.log(data);
-
           break;
         }
       }
