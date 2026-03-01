@@ -500,53 +500,72 @@ client.once("clientReady", async () => {
 
   setInterval(async () => {
     let last_clip_date = moment().utc();
+
+    const twitch_channel = client.channels.cache.get("1311121693133246535");
     const clips_channel = client.channels.cache.get("1387333680141439046");
 
     const handleNewMinute = async () => {
-      if (!clips_channel?.isSendable()) return;
+      let is_live = false;
 
-      const clips = await twitch.getClips(last_clip_date);
+      if (!twitch_channel?.isSendable()) return;
 
-      if (clips.length) last_clip_date = moment(clips.at(-1)!.created_at);
+      const handleLive = async () => {
+        const live = await twitch.getLive();
 
-      console.log(clips);
+        is_live = !!live.length;
 
-      // for (const {
-      //   title,
-      //   creator_name,
-      //   duration,
-      //   thumbnail_url,
-      //   created_at,
-      //   url,
-      // } of clips)
-      //   clips_channel.send({
-      //     embeds: [
-      //       new CustomEmbed()
-      //         .setTitle("🎬 NEW CLIP 🎬")
-      //         .setFields([
-      //           {
-      //             name: "💬 Title",
-      //             value: title,
-      //           },
-      //           {
-      //             name: "👤 Creator",
-      //             value: creator_name,
-      //             inline: true,
-      //           },
-      //           {
-      //             name: "⏰ Duration",
-      //             value: `${duration} sec`,
-      //             inline: true,
-      //           },
-      //         ])
-      //         .setColor(0xe4e29e)
-      //         .setImage(thumbnail_url)
-      //         .setFooter({
-      //           text: moment(created_at).format("Do MMM, YYYY HH:mm"),
-      //         })
-      //         .setURL(url),
-      //     ],
-      //   });
+        console.log(live);
+      };
+
+      const handleClips = async () => {
+        if (!clips_channel?.isSendable()) return;
+
+        const clips = await twitch.getClips(last_clip_date);
+
+        if (clips.length) last_clip_date = moment(clips.at(-1)!.created_at);
+
+        console.log(clips);
+
+        // for (const {
+        //   title,
+        //   creator_name,
+        //   duration,
+        //   thumbnail_url,
+        //   created_at,
+        //   url,
+        // } of clips)
+        //   clips_channel.send({
+        //     embeds: [
+        //       new CustomEmbed()
+        //         .setTitle("🎬 NEW CLIP 🎬")
+        //         .setFields([
+        //           {
+        //             name: "💬 Title",
+        //             value: title,
+        //           },
+        //           {
+        //             name: "👤 Creator",
+        //             value: creator_name,
+        //             inline: true,
+        //           },
+        //           {
+        //             name: "⏰ Duration",
+        //             value: `${duration} sec`,
+        //             inline: true,
+        //           },
+        //         ])
+        //         .setColor(0xe4e29e)
+        //         .setImage(thumbnail_url)
+        //         .setFooter({
+        //           text: moment(created_at).format("Do MMM, YYYY HH:mm"),
+        //         })
+        //         .setURL(url),
+        //     ],
+        //   });
+      };
+
+      await handleLive();
+      if (is_live) await handleClips();
     };
 
     const handleNewMonth = async () => {
@@ -602,7 +621,7 @@ client.once("clientReady", async () => {
 
     await handleNewMinute();
     await handleNewMonth();
-  }, 1000 * 60);
+  }, 1000 * 30);
 
   console.log("All set!");
 });

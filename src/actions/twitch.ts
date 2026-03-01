@@ -7,6 +7,8 @@ type TwitchToken = {
 };
 
 export class Twitch {
+  static #BROADCASTER_ID = "545050196";
+
   #token: TwitchToken | null;
 
   constructor() {
@@ -48,7 +50,7 @@ export class Twitch {
     const format = (date: Moment) => date.format("YYYY-MM-DD[T]HH:mm:ss[Z]");
 
     const res = await fetch(
-      `https://api.twitch.tv/helix/clips?broadcaster_id=1207016011&first=100&started_at=${format(last_clip_date)}&ended_at=${format(moment().utc())}`,
+      `https://api.twitch.tv/helix/clips?broadcaster_id=${Twitch.#BROADCASTER_ID}&first=100&started_at=${format(last_clip_date)}&ended_at=${format(moment().utc())}`,
       {
         method: "GET",
         headers: {
@@ -74,5 +76,29 @@ export class Twitch {
 
       return timeA.valueOf() - timeB.valueOf();
     });
+  }
+
+  async getLive() {
+    await this.#refreshToken();
+
+    const res = await fetch(
+      `https://api.twitch.tv/helix/streams?user_id=${Twitch.#BROADCASTER_ID}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${process.env.TWITCH_CLIENT_SECRET!}`,
+          "Client-ID": process.env.TWITCH_CLIENT_ID!,
+        },
+      },
+    );
+    const body = (await res.json()) as {
+      data: {
+        title: string;
+        thumbnail_url: string;
+        started_at: string;
+      }[];
+    };
+
+    return body.data;
   }
 }
