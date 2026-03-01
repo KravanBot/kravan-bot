@@ -1806,16 +1806,27 @@ wss.on("connection", (ws) => {
     }),
   );
 
+  const testInterval = setInterval(() => {
+    ws.send(
+      JSON.stringify({
+        request: "GetVersion",
+        id: "test-connection",
+      }),
+    );
+  }, 5000);
+
+  ws.on("close", () => clearInterval(testInterval));
+
   ws.on("message", (message) => {
     try {
+      console.log(message.toString());
+
       const response = JSON.parse(message.toString());
 
       if ("error" in response) {
         console.log(response.error);
         return;
       }
-
-      console.log(response);
 
       if (response.status === "ok" || !response.event) return;
 
