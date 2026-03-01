@@ -514,7 +514,7 @@ client.once("clientReady", async () => {
 
         is_live = !!live.length;
 
-        console.log(live);
+        // console.log(live);
       };
 
       const handleClips = async () => {
@@ -524,7 +524,7 @@ client.once("clientReady", async () => {
 
         if (clips.length) last_clip_date = moment(clips.at(-1)!.created_at);
 
-        console.log(clips);
+        // console.log(clips);
 
         // for (const {
         //   title,
@@ -621,7 +621,7 @@ client.once("clientReady", async () => {
 
     await handleNewMinute();
     await handleNewMonth();
-  }, 1000 * 30);
+  }, 1000 * 60);
 
   console.log("All set!");
 });
