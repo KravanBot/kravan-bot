@@ -94,7 +94,10 @@ export class Lottery {
 
     this.#entries.set(interaction.user.id, value);
 
-    await interaction.reply("Adding you to the lottery...");
+    await interaction.reply({
+      content: "Adding you to the lottery...",
+      ephemeral: true,
+    });
 
     await takeCoins(interaction.user.id, Lottery.COST);
     await this.#sendQuestion();
