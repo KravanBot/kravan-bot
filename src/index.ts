@@ -20,6 +20,10 @@ import {
   LabelBuilder,
   UserSelectMenuBuilder,
   AttachmentBuilder,
+  ButtonInteraction,
+  CacheType,
+  ModalSubmitInteraction,
+  GuildMember,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -71,7 +75,7 @@ import moment from "moment";
 import { HideAndSeek } from "./actions/hide-n-sick.js";
 import { Trivia } from "./actions/trivia.js";
 import { WebSocketServer } from "ws";
-import { createCanvas } from "@napi-rs/canvas";
+import { Canvas, createCanvas, loadImage } from "@napi-rs/canvas";
 import { GlobalFonts } from "@napi-rs/canvas";
 import { Twitch } from "./actions/twitch.js";
 
@@ -1675,13 +1679,246 @@ const sendFlameLog = async (
   });
 };
 
+const sendFlameRequest = async (username: string, message: string) => {
+  const CHANNEL_ID = "1476252282134986814";
+
+  const channel = client.channels.cache.get(CHANNEL_ID) as TextChannel;
+
+  if (!channel) return;
+
+  channel.send({
+    embeds: [
+      new CustomEmbed()
+        .setTitle("New Flame Request 🔥")
+        .setFields([
+          {
+            name: "👤 Username",
+            value: username,
+          },
+          {
+            name: "💭 Content",
+            value: message,
+          },
+        ])
+        .setColor(0xff7417),
+    ],
+    components: [
+      new ActionRowBuilder<ButtonBuilder>().setComponents(
+        new ButtonBuilder()
+          .setCustomId("accept")
+          .setLabel("✅ Accept")
+          .setStyle(ButtonStyle.Success),
+
+        new ButtonBuilder()
+          .setCustomId("reject")
+          .setLabel("❌ Reject")
+          .setStyle(ButtonStyle.Danger),
+      ),
+    ],
+  });
+};
+
+const acceptFlameRequest = async (
+  getCanvas: () => Promise<Canvas>,
+  interaction: ButtonInteraction<CacheType> | ModalSubmitInteraction<CacheType>,
+  username: string,
+  content: string,
+  flames_id: string,
+) => {
+  const canvas = await getCanvas();
+
+  interaction.reply({
+    content: "✅ Flame request accepted!",
+    ephemeral: true,
+  });
+
+  await interaction.message?.delete();
+
+  const channel = client.channels.cache.get(Flame.FLAMING_CHANNEL_ID);
+
+  if (!channel || !channel.isSendable()) return;
+
+  const msg = await channel.send({
+    files: [
+      new AttachmentBuilder(canvas.toBuffer("image/png"), {
+        name: "flame.png",
+      }),
+    ],
+  });
+
+  await sendFlameLog(
+    {
+      username,
+      content,
+    },
+    true,
+    interaction.user.id,
+  );
+
+  await prisma.flame.create({
+    data: {
+      id: msg.id,
+      flames: [flames_id],
+    },
+  });
+};
+
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isButton()) return;
 
   if (interaction.channelId != "1476252282134986814") return;
 
+  const fields = interaction.message?.embeds[0]?.data.fields;
+
+  if (!fields) return;
+
+  const [username, content] = fields.map((field) => field.value);
+
+  if (!username || !content) return;
+
   switch (interaction.customId) {
-    case "accept":
+    case "accept": {
+      if (username.startsWith("<@")) {
+        const member = ranni_guild!.members.cache.get(
+          username.replace("<@", "").replace(">", ""),
+        );
+
+        if (!member) return;
+
+        const getCanvas = async (
+          fontSize = 28,
+          maxWidth = 700,
+          padding = 20,
+          lineGap = 6,
+        ) => {
+          const fontFamily = "Inter";
+
+          // -------------------------
+          // Resolve user + role color
+          // -------------------------
+          const username = member.displayName;
+
+          const roleColor =
+            member instanceof GuildMember &&
+            member.displayHexColor !== "#000000"
+              ? member.displayHexColor
+              : "#ffffff";
+
+          // avatar URL (high quality)
+          const avatarURL = member.displayAvatarURL({
+            extension: "png",
+            size: 256,
+          });
+
+          // -------------------------
+          // Measure text
+          // -------------------------
+          const measureCanvas = createCanvas(1, 1);
+          const measureCtx = measureCanvas.getContext("2d");
+
+          measureCtx.font = `${fontSize}px ${fontFamily}`;
+
+          const avatarSize = 64;
+          const textStartX = padding + avatarSize + 16;
+
+          const words = content.split(" ");
+          const lines: string[] = [];
+
+          let currentLine = "";
+
+          for (const word of words) {
+            const test = currentLine ? `${currentLine} ${word}` : word;
+
+            const allowedWidth = maxWidth - textStartX - padding;
+
+            if (measureCtx.measureText(test).width > allowedWidth) {
+              lines.push(currentLine);
+              currentLine = word;
+            } else {
+              currentLine = test;
+            }
+          }
+
+          if (currentLine) lines.push(currentLine);
+
+          const metrics = measureCtx.measureText("M");
+          const lineHeight =
+            metrics.actualBoundingBoxAscent +
+            metrics.actualBoundingBoxDescent +
+            lineGap;
+
+          const usernameHeight = fontSize + 4;
+
+          const height =
+            padding * 2 + usernameHeight + lines.length * lineHeight;
+
+          // -------------------------
+          // Create canvas
+          // -------------------------
+          const canvas = createCanvas(maxWidth, Math.ceil(height));
+          const ctx = canvas.getContext("2d");
+
+          ctx.font = `${fontSize}px ${fontFamily}`;
+          ctx.textBaseline = "top";
+
+          // Discord dark background
+          ctx.fillStyle = "#313338";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          // -------------------------
+          // Draw avatar
+          // -------------------------
+          const avatar = await loadImage(avatarURL);
+
+          const avatarX = padding;
+          const avatarY = padding;
+
+          // circular avatar
+          ctx.save();
+          ctx.beginPath();
+          ctx.arc(
+            avatarX + avatarSize / 2,
+            avatarY + avatarSize / 2,
+            avatarSize / 2,
+            0,
+            Math.PI * 2,
+          );
+          ctx.closePath();
+          ctx.clip();
+
+          ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
+          ctx.restore();
+
+          // -------------------------
+          // Username
+          // -------------------------
+          ctx.fillStyle = roleColor;
+          ctx.fillText(username, textStartX, padding);
+
+          // -------------------------
+          // Message text
+          // -------------------------
+          ctx.fillStyle = "#dbdee1";
+
+          let y = padding + usernameHeight;
+
+          for (const line of lines) {
+            ctx.fillText(line, textStartX, y);
+            y += lineHeight;
+          }
+
+          return canvas;
+        };
+
+        return await acceptFlameRequest(
+          getCanvas,
+          interaction,
+          member.displayName,
+          content,
+          member.id,
+        );
+      }
+
       const modal = new ModalBuilder()
         .setCustomId("flames")
         .setTitle("Who does it flame?");
@@ -1702,16 +1939,9 @@ client.on("interactionCreate", async (interaction) => {
       await interaction.showModal(modal);
 
       break;
+    }
 
     case "reject":
-      const fields = interaction.message?.embeds[0]?.data.fields;
-
-      if (!fields) return;
-
-      const [username, content] = fields.map((field) => field.value);
-
-      if (!username || !content) return;
-
       await interaction.message.delete();
 
       await sendFlameLog(
@@ -1833,42 +2063,13 @@ client.on("interactionCreate", async (interaction) => {
         return canvas;
       };
 
-      const canvas = await getCanvas();
-
-      interaction.reply({
-        content: "✅ Flame request accepted!",
-        ephemeral: true,
-      });
-
-      await interaction.message?.delete();
-
-      const channel = client.channels.cache.get(Flame.FLAMING_CHANNEL_ID);
-
-      if (!channel || !channel.isSendable()) return;
-
-      const msg = await channel.send({
-        files: [
-          new AttachmentBuilder(canvas.toBuffer("image/png"), {
-            name: "flame.png",
-          }),
-        ],
-      });
-
-      await sendFlameLog(
-        {
-          username,
-          content,
-        },
-        true,
-        interaction.user.id,
+      await acceptFlameRequest(
+        getCanvas,
+        interaction,
+        username,
+        content,
+        selected_user.id,
       );
-
-      await prisma.flame.create({
-        data: {
-          id: msg.id,
-          flames: [selected_user.id],
-        },
-      });
   }
 });
 
@@ -1897,6 +2098,20 @@ client.on("messageCreate", async (message) => {
   }
 });
 
+client.on("messageCreate", async (message) => {
+  if (!(message.content == "!flame" || message.content == "!flaming")) return;
+
+  if (!message.reference) return;
+
+  const replied_to = message.channel.messages.cache.get(
+    message.reference.messageId ?? "",
+  );
+
+  if (!replied_to) return;
+
+  await sendFlameRequest(userMention(replied_to.author.id), replied_to.content);
+});
+
 client.on("messageDelete", async (message) => {
   switch (message.channelId) {
     case Counting.COUNTING_CHANNEL_ID:
@@ -1914,7 +2129,7 @@ const wss = new WebSocketServer({ port: PORT });
 wss.on("connection", (ws) => {
   console.log("Streamerbot connected!");
 
-  ws.on("message", (message) => {
+  ws.on("message", async (message) => {
     try {
       const response = JSON.parse(message.toString());
 
@@ -1929,42 +2144,7 @@ wss.on("connection", (ws) => {
         case "flame": {
           const { username, message } = data;
 
-          const CHANNEL_ID = "1476252282134986814";
-
-          const channel = client.channels.cache.get(CHANNEL_ID) as TextChannel;
-
-          if (!channel) return;
-
-          channel.send({
-            embeds: [
-              new CustomEmbed()
-                .setTitle("New Flame Request 🔥")
-                .setFields([
-                  {
-                    name: "👤 Username",
-                    value: username,
-                  },
-                  {
-                    name: "💭 Content",
-                    value: message,
-                  },
-                ])
-                .setColor(0xff7417),
-            ],
-            components: [
-              new ActionRowBuilder<ButtonBuilder>().setComponents(
-                new ButtonBuilder()
-                  .setCustomId("accept")
-                  .setLabel("✅ Accept")
-                  .setStyle(ButtonStyle.Success),
-
-                new ButtonBuilder()
-                  .setCustomId("reject")
-                  .setLabel("❌ Reject")
-                  .setStyle(ButtonStyle.Danger),
-              ),
-            ],
-          });
+          await sendFlameRequest(username, message);
 
           break;
         }
