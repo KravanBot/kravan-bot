@@ -530,7 +530,7 @@ client.once("clientReady", async () => {
           embeds: [
             new CustomEmbed()
               .setTitle(
-                "<a:purple_heart:1478016138523967578> NEW LIVE <a:purple_heart:1478016138523967578>",
+                "<a:purple_heart:1478016138523967578> LIVE NOW <a:purple_heart:1478016138523967578>",
               )
               .setFields([
                 {
@@ -538,12 +538,12 @@ client.once("clientReady", async () => {
                   value: live.title,
                 },
                 {
-                  name: "🎮 Game",
+                  name: "<:valorant:1478018219192356874> Game",
                   value: `${live.game_name}\n\u200b\n\u200b<a:Raven_Jam:1387726635268182127><a:RavenTwerk:1388053524893401201><a:Raven_Jam:1387726635268182127><a:RavenTwerk:1388053524893401201><a:Raven_Jam:1387726635268182127><a:RavenTwerk:1388053524893401201>`,
                   inline: true,
                 },
                 {
-                  name: "👥 Viewers",
+                  name: "<:cute_blush:1478017597516681387> Viewers",
                   value: live.viewer_count.toLocaleString(),
                   inline: true,
                 },
