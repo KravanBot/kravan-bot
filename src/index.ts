@@ -524,11 +524,7 @@ client.once("clientReady", async () => {
         const has_been_announced =
           last_announcement?.embeds.at(0)?.image?.url == live.thumbnail_url;
 
-        const send_func = has_been_announced
-          ? last_announcement!.edit
-          : twitch_channel.send;
-
-        last_announcement = await send_func({
+        const props = {
           // content: `<@&1311169420457934848>`,
           embeds: [
             new CustomEmbed()
@@ -546,7 +542,11 @@ client.once("clientReady", async () => {
               })
               .setURL("https://twitch.tv/ranniria"),
           ],
-        });
+        };
+
+        last_announcement = has_been_announced
+          ? await last_announcement!.edit(props)
+          : await twitch_channel.send(props);
       };
 
       const handleClips = async () => {
