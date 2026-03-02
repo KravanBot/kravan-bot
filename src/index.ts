@@ -524,11 +524,11 @@ client.once("clientReady", async () => {
         const has_been_announced =
           last_announcement?.embeds.at(0)?.image?.url == live.thumbnail_url;
 
-        console.log(has_been_announced);
+        const send_func = has_been_announced
+          ? last_announcement!.edit
+          : twitch_channel.send;
 
-        if (has_been_announced) return;
-
-        last_announcement = await twitch_channel.send({
+        last_announcement = await send_func({
           // content: `<@&1311169420457934848>`,
           embeds: [
             new CustomEmbed()
