@@ -99,6 +99,7 @@ export class Twitch {
         thumbnail_url: string;
         started_at: string;
         viewer_count: number;
+        game_name: string;
       }[];
     };
 

@@ -525,18 +525,28 @@ client.once("clientReady", async () => {
           last_announcement?.embeds.at(0)?.image?.url == live.thumbnail_url;
 
         const props = {
-          // content: `<@&1311169420457934848>`,
+          content: `https://twitch.tv/ranniria <@&1311169420457934848>`,
           embeds: [
             new CustomEmbed()
-              .setTitle("🔴 WE ARE LIVE 🔴")
+              .setTitle("📹 NEW LIVE 📹")
               .setFields([
                 {
                   name: "💬 Title",
                   value: live.title,
                 },
+                {
+                  name: "🎮 Game",
+                  value: live.game_name,
+                  inline: true,
+                },
+                {
+                  name: "👥 Viewers",
+                  value: live.viewer_count.toLocaleString(),
+                  inline: true,
+                },
               ])
               .setColor(0xe4e29e)
-              .setImage(live.thumbnail_url)
+              .setImage(`${live.thumbnail_url}?t=${Date.now()}`)
               .setFooter({
                 text: moment(live.started_at).format("Do MMM, YYYY HH:mm"),
               })
