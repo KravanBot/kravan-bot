@@ -514,8 +514,12 @@ client.once("clientReady", async () => {
     const handleNewMinute = async () => {
       let is_live = false;
 
+      console.log("Hey");
+
       const handleLive = async () => {
         const live = (await twitch.getLive())[0];
+
+        console.log(live);
 
         is_live = !!live;
 
@@ -524,10 +528,12 @@ client.once("clientReady", async () => {
         const has_been_announced =
           last_announcement?.embeds.at(0)?.image?.url == live.thumbnail_url;
 
+        console.log(has_been_announced);
+
         if (has_been_announced) return;
 
         last_announcement = await twitch_channel.send({
-          content: `<@&1311169420457934848>`,
+          // content: `<@&1311169420457934848>`,
           embeds: [
             new CustomEmbed()
               .setTitle("🎬 NEW STREAM 🎬")
@@ -552,6 +558,8 @@ client.once("clientReady", async () => {
 
         const clips = await twitch.getClips(last_clip_date);
 
+        console.log(clips);
+
         if (clips.length) last_clip_date = moment(clips.at(-1)!.created_at);
 
         for (const {
@@ -562,7 +570,7 @@ client.once("clientReady", async () => {
           created_at,
           url,
         } of clips)
-          clips_channel.send({
+          await clips_channel.send({
             embeds: [
               new CustomEmbed()
                 .setTitle("🎬 NEW CLIP 🎬")
