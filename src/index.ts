@@ -496,25 +496,55 @@ client.once("clientReady", async () => {
       embed: `<:${emoji.name}:${emoji.id}>`,
     };
 
+  const twitch_channel = client.channels.cache.get("1456984620066148394");
+  const clips_channel = client.channels.cache.get("1456984620066148394");
+
+  // const twitch_channel = client.channels.cache.get("1311121693133246535");
+  // const clips_channel = client.channels.cache.get("1387333680141439046");
+
+  if (!twitch_channel?.isSendable()) return;
+
   let lastProcessedMonth: number = moment().utc().month();
+  let last_clip_date = moment().utc();
+  let last_announcement = (
+    await twitch_channel.messages.fetch({ limit: 5 })
+  ).find(({ author }) => author.id == client.user!.id);
 
   setInterval(async () => {
-    let last_clip_date = moment().utc();
-
-    const twitch_channel = client.channels.cache.get("1311121693133246535");
-    const clips_channel = client.channels.cache.get("1387333680141439046");
-
     const handleNewMinute = async () => {
       let is_live = false;
 
-      if (!twitch_channel?.isSendable()) return;
-
       const handleLive = async () => {
-        const live = await twitch.getLive();
+        const live = (await twitch.getLive())[0];
 
-        is_live = !!live.length;
+        is_live = !!live;
 
-        // console.log(live);
+        if (!live) return;
+
+        const has_been_announced =
+          last_announcement?.embeds.at(0)?.image?.url == live.thumbnail_url;
+
+        if (has_been_announced) return;
+
+        last_announcement = await twitch_channel.send({
+          content: `<@&1311169420457934848>`,
+          embeds: [
+            new CustomEmbed()
+              .setTitle("🎬 NEW STREAM 🎬")
+              .setFields([
+                {
+                  name: "💬 Title",
+                  value: live.title,
+                },
+              ])
+              .setColor(0xe4e29e)
+              .setImage(live.thumbnail_url)
+              .setFooter({
+                text: moment(live.started_at).format("Do MMM, YYYY HH:mm"),
+              })
+              .setURL("https://twitch.tv/ranniria"),
+          ],
+        });
       };
 
       const handleClips = async () => {
@@ -524,44 +554,42 @@ client.once("clientReady", async () => {
 
         if (clips.length) last_clip_date = moment(clips.at(-1)!.created_at);
 
-        // console.log(clips);
-
-        // for (const {
-        //   title,
-        //   creator_name,
-        //   duration,
-        //   thumbnail_url,
-        //   created_at,
-        //   url,
-        // } of clips)
-        //   clips_channel.send({
-        //     embeds: [
-        //       new CustomEmbed()
-        //         .setTitle("🎬 NEW CLIP 🎬")
-        //         .setFields([
-        //           {
-        //             name: "💬 Title",
-        //             value: title,
-        //           },
-        //           {
-        //             name: "👤 Creator",
-        //             value: creator_name,
-        //             inline: true,
-        //           },
-        //           {
-        //             name: "⏰ Duration",
-        //             value: `${duration} sec`,
-        //             inline: true,
-        //           },
-        //         ])
-        //         .setColor(0xe4e29e)
-        //         .setImage(thumbnail_url)
-        //         .setFooter({
-        //           text: moment(created_at).format("Do MMM, YYYY HH:mm"),
-        //         })
-        //         .setURL(url),
-        //     ],
-        //   });
+        for (const {
+          title,
+          creator_name,
+          duration,
+          thumbnail_url,
+          created_at,
+          url,
+        } of clips)
+          clips_channel.send({
+            embeds: [
+              new CustomEmbed()
+                .setTitle("🎬 NEW CLIP 🎬")
+                .setFields([
+                  {
+                    name: "💬 Title",
+                    value: title,
+                  },
+                  {
+                    name: "👤 Creator",
+                    value: creator_name,
+                    inline: true,
+                  },
+                  {
+                    name: "⏰ Duration",
+                    value: `${duration} sec`,
+                    inline: true,
+                  },
+                ])
+                .setColor(0xe4e29e)
+                .setImage(thumbnail_url)
+                .setFooter({
+                  text: moment(created_at).format("Do MMM, YYYY HH:mm"),
+                })
+                .setURL(url),
+            ],
+          });
       };
 
       await handleLive();
