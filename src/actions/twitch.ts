@@ -70,12 +70,14 @@ export class Twitch {
       }[];
     };
 
-    return body.data.toSorted((a, b) => {
-      const timeA = moment(a.created_at);
-      const timeB = moment(b.created_at);
+    return body.data
+      .filter(({ created_at }) => moment(created_at).isAfter(last_clip_date))
+      .toSorted((a, b) => {
+        const timeA = moment(a.created_at);
+        const timeB = moment(b.created_at);
 
-      return timeA.valueOf() - timeB.valueOf();
-    });
+        return timeA.valueOf() - timeB.valueOf();
+      });
   }
 
   async getLive() {
@@ -100,6 +102,11 @@ export class Twitch {
       }[];
     };
 
-    return body.data;
+    return body.data.map((live) => ({
+      ...live,
+      thumbnail_url: live.thumbnail_url
+        .replace("{width}", "1920")
+        .replace("{height}", "1080"),
+    }));
   }
 }
