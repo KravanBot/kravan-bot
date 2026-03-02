@@ -7,7 +7,7 @@ type TwitchToken = {
 };
 
 export class Twitch {
-  static #BROADCASTER_ID = "315559895794";
+  static #BROADCASTER_ID = "102631269";
 
   #token: TwitchToken | null;
 
