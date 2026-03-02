@@ -530,7 +530,7 @@ client.once("clientReady", async () => {
           embeds: [
             new CustomEmbed()
               .setTitle(
-                "<a:purple_heart:1478016138523967578> LIVE NOW <a:purple_heart:1478016138523967578>",
+                "<:purplefireemoji:1478027723732553780> LIVE NOW <:purplefireemoji:1478027723732553780>",
               )
               .setFields([
                 {
