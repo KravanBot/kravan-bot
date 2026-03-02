@@ -529,7 +529,9 @@ client.once("clientReady", async () => {
           content: `https://twitch.tv/ranniria <@&1311169420457934848>`,
           embeds: [
             new CustomEmbed()
-              .setTitle("📹 NEW LIVE 📹")
+              .setTitle(
+                "<a:red_flame:1476886352648867945> NEW LIVE <a:red_flame:1476886352648867945>",
+              )
               .setFields([
                 {
                   name: "💬 Title",
@@ -537,7 +539,7 @@ client.once("clientReady", async () => {
                 },
                 {
                   name: "🎮 Game",
-                  value: live.game_name,
+                  value: `${live.game_name}\n\u200b\n\u200b<a:Raven_Jam:1387726635268182127><a:RavenTwerk:1388053524893401201><a:Raven_Jam:1387726635268182127><a:RavenTwerk:1388053524893401201><a:Raven_Jam:1387726635268182127><a:RavenTwerk:1388053524893401201>`,
                   inline: true,
                 },
                 {
