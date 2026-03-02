@@ -479,7 +479,7 @@ client.once("clientReady", async () => {
   new Leveling();
   twitch = new Twitch();
 
-  ranni_guild = client.guilds.cache.get(RANNI_GUILD_ID);
+  ranni_guild = await client.guilds.fetch(RANNI_GUILD_ID);
 
   if (!ranni_guild) return;
 
