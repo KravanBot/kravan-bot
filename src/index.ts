@@ -496,10 +496,9 @@ client.once("clientReady", async () => {
       embed: `<:${emoji.name}:${emoji.id}>`,
     };
 
-  const twitch_channel = client.channels.cache.get("1456984620066148394");
+  const twitch_channel = client.channels.cache.get("1311121693133246535");
   const clips_channel = client.channels.cache.get("1456984620066148394");
 
-  // const twitch_channel = client.channels.cache.get("1311121693133246535");
   // const clips_channel = client.channels.cache.get("1387333680141439046");
 
   if (!twitch_channel?.isSendable()) return;
