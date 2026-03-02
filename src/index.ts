@@ -557,9 +557,7 @@ client.once("clientReady", async () => {
                 "https://static-cdn.jtvnw.net/jtv_user_pictures/03e3d2fb-71a6-4c5a-955d-b28d48908d2f-profile_image-300x300.png",
               )
               .setImage(`${live.thumbnail_url}?t=${Date.now()}`)
-              .setFooter({
-                text: `<t:${Math.floor(moment(live.started_at).valueOf() / 1000)}:f>`,
-              })
+              .setTimestamp(moment(live.started_at).toDate())
               .setURL("https://twitch.tv/ranniria"),
           ],
         };
@@ -606,9 +604,7 @@ client.once("clientReady", async () => {
                 ])
                 .setColor(0xe4e29e)
                 .setImage(thumbnail_url)
-                .setFooter({
-                  text: `<t:${Math.floor(moment(created_at).valueOf() / 1000)}:f>`,
-                })
+                .setTimestamp(moment(created_at).toDate())
                 .setURL(url),
             ],
           });
