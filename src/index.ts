@@ -526,7 +526,7 @@ client.once("clientReady", async () => {
           live.thumbnail_url;
 
         const props = {
-          content: `https://twitch.tv/ranniria <@&1311169420457934848>`,
+          content: `<@&1311169420457934848>`,
           embeds: [
             new CustomEmbed()
               .setTitle(
