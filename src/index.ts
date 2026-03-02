@@ -530,7 +530,7 @@ client.once("clientReady", async () => {
           embeds: [
             new CustomEmbed()
               .setTitle(
-                "<a:red_flame:1476886352648867945> NEW LIVE <a:red_flame:1476886352648867945>",
+                "<a:purple_heart:1478016138523967578> NEW LIVE <a:purple_heart:1478016138523967578>",
               )
               .setFields([
                 {
@@ -549,6 +549,9 @@ client.once("clientReady", async () => {
                 },
               ])
               .setColor(0xe4e29e)
+              .setThumbnail(
+                "https://static-cdn.jtvnw.net/jtv_user_pictures/03e3d2fb-71a6-4c5a-955d-b28d48908d2f-profile_image-300x300.png",
+              )
               .setImage(`${live.thumbnail_url}?t=${Date.now()}`)
               .setFooter({
                 text: moment(live.started_at).format("Do MMM, YYYY HH:mm"),
