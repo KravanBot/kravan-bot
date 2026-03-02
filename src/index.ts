@@ -546,7 +546,7 @@ client.once("clientReady", async () => {
                 },
               ])
               .setColor(0xe4e29e)
-              .setImage(`${live.thumbnail_url}?t=${Date.now()}`)
+              .setImage(live.thumbnail_url)
               .setFooter({
                 text: moment(live.started_at).format("Do MMM, YYYY HH:mm"),
               })
