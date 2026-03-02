@@ -522,7 +522,8 @@ client.once("clientReady", async () => {
         if (!live) return;
 
         const has_been_announced =
-          last_announcement?.embeds.at(0)?.image?.url == live.thumbnail_url;
+          last_announcement?.embeds.at(0)?.image?.url.split("?").at(0) ==
+          live.thumbnail_url;
 
         const props = {
           content: `https://twitch.tv/ranniria <@&1311169420457934848>`,
@@ -546,7 +547,7 @@ client.once("clientReady", async () => {
                 },
               ])
               .setColor(0xe4e29e)
-              .setImage(live.thumbnail_url)
+              .setImage(`${live.thumbnail_url}?t=${Date.now()}`)
               .setFooter({
                 text: moment(live.started_at).format("Do MMM, YYYY HH:mm"),
               })
