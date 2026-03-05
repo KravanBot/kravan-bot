@@ -21,6 +21,8 @@ export class StreamerBot {
 
   async #handleMessage(message: WebSocket.RawData) {
     try {
+      console.log(message.toString());
+
       const response = JSON.parse(message.toString());
 
       if ("error" in response) {
