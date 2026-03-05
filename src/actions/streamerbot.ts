@@ -49,9 +49,7 @@ export class StreamerBot {
         }
 
         case "songlike": {
-          const { song, name, user } = data;
-
-          console.log(name);
+          const { name, user } = data;
 
           const MUSIC_CHANNEL_ID = "1446229960741228647";
 
@@ -60,10 +58,7 @@ export class StreamerBot {
 
           if (!music_channel?.isSendable()) return;
 
-          console.log(song);
-
-          await music_channel.send({
-            content: song,
+          const msg = await music_channel.send({
             embeds: [
               new CustomEmbed()
                 .setTitle("🎵 Song Added 🎵")
@@ -82,6 +77,9 @@ export class StreamerBot {
                 .setColor(0x1ed760),
             ],
           });
+          await msg.reply(
+            "https://open.spotify.com/playlist/4oeTQREusGP9RG41nipafV",
+          );
 
           break;
         }
