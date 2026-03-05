@@ -51,12 +51,16 @@ export class StreamerBot {
         case "songlike": {
           const { song, name, user } = data;
 
+          console.log(name);
+
           const MUSIC_CHANNEL_ID = "1446229960741228647";
 
           const music_channel =
             ranni_guild?.channels.cache.get(MUSIC_CHANNEL_ID);
 
           if (!music_channel?.isSendable()) return;
+
+          console.log(song);
 
           await music_channel.send({
             content: song,
