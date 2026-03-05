@@ -1678,7 +1678,7 @@ client.on("interactionCreate", async (interaction) => {
 
   switch (interaction.customId) {
     case "accept": {
-      if (username.startsWith("<@")) {
+      if (username.startsWith("<@") && !interaction.message.attachments.size) {
         const member = ranni_guild!.members.cache.get(
           username.replace("<@", "").replace(">", ""),
         );
@@ -1963,11 +1963,15 @@ client.on("interactionCreate", async (interaction) => {
         return canvas;
       };
 
+      const attachments = interaction.message?.attachments;
+
       await Flame.acceptFlameRequest(
         getCanvas,
         interaction,
         username,
-        content,
+        attachments && attachments.size
+          ? Array.from(attachments.values())
+          : content,
         selected_user.id,
       );
   }
@@ -2009,9 +2013,11 @@ client.on("messageCreate", async (message) => {
 
   if (!replied_to) return;
 
+  const attatchments = Array.from(replied_to.attachments.values());
+
   await Flame.sendFlameRequest(
     userMention(replied_to.author.id),
-    replied_to.content,
+    attatchments.length ? attatchments : replied_to.content,
   );
 });
 

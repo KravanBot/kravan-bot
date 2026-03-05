@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  Attachment,
   AttachmentBuilder,
   ButtonBuilder,
   ButtonInteraction,
@@ -311,7 +312,7 @@ export class Flame {
   }
 
   static sendFlameLog = async (
-    flame: { username: string; content: string },
+    flame: { username: string; content: string | Attachment[] },
     success: boolean,
     user_id: string,
   ) => {
@@ -333,15 +334,22 @@ export class Flame {
             },
             {
               name: "Content",
-              value: flame.content,
+              value:
+                typeof flame.content == "string"
+                  ? flame.content
+                  : "(see attachments)",
             },
           ])
           .setColor(success ? "#6ade12" : "#e81c41"),
       ],
+      files: typeof flame.content == "string" ? [] : flame.content,
     });
   };
 
-  static sendFlameRequest = async (username: string, message: string) => {
+  static sendFlameRequest = async (
+    username: string,
+    message: string | Attachment[],
+  ) => {
     const CHANNEL_ID = "1476252282134986814";
 
     const channel = client.channels.cache.get(CHANNEL_ID) as TextChannel;
@@ -359,7 +367,7 @@ export class Flame {
             },
             {
               name: "💭 Content",
-              value: message,
+              value: typeof message == "string" ? message : "(see attachments)",
             },
           ])
           .setColor(0xff7417),
@@ -377,6 +385,7 @@ export class Flame {
             .setStyle(ButtonStyle.Danger),
         ),
       ],
+      files: typeof message == "string" ? [] : message,
     });
   };
 
@@ -386,10 +395,12 @@ export class Flame {
       | ButtonInteraction<CacheType>
       | ModalSubmitInteraction<CacheType>,
     username: string,
-    content: string,
+    content: string | Attachment[],
     flames_id: string,
   ) => {
-    const canvas = await getCanvas();
+    let canvas: Canvas | null = null;
+
+    if (typeof content == "string") canvas = await getCanvas();
 
     interaction.reply({
       content: "✅ Flame request accepted!",
@@ -403,11 +414,13 @@ export class Flame {
     if (!channel || !channel.isSendable()) return;
 
     const msg = await channel.send({
-      files: [
-        new AttachmentBuilder(canvas.toBuffer("image/png"), {
-          name: "flame.png",
-        }),
-      ],
+      files: canvas
+        ? [
+            new AttachmentBuilder(canvas.toBuffer("image/png"), {
+              name: "flame.png",
+            }),
+          ]
+        : (content as Attachment[]),
     });
 
     await Flame.sendFlameLog(
