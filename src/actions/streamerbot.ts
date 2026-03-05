@@ -69,10 +69,12 @@ export class StreamerBot {
           await music_channel.send({
             embeds: [
               new CustomEmbed()
-                .setTitle("🎵 Song Added 🎵")
+                .setTitle(
+                  "<a:gethoponspotify:1479081601915814030> Song Added <a:gethoponspotify:1479081601915814030>",
+                )
                 .setFields([
                   {
-                    name: "🎹 Song",
+                    name: "🎵 Song",
                     value: name,
                     inline: true,
                   },
@@ -89,6 +91,19 @@ export class StreamerBot {
               new ActionRowBuilder<ButtonBuilder>().setComponents(
                 new ButtonBuilder()
                   .setLabel("Playlist")
+                  .setEmoji({
+                    id: "1479082396866580561",
+                  })
+                  .setURL(
+                    "https://open.spotify.com/playlist/4oeTQREusGP9RG41nipafV",
+                  )
+                  .setStyle(ButtonStyle.Link),
+
+                new ButtonBuilder()
+                  .setLabel("Song")
+                  .setEmoji({
+                    id: "1479081633524089015",
+                  })
                   .setURL(url)
                   .setStyle(ButtonStyle.Link),
               ),
