@@ -8,22 +8,13 @@ import {
   userMention,
   Guild,
   TextChannel,
-  Message,
   User,
   Channel,
-  ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
   LabelBuilder,
   UserSelectMenuBuilder,
-  AttachmentBuilder,
-  ButtonInteraction,
-  CacheType,
-  ModalSubmitInteraction,
   GuildMember,
+  ModalBuilder,
+  ActivityType,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -46,7 +37,6 @@ import {
   hasEnoughGems,
   hasItem,
   isInJail,
-  prisma,
   putInJail,
   putOnMinime,
   setCanBribeIn,
@@ -54,7 +44,6 @@ import {
   setLastSteal,
   takeCoins,
   takeFromBank,
-  takeFromMinime,
   takeGems,
   updateAndReturnDaily,
   updateTheft,
@@ -74,10 +63,10 @@ import { Flame } from "./actions/flame.js";
 import moment from "moment";
 import { HideAndSeek } from "./actions/hide-n-sick.js";
 import { Trivia } from "./actions/trivia.js";
-import { WebSocketServer } from "ws";
-import { Canvas, createCanvas, loadImage } from "@napi-rs/canvas";
+import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { GlobalFonts } from "@napi-rs/canvas";
 import { Twitch } from "./actions/twitch.js";
+import { StreamerBot } from "./actions/streamerbot.js";
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
@@ -99,6 +88,7 @@ export const client = new Client({
 export let gem_emoji = { message: "💎", embed: "💎" };
 
 export const current_gambles: Set<string> = new Set();
+export const pending_clips: Map<string, string> = new Map();
 
 const items_as_string_option = Array.from(Store.ITEMS)
   .filter(([_, data]) => !!data)
@@ -501,9 +491,17 @@ client.once("clientReady", async () => {
     };
 
   const twitch_channel = client.channels.cache.get("1311121693133246535");
-  const clips_channel = client.channels.cache.get("1456984620066148394");
+  const clips_channel = client.channels.cache.get("1387333680141439046");
 
-  // const clips_channel = client.channels.cache.get("1387333680141439046");
+  client.user?.setPresence({
+    activities: [
+      {
+        name: "bla bla bla",
+        type: ActivityType.Streaming,
+        url: "https://www.twitch.tv/yaritaiji",
+      },
+    ],
+  });
 
   if (!twitch_channel?.isSendable()) return;
 
@@ -522,11 +520,20 @@ client.once("clientReady", async () => {
 
         is_live = !!live;
 
-        if (!live) return;
+        if (
+          !live ||
+          live.thumbnail_url.startsWith(
+            "https://static-cdn.jtvnw.net/ttv-static/404_preview",
+          )
+        )
+          return;
 
-        const has_been_announced =
-          last_announcement?.embeds.at(0)?.image?.url.split("?").at(0) ==
-          live.thumbnail_url;
+        const last_thumbnail = last_announcement?.embeds
+          .at(0)
+          ?.image?.url.split("?")
+          .at(0);
+
+        const has_been_announced = last_thumbnail == live.thumbnail_url;
 
         const props = {
           content: `<@&1311169420457934848>`,
@@ -596,7 +603,12 @@ client.once("clientReady", async () => {
                   },
                   {
                     name: "👤 Creator",
-                    value: creator_name,
+                    value: (() => {
+                      const value = pending_clips.get(url) ?? creator_name;
+                      pending_clips.delete(url);
+
+                      return value;
+                    })(),
                     inline: true,
                   },
                   {
@@ -607,6 +619,9 @@ client.once("clientReady", async () => {
                 ])
                 .setColor(0xe4e29e)
                 .setImage(thumbnail_url)
+                .setThumbnail(
+                  "https://static-cdn.jtvnw.net/jtv_user_pictures/03e3d2fb-71a6-4c5a-955d-b28d48908d2f-profile_image-300x300.png",
+                )
                 .setTimestamp(moment(created_at).toDate())
                 .setURL(url),
             ],
@@ -1648,121 +1663,6 @@ client.on("interactionCreate", async (interaction: Interaction) => {
   }
 });
 
-const sendFlameLog = async (
-  flame: { username: string; content: string },
-  success: boolean,
-  user_id: string,
-) => {
-  const channel = client.channels.cache.get(Flame.LOG_CHANNEL_ID);
-
-  if (!channel || !channel.isSendable()) return;
-
-  await channel.send({
-    embeds: [
-      new CustomEmbed()
-        .setTitle("Flame Log")
-        .setDescription(
-          `Flame request was ${success ? "accepted" : "rejected"} by ${userMention(user_id)}!`,
-        )
-        .setFields([
-          {
-            name: "Username",
-            value: flame.username,
-          },
-          {
-            name: "Content",
-            value: flame.content,
-          },
-        ])
-        .setColor(success ? "#6ade12" : "#e81c41"),
-    ],
-  });
-};
-
-const sendFlameRequest = async (username: string, message: string) => {
-  const CHANNEL_ID = "1476252282134986814";
-
-  const channel = client.channels.cache.get(CHANNEL_ID) as TextChannel;
-
-  if (!channel) return;
-
-  channel.send({
-    embeds: [
-      new CustomEmbed()
-        .setTitle("New Flame Request 🔥")
-        .setFields([
-          {
-            name: "👤 Username",
-            value: username,
-          },
-          {
-            name: "💭 Content",
-            value: message,
-          },
-        ])
-        .setColor(0xff7417),
-    ],
-    components: [
-      new ActionRowBuilder<ButtonBuilder>().setComponents(
-        new ButtonBuilder()
-          .setCustomId("accept")
-          .setLabel("✅ Accept")
-          .setStyle(ButtonStyle.Success),
-
-        new ButtonBuilder()
-          .setCustomId("reject")
-          .setLabel("❌ Reject")
-          .setStyle(ButtonStyle.Danger),
-      ),
-    ],
-  });
-};
-
-const acceptFlameRequest = async (
-  getCanvas: () => Promise<Canvas>,
-  interaction: ButtonInteraction<CacheType> | ModalSubmitInteraction<CacheType>,
-  username: string,
-  content: string,
-  flames_id: string,
-) => {
-  const canvas = await getCanvas();
-
-  interaction.reply({
-    content: "✅ Flame request accepted!",
-    ephemeral: true,
-  });
-
-  await interaction.message?.delete();
-
-  const channel = client.channels.cache.get(Flame.FLAMING_CHANNEL_ID);
-
-  if (!channel || !channel.isSendable()) return;
-
-  const msg = await channel.send({
-    files: [
-      new AttachmentBuilder(canvas.toBuffer("image/png"), {
-        name: "flame.png",
-      }),
-    ],
-  });
-
-  await sendFlameLog(
-    {
-      username,
-      content,
-    },
-    true,
-    interaction.user.id,
-  );
-
-  await prisma.flame.create({
-    data: {
-      id: msg.id,
-      flames: [flames_id],
-    },
-  });
-};
-
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isButton()) return;
 
@@ -1910,7 +1810,7 @@ client.on("interactionCreate", async (interaction) => {
           return canvas;
         };
 
-        return await acceptFlameRequest(
+        return await Flame.acceptFlameRequest(
           getCanvas,
           interaction,
           member.displayName,
@@ -1944,7 +1844,7 @@ client.on("interactionCreate", async (interaction) => {
     case "reject":
       await interaction.message.delete();
 
-      await sendFlameLog(
+      await Flame.sendFlameLog(
         {
           username,
           content,
@@ -2063,7 +1963,7 @@ client.on("interactionCreate", async (interaction) => {
         return canvas;
       };
 
-      await acceptFlameRequest(
+      await Flame.acceptFlameRequest(
         getCanvas,
         interaction,
         username,
@@ -2109,7 +2009,10 @@ client.on("messageCreate", async (message) => {
 
   if (!replied_to) return;
 
-  await sendFlameRequest(userMention(replied_to.author.id), replied_to.content);
+  await Flame.sendFlameRequest(
+    userMention(replied_to.author.id),
+    replied_to.content,
+  );
 });
 
 client.on("messageDelete", async (message) => {
@@ -2123,36 +2026,4 @@ client.on("messageDelete", async (message) => {
 
 client.login(TOKEN);
 
-const PORT = parseInt(process.env.PORT || "8080");
-const wss = new WebSocketServer({ port: PORT });
-
-wss.on("connection", (ws) => {
-  console.log("Streamerbot connected!");
-
-  ws.on("message", async (message) => {
-    try {
-      const response = JSON.parse(message.toString());
-
-      if ("error" in response) {
-        console.log(response.error);
-        return;
-      }
-
-      const { event, data } = response;
-
-      switch (event) {
-        case "flame": {
-          const { username, message } = data;
-
-          await sendFlameRequest(username, message);
-
-          break;
-        }
-      }
-    } catch (e) {
-      console.error("Error parsing message:", e);
-    }
-  });
-});
-
-console.log(`websocket server started on port ${PORT}`);
+new StreamerBot();

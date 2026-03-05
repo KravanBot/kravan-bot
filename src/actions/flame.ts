@@ -1,12 +1,20 @@
 import {
+  ActionRowBuilder,
+  AttachmentBuilder,
+  ButtonBuilder,
+  ButtonInteraction,
+  ButtonStyle,
   CacheType,
   ChatInputCommandInteraction,
+  ModalSubmitInteraction,
   TextChannel,
   userMention,
 } from "discord.js";
 import { client } from "../index.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import { prisma } from "../db/prisma.js";
+import { CustomEmbed } from "../utils/embed.js";
+import { Canvas } from "@napi-rs/canvas";
 
 type InteractionT = ChatInputCommandInteraction<CacheType>;
 
@@ -301,4 +309,121 @@ export class Flame {
 
     await this.#interaction.editReply(payload);
   }
+
+  static sendFlameLog = async (
+    flame: { username: string; content: string },
+    success: boolean,
+    user_id: string,
+  ) => {
+    const channel = client.channels.cache.get(Flame.LOG_CHANNEL_ID);
+
+    if (!channel || !channel.isSendable()) return;
+
+    await channel.send({
+      embeds: [
+        new CustomEmbed()
+          .setTitle("Flame Log")
+          .setDescription(
+            `Flame request was ${success ? "accepted" : "rejected"} by ${userMention(user_id)}!`,
+          )
+          .setFields([
+            {
+              name: "Username",
+              value: flame.username,
+            },
+            {
+              name: "Content",
+              value: flame.content,
+            },
+          ])
+          .setColor(success ? "#6ade12" : "#e81c41"),
+      ],
+    });
+  };
+
+  static sendFlameRequest = async (username: string, message: string) => {
+    const CHANNEL_ID = "1476252282134986814";
+
+    const channel = client.channels.cache.get(CHANNEL_ID) as TextChannel;
+
+    if (!channel) return;
+
+    channel.send({
+      embeds: [
+        new CustomEmbed()
+          .setTitle("New Flame Request 🔥")
+          .setFields([
+            {
+              name: "👤 Username",
+              value: username,
+            },
+            {
+              name: "💭 Content",
+              value: message,
+            },
+          ])
+          .setColor(0xff7417),
+      ],
+      components: [
+        new ActionRowBuilder<ButtonBuilder>().setComponents(
+          new ButtonBuilder()
+            .setCustomId("accept")
+            .setLabel("✅ Accept")
+            .setStyle(ButtonStyle.Success),
+
+          new ButtonBuilder()
+            .setCustomId("reject")
+            .setLabel("❌ Reject")
+            .setStyle(ButtonStyle.Danger),
+        ),
+      ],
+    });
+  };
+
+  static acceptFlameRequest = async (
+    getCanvas: () => Promise<Canvas>,
+    interaction:
+      | ButtonInteraction<CacheType>
+      | ModalSubmitInteraction<CacheType>,
+    username: string,
+    content: string,
+    flames_id: string,
+  ) => {
+    const canvas = await getCanvas();
+
+    interaction.reply({
+      content: "✅ Flame request accepted!",
+      ephemeral: true,
+    });
+
+    await interaction.message?.delete();
+
+    const channel = client.channels.cache.get(Flame.FLAMING_CHANNEL_ID);
+
+    if (!channel || !channel.isSendable()) return;
+
+    const msg = await channel.send({
+      files: [
+        new AttachmentBuilder(canvas.toBuffer("image/png"), {
+          name: "flame.png",
+        }),
+      ],
+    });
+
+    await Flame.sendFlameLog(
+      {
+        username,
+        content,
+      },
+      true,
+      interaction.user.id,
+    );
+
+    await prisma.flame.create({
+      data: {
+        id: msg.id,
+        flames: [flames_id],
+      },
+    });
+  };
 }
