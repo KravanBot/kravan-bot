@@ -69,7 +69,7 @@ export class StreamerBot {
           await music_channel.send({
             embeds: [
               new CustomEmbed()
-                .setTitle("Song Added")
+                .setTitle("Song Added to Chats Twitch Playlist")
                 .setFields([
                   {
                     name: "🎵 Song",
@@ -82,6 +82,9 @@ export class StreamerBot {
                     inline: true,
                   },
                 ])
+                .setURL(
+                  "https://open.spotify.com/playlist/4oeTQREusGP9RG41nipafV",
+                )
                 .setThumbnail(image_url)
                 .setColor(0x1ed760),
             ],
