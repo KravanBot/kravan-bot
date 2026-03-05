@@ -70,7 +70,6 @@ export class StreamerBot {
             embeds: [
               new CustomEmbed()
                 .setTitle("Song Added")
-                .setDescription("\u200b\n")
                 .setFields([
                   {
                     name: "🎵 Song",
