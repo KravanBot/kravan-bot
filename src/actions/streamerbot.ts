@@ -69,9 +69,8 @@ export class StreamerBot {
           await music_channel.send({
             embeds: [
               new CustomEmbed()
-                .setTitle(
-                  "<a:gethoponspotify:1479081601915814030> Song Added <a:gethoponspotify:1479081601915814030>",
-                )
+                .setTitle("Song Added")
+                .setDescription("\u200b\n")
                 .setFields([
                   {
                     name: "🎵 Song",
