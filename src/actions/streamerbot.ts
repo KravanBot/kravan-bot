@@ -2,6 +2,8 @@ import { WebSocketServer, WebSocket } from "ws";
 import { Flame } from "./flame.js";
 import { pending_clips, ranni_guild } from "../index.js";
 import { CustomEmbed } from "../utils/embed.js";
+import { ActionRowBuilder, ButtonBuilder } from "@discordjs/builders";
+import { ButtonStyle } from "discord.js";
 
 export class StreamerBot {
   static #PORT = parseInt(process.env.PORT || "8080");
@@ -49,7 +51,13 @@ export class StreamerBot {
         }
 
         case "songlike": {
-          const { name, user } = data;
+          const { url, name, user } = data;
+
+          const image_url = (
+            (await (
+              await fetch(`https://open.spotify.com/oembed?url=${url}`)
+            ).json()) as any
+          ).thumbnail_url as string;
 
           const MUSIC_CHANNEL_ID = "1446229960741228647";
 
@@ -58,7 +66,7 @@ export class StreamerBot {
 
           if (!music_channel?.isSendable()) return;
 
-          const msg = await music_channel.send({
+          await music_channel.send({
             embeds: [
               new CustomEmbed()
                 .setTitle("🎵 Song Added 🎵")
@@ -74,12 +82,18 @@ export class StreamerBot {
                     inline: true,
                   },
                 ])
+                .setThumbnail(image_url)
                 .setColor(0x1ed760),
             ],
+            components: [
+              new ActionRowBuilder<ButtonBuilder>().setComponents(
+                new ButtonBuilder()
+                  .setLabel("Playlist")
+                  .setURL(url)
+                  .setStyle(ButtonStyle.Link),
+              ),
+            ],
           });
-          await msg.reply(
-            "https://open.spotify.com/playlist/4oeTQREusGP9RG41nipafV",
-          );
 
           break;
         }
