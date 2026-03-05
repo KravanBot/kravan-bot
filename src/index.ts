@@ -493,15 +493,15 @@ client.once("clientReady", async () => {
   const twitch_channel = client.channels.cache.get("1311121693133246535");
   const clips_channel = client.channels.cache.get("1387333680141439046");
 
-  client.user?.setPresence({
-    activities: [
-      {
-        name: "bla bla bla",
-        type: ActivityType.Streaming,
-        url: "https://www.twitch.tv/yaritaiji",
-      },
-    ],
-  });
+  // client.user?.setPresence({
+  //   activities: [
+  //     {
+  //       name: "bla bla bla",
+  //       type: ActivityType.Streaming,
+  //       url: "https://www.twitch.tv/yaritaiji",
+  //     },
+  //   ],
+  // });
 
   if (!twitch_channel?.isSendable()) return;
 

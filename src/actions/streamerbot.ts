@@ -1,6 +1,7 @@
 import { WebSocketServer, WebSocket } from "ws";
 import { Flame } from "./flame.js";
-import { pending_clips } from "../index.js";
+import { pending_clips, ranni_guild } from "../index.js";
+import { CustomEmbed } from "../utils/embed.js";
 
 export class StreamerBot {
   static #PORT = parseInt(process.env.PORT || "8080");
@@ -21,8 +22,6 @@ export class StreamerBot {
 
   async #handleMessage(message: WebSocket.RawData) {
     try {
-      console.log(message.toString());
-
       const response = JSON.parse(message.toString());
 
       if ("error" in response) {
@@ -50,9 +49,35 @@ export class StreamerBot {
         }
 
         case "songlike": {
-          const { url } = data;
+          const { song, name, user } = data;
 
-          console.log(url);
+          const MUSIC_CHANNEL_ID = "1446229960741228647";
+
+          const music_channel =
+            ranni_guild?.channels.cache.get(MUSIC_CHANNEL_ID);
+
+          if (!music_channel?.isSendable()) return;
+
+          await music_channel.send({
+            content: song,
+            embeds: [
+              new CustomEmbed()
+                .setTitle("🎵 Song Added 🎵")
+                .setFields([
+                  {
+                    name: "🎹 Song",
+                    value: name,
+                    inline: true,
+                  },
+                  {
+                    name: "👤 Added By",
+                    value: user,
+                    inline: true,
+                  },
+                ])
+                .setColor(0x1ed760),
+            ],
+          });
 
           break;
         }
