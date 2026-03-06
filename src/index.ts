@@ -696,7 +696,7 @@ client.once("clientReady", async () => {
 
     await handleNewMinute();
     await handleNewMonth();
-  }, 1000 * 10);
+  }, 1000 * 60);
 
   console.log("All set!");
 });
