@@ -520,6 +520,18 @@ client.once("clientReady", async () => {
 
         is_live = !!live;
 
+        client.user?.setPresence({
+          activities: is_live
+            ? [
+                {
+                  name: `🔴 ${live?.title ?? ""} 🔴`,
+                  type: ActivityType.Streaming,
+                  url: "https://www.twitch.tv/ranniria",
+                },
+              ]
+            : [],
+        });
+
         if (
           !live ||
           live.thumbnail_url.startsWith(
