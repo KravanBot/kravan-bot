@@ -270,7 +270,9 @@ export class Flame {
     const args = this.#flames
       ? {
           where: {
-            id: this.#flames,
+            flames: {
+              has: this.#flames,
+            },
           },
         }
       : {};
