@@ -540,12 +540,11 @@ client.once("clientReady", async () => {
         )
           return;
 
-        const last_thumbnail = last_announcement?.embeds
-          .at(0)
-          ?.image?.url.split("?")
-          .at(0);
+        const last_timestamp = last_announcement?.embeds.at(0)?.timestamp;
 
-        const has_been_announced = last_thumbnail == live.thumbnail_url;
+        const has_been_announced = moment(last_timestamp).isSame(
+          live.started_at,
+        );
 
         const props = {
           content: `<@&1311169420457934848>`,
@@ -697,7 +696,7 @@ client.once("clientReady", async () => {
 
     await handleNewMinute();
     await handleNewMonth();
-  }, 1000 * 60);
+  }, 1000 * 10);
 
   console.log("All set!");
 });
