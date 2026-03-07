@@ -533,12 +533,14 @@ client.once("clientReady", async () => {
         });
 
         if (
-          !live ||
-          live.thumbnail_url.startsWith(
-            "https://static-cdn.jtvnw.net/ttv-static/404_preview",
-          )
+          !live
+          // live.thumbnail_url.startsWith(
+          //   "https://static-cdn.jtvnw.net/ttv-static/404_preview",
+          // )
         )
           return;
+
+        console.log(live.thumbnail_url);
 
         const last_timestamp = last_announcement?.embeds.at(0)?.timestamp;
 
@@ -615,6 +617,9 @@ client.once("clientReady", async () => {
                   {
                     name: "👤 Creator",
                     value: (() => {
+                      console.log(url);
+                      console.log(pending_clips);
+
                       const value = pending_clips.get(url) ?? creator_name;
                       pending_clips.delete(url);
 
