@@ -15,6 +15,7 @@ import {
   GuildMember,
   ModalBuilder,
   ActivityType,
+  AttachmentBuilder,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -67,10 +68,13 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 import { GlobalFonts } from "@napi-rs/canvas";
 import { Twitch } from "./actions/twitch.js";
 import { StreamerBot } from "./actions/streamerbot.js";
+import fs from "fs/promises";
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
 configDotenv();
+
+const STREAM_DAYS = [2, 5, 6];
 
 const TOKEN = process.env.TOKEN!;
 const CLIENT_ID = process.env.CLIENT_ID!;
@@ -533,20 +537,66 @@ client.once("clientReady", async () => {
         });
 
         if (
-          !live
-          // live.thumbnail_url.startsWith(
-          //   "https://static-cdn.jtvnw.net/ttv-static/404_preview",
-          // )
-        )
+          !live ||
+          live.thumbnail_url.startsWith(
+            "https://static-cdn.jtvnw.net/ttv-static/404_preview",
+          )
+        ) {
+          const embed = last_announcement?.embeds.at(0);
+
+          if (!embed || embed.image?.url.includes("time-table.png")) return;
+
+          const timestamp = moment(embed.timestamp);
+          const next_stream =
+            STREAM_DAYS[
+              (STREAM_DAYS.indexOf(timestamp.day()) + 1) % STREAM_DAYS.length
+            ]!;
+
+          const next_stream_timestamp = moment(embed.timestamp)
+            .utc()
+            .day(next_stream + (next_stream > timestamp.day() ? 0 : 7))
+            .hour(17)
+            .minute(0)
+            .second(0);
+
+          last_announcement = await last_announcement?.edit({
+            embeds: [
+              new CustomEmbed()
+                .setTitle(
+                  `<:purplefireemoji:1478027723732553780> JOIN US ON ${next_stream_timestamp.format("dddd").toUpperCase()} 6PM CET <:purplefireemoji:1478027723732553780>`,
+                )
+                .setFields([
+                  ...embed.fields.slice(0, 2),
+                  {
+                    name: "🕑 Next Stream",
+                    value: `<t:${Math.floor(next_stream_timestamp.valueOf() / 1000)}:R>`,
+                    inline: true,
+                  },
+                ])
+                .setColor(embed.color)
+                .setThumbnail(embed.thumbnail!.url)
+                .setImage("attachment://time-table.png")
+                .setTimestamp(timestamp.toDate()),
+            ],
+            files: [
+              new AttachmentBuilder(
+                await fs.readFile("./assets/time-table.png"),
+                {
+                  name: "time-table.png",
+                },
+              ),
+            ],
+          });
+
           return;
+        }
 
-        console.log(live.thumbnail_url);
+        const last_timestamp =
+          last_announcement?.embeds.at(0)?.timestamp ?? null;
 
-        const last_timestamp = last_announcement?.embeds.at(0)?.timestamp;
-
-        const has_been_announced = moment(last_timestamp).isSame(
-          live.started_at,
-        );
+        const has_been_announced = last_timestamp
+          ? moment(last_timestamp).isSame(live.started_at)
+          : false;
 
         const props = {
           content: `<@&1311169420457934848>`,
