@@ -69,6 +69,7 @@ import { GlobalFonts } from "@napi-rs/canvas";
 import { Twitch } from "./actions/twitch.js";
 import { StreamerBot } from "./actions/streamerbot.js";
 import fs from "fs/promises";
+import { Logger } from "./actions/logger.js";
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
@@ -472,6 +473,8 @@ let twitch: Twitch;
 export let ranni_guild: Guild | undefined;
 
 client.once("clientReady", async () => {
+  if (process.env.IS_PRODUCTION === "true") new Logger();
+
   counting = new Counting();
   lottery = new Lottery();
   new Leveling();
