@@ -204,8 +204,6 @@ export class Store {
     .set(ItemId.END_MASK, null);
 
   static getStoreEmbeds() {
-    console.log(this.getItemType(ItemId.BOTOX_LIPS));
-
     const convertToFields = (arr: ItemId[]) =>
       arr.map((id) => {
         const item = this.ITEMS.get(id)!;

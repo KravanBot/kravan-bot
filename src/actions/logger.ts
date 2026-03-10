@@ -52,12 +52,9 @@ export class Logger {
       const channel = client.channels.cache.get(Logger.#LOG_CHANNEL_ID);
       if (!channel || !channel.isSendable()) return;
 
-      const chunk =
-        "```\n" +
-        this.#queue
-          .map((log) => this.#formatLog(log.type, log.args))
-          .join("\n") +
-        "\n```";
+      const chunk = this.#queue
+        .map((log) => this.#formatLog(log.type, log.args))
+        .join("\n");
 
       this.#queue = [];
 
@@ -70,7 +67,7 @@ export class Logger {
 
       const current = this.#log_msg.content ?? "";
 
-      const combined = current + "\n" + chunk;
+      const combined = "```\n" + `${current}\n${chunk}` + "\n```";
 
       if (combined.length > Logger.#MAX_LENGTH) {
         this.#log_msg = await channel.send({
