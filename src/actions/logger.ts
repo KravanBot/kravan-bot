@@ -65,7 +65,9 @@ export class Logger {
         return;
       }
 
-      const current = this.#log_msg.content ?? "";
+      const current =
+        this.#log_msg.content.replaceAll("```\n", "").replaceAll("\n```", "") ??
+        "";
 
       const combined = "```\n" + `${current}\n${chunk}` + "\n```";
 
