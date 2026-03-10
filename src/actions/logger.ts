@@ -8,7 +8,7 @@ export class Logger {
     "error",
     "info",
   ];
-  static #LOG_CHANNEL_ID = "1479245939909726339";
+  static #LOG_CHANNEL_ID = "1480968833056641126";
   static #MAX_LENGTH = 1990;
 
   #log_msg: Message<boolean> | null;
