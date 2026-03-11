@@ -67,7 +67,7 @@ export class Logger {
         "```\n" + `${current ? `${current}\n` : ""}${chunk}` + "\n```";
 
       if (!this.#log_msg || combined.length > Logger.#MAX_LENGTH) {
-        while (chunk.length > Logger.#MAX_LENGTH) {
+        while (chunk.length > 0) {
           this.#log_msg = await channel.send({
             content: "```\n" + chunk.slice(0, Logger.#MAX_LENGTH) + "\n```",
           });

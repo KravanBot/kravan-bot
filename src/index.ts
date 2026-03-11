@@ -757,7 +757,17 @@ client.once("clientReady", async () => {
     await handleNewMonth();
   }, 1000 * 60);
 
-  console.log(await prisma.user.findMany());
+  const users = await prisma.user.findMany();
+
+  for (const user of users) {
+    console.log(user);
+
+    await new Promise<void>((res) => {
+      setTimeout(() => {
+        res();
+      }, 100);
+    });
+  }
 
   console.log("All set!");
 });
