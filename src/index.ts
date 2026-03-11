@@ -38,6 +38,7 @@ import {
   hasEnoughGems,
   hasItem,
   isInJail,
+  prisma,
   putInJail,
   putOnMinime,
   setCanBribeIn,
@@ -755,6 +756,8 @@ client.once("clientReady", async () => {
     await handleNewMinute();
     await handleNewMonth();
   }, 1000 * 60);
+
+  console.log(await prisma.user.findMany());
 
   console.log("All set!");
 });

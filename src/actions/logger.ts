@@ -52,29 +52,28 @@ export class Logger {
       const channel = client.channels.cache.get(Logger.#LOG_CHANNEL_ID);
       if (!channel || !channel.isSendable()) return;
 
-      const chunk = this.#queue
+      let chunk = this.#queue
         .map((log) => this.#formatLog(log.type, log.args))
         .join("\n");
 
       this.#queue = [];
 
-      if (!this.#log_msg) {
-        this.#log_msg = await channel.send({
-          content: chunk.slice(0, Logger.#MAX_LENGTH),
-        });
-        return;
-      }
-
       const current =
-        this.#log_msg.content.replaceAll("```\n", "").replaceAll("\n```", "") ??
-        "";
+        this.#log_msg?.content
+          .replaceAll("```\n", "")
+          .replaceAll("\n```", "") ?? "";
 
-      const combined = "```\n" + `${current}\n${chunk}` + "\n```";
+      const combined =
+        "```\n" + `${current ? `${current}\n` : ""}${chunk}` + "\n```";
 
-      if (combined.length > Logger.#MAX_LENGTH) {
-        this.#log_msg = await channel.send({
-          content: chunk.slice(0, Logger.#MAX_LENGTH),
-        });
+      if (!this.#log_msg || combined.length > Logger.#MAX_LENGTH) {
+        while (chunk.length > Logger.#MAX_LENGTH) {
+          this.#log_msg = await channel.send({
+            content: "```\n" + chunk.slice(0, Logger.#MAX_LENGTH) + "\n```",
+          });
+          chunk = chunk.slice(Logger.#MAX_LENGTH);
+        }
+
         return;
       }
 
