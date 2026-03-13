@@ -1,3 +1,5 @@
+import "dotenv/config";
+
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Prisma, PrismaClient } from "@prisma/client";
 import moment from "moment";
