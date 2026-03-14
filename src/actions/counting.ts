@@ -383,7 +383,6 @@ export class Counting {
 
         await tryToGetJackpot(interaction.user, this.#last_msg!.channel);
       } catch (e) {
-        console.log(e);
         await interaction.reply({
           content: "Something went wrong. Maybe someone deleted his message...",
           ephemeral: true,
