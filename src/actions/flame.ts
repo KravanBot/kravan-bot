@@ -283,6 +283,8 @@ export class Flame {
         : Flame.#MESSAGES),
       ...(await prisma.flame.findMany(args)),
     ];
+    console.log(messages);
+
     const random = getRandomFromArray(messages);
 
     if (!random)
