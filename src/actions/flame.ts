@@ -7,6 +7,7 @@ import {
   ButtonStyle,
   CacheType,
   ChatInputCommandInteraction,
+  Message,
   ModalSubmitInteraction,
   TextChannel,
   userMention,
@@ -264,7 +265,7 @@ export class Flame {
     })();
   }
 
-  async #sendRandomMessage() {
+  async #sendRandomMessage(): Promise<void> {
     await this.#interaction.deferReply();
 
     const args = this.#flames
@@ -283,21 +284,17 @@ export class Flame {
         : Flame.#MESSAGES),
       ...(await prisma.flame.findMany(args)),
     ];
-    console.log(messages);
 
     const random = getRandomFromArray(messages);
 
-    if (!random)
-      return await this.#interaction.editReply(
+    if (!random) {
+      await this.#interaction.editReply(
         "Looks like they are clean... For now...",
       );
+      return;
+    }
 
     const { id, flames } = random;
-
-    const channel = (await client.channels.fetch(
-      Flame.FLAMING_CHANNEL_ID,
-    )) as TextChannel;
-    const message = await channel.messages.fetch(id);
 
     let flames_as_string = "";
 
@@ -305,6 +302,24 @@ export class Flame {
       flames_as_string +=
         (this.#interaction.guild?.members.cache.get(flame)?.displayName ??
           "Couldnt fetch the name but prob goobie") + ", ";
+
+    const channel = (await client.channels.fetch(
+      Flame.FLAMING_CHANNEL_ID,
+    )) as TextChannel;
+
+    let message: Message<true>;
+
+    try {
+      message = await channel.messages.fetch(id);
+    } catch (e) {
+      await prisma.flame.delete({
+        where: {
+          id,
+        },
+      });
+
+      return await this.#sendRandomMessage();
+    }
 
     const payload = {
       content: `${flames_as_string}wanna talk about it?`,
