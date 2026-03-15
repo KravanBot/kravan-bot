@@ -266,7 +266,7 @@ export class Flame {
   }
 
   async #sendRandomMessage(): Promise<void> {
-    await this.#interaction.deferReply();
+    if (!this.#interaction.replied) await this.#interaction.deferReply();
 
     const args = this.#flames
       ? {
