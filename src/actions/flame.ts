@@ -415,7 +415,7 @@ export class Flame {
       | ModalSubmitInteraction<CacheType>,
     username: string,
     content: string | Attachment[],
-    flames_id: string,
+    flames_ids: string[],
   ) => {
     let canvas: Canvas | null = null;
 
@@ -454,7 +454,7 @@ export class Flame {
     await prisma.flame.create({
       data: {
         id: msg.id,
-        flames: [flames_id],
+        flames: flames_ids,
       },
     });
   };

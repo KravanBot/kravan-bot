@@ -502,16 +502,6 @@ client.once("clientReady", async () => {
   const twitch_channel = client.channels.cache.get("1311121693133246535");
   const clips_channel = client.channels.cache.get("1387333680141439046");
 
-  // client.user?.setPresence({
-  //   activities: [
-  //     {
-  //       name: "bla bla bla",
-  //       type: ActivityType.Streaming,
-  //       url: "https://www.twitch.tv/yaritaiji",
-  //     },
-  //   ],
-  // });
-
   if (!twitch_channel?.isSendable()) return;
 
   let lastProcessedMonth: number = moment().utc().month();
@@ -672,9 +662,6 @@ client.once("clientReady", async () => {
                   {
                     name: "👤 Creator",
                     value: (() => {
-                      console.log(url);
-                      console.log(pending_clips);
-
                       const value = pending_clips.get(url) ?? creator_name;
                       pending_clips.delete(url);
 
@@ -1886,7 +1873,7 @@ client.on("interactionCreate", async (interaction) => {
           interaction,
           member.displayName,
           content,
-          member.id,
+          [member.id],
         );
       }
 
@@ -1902,7 +1889,7 @@ client.on("interactionCreate", async (interaction) => {
             .setCustomId("flames_select")
             .setPlaceholder("Select the user it flames")
             .setMinValues(1)
-            .setMaxValues(1),
+            .setMaxValues(5),
         );
 
       modal.addComponents(flames_label);
@@ -1933,10 +1920,10 @@ client.on("interactionCreate", async (interaction) => {
 
   switch (interaction.customId) {
     case "flames":
-      const selected_user =
-        interaction.fields.getSelectedUsers("flames_select")?.at(0) ?? null;
+      const selected_users =
+        interaction.fields.getSelectedUsers("flames_select");
 
-      if (selected_user == null) return;
+      if (selected_users == null) return;
 
       const fields = interaction.message?.embeds[0]?.data.fields;
 
@@ -2043,7 +2030,7 @@ client.on("interactionCreate", async (interaction) => {
         attachments && attachments.size
           ? Array.from(attachments.values())
           : content,
-        selected_user.id,
+        selected_users.map((user) => user.id),
       );
   }
 });
