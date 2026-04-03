@@ -324,7 +324,7 @@ export class Flame {
     const payload = {
       content: `${flames_as_string}wanna talk about it?`,
       embeds: [...message.embeds],
-      files: [...message.attachments.values()],
+      files: message.attachments.map((a) => a.url),
     };
 
     await this.#interaction.editReply(payload);
