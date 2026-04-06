@@ -27,6 +27,7 @@ type MessageT = Message<boolean>;
 
 export class Counting {
   static COUNTING_CHANNEL_ID = "1236751657086484587";
+  static #BLACKLIST = ["756137226202513449"];
 
   #last_number: number | null;
   #event: COUNT_EVENT | null;
@@ -192,6 +193,13 @@ export class Counting {
         this.#last_msg = response;
         this.#last_counter_id = "609097048662343700";
 
+        return;
+      }
+
+      if (Counting.#BLACKLIST.includes(message.author.id)) {
+        await message.reply(
+          "Your free speech was taken away just because I felt like it. Sry not sry <:A_hihi:1475460580289675538>",
+        );
         return;
       }
 
