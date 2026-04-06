@@ -169,8 +169,31 @@ export class Counting {
         (this.#event == COUNT_EVENT.BOOM &&
           isNaN(value) &&
           message.content.toLowerCase() != "boom")
-      )
+      ) {
+        if (
+          !message.content.toLowerCase().startsWith("!change") ||
+          message.author.id != "609097048662343700"
+        )
+          return;
+
+        const number = parseInt(
+          message.content.split(" ")[1]?.toString() ?? "NaN",
+        );
+        const channel = message.channel as TextChannel;
+
+        await message.delete();
+
+        if (isNaN(number) || number < 0) return;
+
+        const response = await channel.send(`${number}`);
+        await response.react("✅");
+
+        this.#last_number = number;
+        this.#last_msg = response;
+        this.#last_counter_id = "609097048662343700";
+
         return;
+      }
 
       await validateNotInJail(message.author.id);
 
