@@ -310,7 +310,7 @@ export class Flame {
     let message: Message<true>;
 
     try {
-      message = await channel.messages.fetch(id);
+      message = await channel.messages.fetch({ message: id, force: true });
     } catch (e) {
       await prisma.flame.delete({
         where: {
@@ -324,7 +324,10 @@ export class Flame {
     const payload = {
       content: `${flames_as_string}wanna talk about it?`,
       embeds: [...message.embeds],
-      files: message.attachments.map((a) => a.url),
+      files: message.attachments.map((a) => ({
+        attachment: a.url,
+        name: a.name,
+      })),
     };
 
     await this.#interaction.editReply(payload);
