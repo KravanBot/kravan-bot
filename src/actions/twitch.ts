@@ -103,11 +103,13 @@ export class Twitch {
       }[];
     };
 
-    return body.data.map((live) => ({
-      ...live,
-      thumbnail_url: live.thumbnail_url
-        .replace("{width}", "1920")
-        .replace("{height}", "1080"),
-    }));
+    return (
+      body.data?.map((live) => ({
+        ...live,
+        thumbnail_url: live.thumbnail_url
+          .replace("{width}", "1920")
+          .replace("{height}", "1080"),
+      })) ?? []
+    );
   }
 }
