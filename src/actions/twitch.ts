@@ -54,7 +54,7 @@ export class Twitch {
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${process.env.TWITCH_CLIENT_SECRET!}`,
+          Authorization: `Bearer ${this.#token!.accessToken!}`,
           "Client-ID": process.env.TWITCH_CLIENT_ID!,
         },
       },
@@ -88,7 +88,7 @@ export class Twitch {
       {
         method: "GET",
         headers: {
-          Authorization: `Bearer ${process.env.TWITCH_CLIENT_SECRET!}`,
+          Authorization: `Bearer ${this.#token!.accessToken!}`,
           "Client-ID": process.env.TWITCH_CLIENT_ID!,
         },
       },
