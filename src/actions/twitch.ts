@@ -93,6 +93,7 @@ export class Twitch {
         },
       },
     );
+    
     const body = (await res.json()) as {
       data: {
         title: string;
