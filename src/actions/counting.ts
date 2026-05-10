@@ -27,7 +27,7 @@ type MessageT = Message<boolean>;
 
 export class Counting {
   static COUNTING_CHANNEL_ID = "1236751657086484587";
-  static #BLACKLIST = ["756137226202513449"];
+  static #BLACKLIST = [];
 
   #last_number: number | null;
   #event: COUNT_EVENT | null;
