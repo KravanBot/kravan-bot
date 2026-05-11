@@ -785,7 +785,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
   try {
     switch (interaction.commandName) {
       case "kraa":
-        await interaction.editReply({
+        await interaction.reply({
           embeds: [
             new CustomEmbed()
               .setColor(0x05b2f7)
