@@ -105,15 +105,19 @@ export class Counting {
 
     await message.react("❌");
     await message.reply(
-      `${sentence}\n\nCount was reseted to ${this.#last_number} thanks to ${userMention(
+      `${sentence}\n\nCount was reseted to ${this.#last_number + 1} thanks to ${userMention(
         this.#last_counter_id!,
       )}. Event was changed back to ${COUNT_EVENT.NORMAL}`,
     );
 
+    this.#event = COUNT_EVENT.NORMAL;
+
     if (!message.channel.isSendable() || this.#last_number == 0) return;
 
-    this.#last_counter_id = message.author.id;
-    await this.#right(await message.channel.send(`${this.#last_number}`), 1);
+    await this.#right(
+      await message.channel.send(`${this.#last_number + 1}`),
+      1,
+    );
   }
 
   async #changeEvent(message: MessageT) {
