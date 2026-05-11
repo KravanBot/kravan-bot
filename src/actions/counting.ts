@@ -97,18 +97,19 @@ export class Counting {
   }
 
   async #wrong(message: MessageT, sentence: string) {
-    await message.react("❌");
-    await message.reply(
-      `${sentence}\n\nCount was reseted to 0 thanks to ${userMention(
-        this.#last_counter_id!,
-      )}. Event was changed back to ${COUNT_EVENT.NORMAL}`,
-    );
-
     if (this.#trapped_by) {
       await addCoins(this.#trapped_by, this.#getTrapCost() * 2);
     }
 
-    this.#last_number = 0;
+    this.#last_number = Math.max((this.#last_number ?? 0) - 10, 0);
+
+    await message.react("❌");
+    await message.reply(
+      `${sentence}\n\nCount was reseted to ${this.#last_number} thanks to ${userMention(
+        this.#last_counter_id!,
+      )}. Event was changed back to ${COUNT_EVENT.NORMAL}`,
+    );
+
     this.#last_counter_id = null;
     this.#event = COUNT_EVENT.NORMAL;
     this.#trapped_by = null;
