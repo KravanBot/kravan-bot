@@ -110,10 +110,10 @@ export class Counting {
       )}. Event was changed back to ${COUNT_EVENT.NORMAL}`,
     );
 
-    this.#last_counter_id = null;
-    this.#event = COUNT_EVENT.NORMAL;
-    this.#trapped_by = null;
-    this.#last_msg = null;
+    if (!message.channel.isSendable() || this.#last_number == 0) return;
+
+    this.#last_counter_id = message.author.id;
+    await this.#right(await message.channel.send(`${this.#last_number}`), 1);
   }
 
   async #changeEvent(message: MessageT) {
