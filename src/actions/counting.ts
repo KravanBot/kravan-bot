@@ -93,6 +93,10 @@ export class Counting {
       );
       await message.react("2️⃣");
       await message.react("1️⃣");
+    } else if (this.#last_number! % 100 == 0) {
+      await message.reply(
+        "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExemQxa29sN3BibGZkMnZ6dnIxZ2Jxdjdnbmdqc3Ftb25qd3N1M3RteSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/b31841itfqrm5kB6Ez/giphy.gif",
+      );
     }
   }
 
