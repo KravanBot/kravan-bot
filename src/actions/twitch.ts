@@ -83,6 +83,8 @@ export class Twitch {
   async getLive() {
     await this.#refreshToken();
 
+    console.log(this.#token);
+
     const res = await fetch(
       `https://api.twitch.tv/helix/streams?user_id=${Twitch.#BROADCASTER_ID}`,
       {
@@ -93,7 +95,7 @@ export class Twitch {
         },
       },
     );
-    
+
     const body = (await res.json()) as {
       data: {
         title: string;
