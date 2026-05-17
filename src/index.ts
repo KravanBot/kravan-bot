@@ -16,6 +16,7 @@ import {
   ModalBuilder,
   ActivityType,
   AttachmentBuilder,
+  MessageCreateOptions,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -2037,6 +2038,9 @@ client.on("interactionCreate", async (interaction) => {
 
 client.on("messageCreate", async (message) => {
   try {
+    const YT_MOD_CHANNEL_ID = "1505579123043602433";
+    const TIKTOK_MOD_CHANNEL_ID = "1505579181625577634";
+
     switch (message.channelId) {
       case Lottery.ANNOUNCEMENTS_CHANNEL_ID:
         await validateNotInJail(message.author.id);
@@ -2054,6 +2058,98 @@ client.on("messageCreate", async (message) => {
         if (message.author.id != Leveling.BOT_ID) return;
 
         await Leveling.handleMessage(message);
+
+        break;
+
+      case YT_MOD_CHANNEL_ID: {
+        const last_yt_embed = message.embeds[0];
+        const yt_announcements_channel = client.channels.cache.get(
+          "1471080811393716408",
+        );
+
+        if (!last_yt_embed || !yt_announcements_channel?.isSendable()) break;
+
+        const [title, tags] = last_yt_embed.title!.split(/#(.*)/s);
+
+        const is_short = tags?.length;
+
+        const fields = [
+          {
+            name: "💬 Title",
+            value: title!,
+          },
+        ];
+
+        if (is_short)
+          fields.push({
+            name: "#️⃣ Tags",
+            value: tags!.replaceAll(" #", ", "),
+          });
+
+        const payload: MessageCreateOptions = {
+          embeds: [
+            new CustomEmbed()
+              .setTitle(
+                `<:youtube:1505559546905493675> NEW ${is_short ? "SHORT" : "YOUTUBE VIDEO"} <:youtube:1505559546905493675>`,
+              )
+              .setURL(last_yt_embed.url)
+              .setFields(fields)
+              .setColor(0xff0000)
+              .setImage(last_yt_embed.image!.url)
+              .setThumbnail(
+                "https://yt3.googleusercontent.com/_GUnYS_dKGOhJFlW4Jd84ARG7vAOPFCtFa_qkqbYMZAO-lxMn5udwi9W7tOXomjCwjOPwwSh=s160-c-k-c0x00ffffff-no-rj",
+              )
+              .setTimestamp(new Date(last_yt_embed.timestamp!)),
+          ],
+        };
+
+        if (!is_short) payload.content = "<@&1505592084059390044>";
+
+        await yt_announcements_channel.send(payload);
+
+        break;
+      }
+
+      case TIKTOK_MOD_CHANNEL_ID: {
+        const last_tiktok_embed = message.embeds[0];
+        const tiktok_announcements_channel = client.channels.cache.get(
+          "1310742192469573712",
+        );
+
+        if (!last_tiktok_embed || !tiktok_announcements_channel?.isSendable())
+          break;
+
+        const [title, tags] = last_tiktok_embed.title!.split(/#(.*)/s);
+
+        await tiktok_announcements_channel.send({
+          content: `<@&1505591983681573056>`,
+          embeds: [
+            new CustomEmbed()
+              .setTitle(
+                `<:TikTok:1391249483131654247> NEW TIKTOK <:TikTok:1391249483131654247>`,
+              )
+              .setURL(last_tiktok_embed.url)
+              .setFields([
+                {
+                  name: "💬 Title",
+                  value: title!,
+                },
+                {
+                  name: "#️⃣ Tags",
+                  value: tags!.replaceAll(" #", ", "),
+                },
+              ])
+              .setColor(0xff0050)
+              .setImage(last_tiktok_embed.image!.url)
+              .setThumbnail(
+                "https://yt3.googleusercontent.com/_GUnYS_dKGOhJFlW4Jd84ARG7vAOPFCtFa_qkqbYMZAO-lxMn5udwi9W7tOXomjCwjOPwwSh=s160-c-k-c0x00ffffff-no-rj",
+              )
+              .setTimestamp(new Date(last_tiktok_embed.timestamp!)),
+          ],
+        });
+
+        break;
+      }
     }
   } catch (e: any) {
     await message.reply(JSON.parse(e.message));
