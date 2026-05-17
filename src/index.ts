@@ -72,7 +72,6 @@ import { Twitch } from "./actions/twitch.js";
 import { StreamerBot } from "./actions/streamerbot.js";
 import fs from "fs/promises";
 import { Logger } from "./actions/logger.js";
-import { Prisma } from "@prisma/client";
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
@@ -2041,6 +2040,10 @@ client.on("messageCreate", async (message) => {
     const YT_MOD_CHANNEL_ID = "1505579123043602433";
     const TIKTOK_MOD_CHANNEL_ID = "1505579181625577634";
 
+    const yt_announcements_channel = client.channels.cache.get(
+      "1471080811393716408",
+    );
+
     switch (message.channelId) {
       case Lottery.ANNOUNCEMENTS_CHANNEL_ID:
         await validateNotInJail(message.author.id);
@@ -2063,9 +2066,6 @@ client.on("messageCreate", async (message) => {
 
       case YT_MOD_CHANNEL_ID: {
         const last_yt_embed = message.embeds[0];
-        const yt_announcements_channel = client.channels.cache.get(
-          "1471080811393716408",
-        );
 
         if (!last_yt_embed || !yt_announcements_channel?.isSendable()) break;
 
@@ -2116,7 +2116,11 @@ client.on("messageCreate", async (message) => {
           "1310742192469573712",
         );
 
-        if (!last_tiktok_embed || !tiktok_announcements_channel?.isSendable())
+        if (
+          !last_tiktok_embed ||
+          !yt_announcements_channel?.isSendable() ||
+          !tiktok_announcements_channel?.isSendable()
+        )
           break;
 
         const [title, tags] = last_tiktok_embed.title!.split(/#(.*)/s);
@@ -2140,7 +2144,14 @@ client.on("messageCreate", async (message) => {
                 },
               ])
               .setColor(0xff0050)
-              .setImage(last_tiktok_embed.image!.url)
+              .setImage(
+                (await yt_announcements_channel.messages.fetch({ limit: 3 }))
+                  .filter(
+                    (el) =>
+                      el.embeds[0]?.fields[0]?.value.trim() == title!.trim(),
+                  )
+                  .at(0)?.embeds[0]?.image?.url ?? last_tiktok_embed.image!.url,
+              )
               .setThumbnail(
                 "https://yt3.googleusercontent.com/_GUnYS_dKGOhJFlW4Jd84ARG7vAOPFCtFa_qkqbYMZAO-lxMn5udwi9W7tOXomjCwjOPwwSh=s160-c-k-c0x00ffffff-no-rj",
               )
