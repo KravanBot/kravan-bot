@@ -854,33 +854,6 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                 ),
             ),
             new CustomEmbed()
-              .setColor(0xf1c232)
-              .setTitle("Paid Commands 💸")
-              .setDescription(
-                "Commands that do cost money (ill send u my paypal 😊)",
-              )
-              .setFields([
-                {
-                  name: "/duel",
-                  value:
-                    "Invite someone to a rock paper scissors. Add a bet so things get a lil spicy 🌶️\n- user - mention the person u wanna SMASH 💥 (costs min 1 coin)",
-                },
-                {
-                  name: "/gamble",
-                  value: `Cmon do i really have to explain myself? Its gambling cmon go do it 🕹️ (costs min 1 coin)`,
-                },
-                {
-                  name: "/lottery",
-                  value: `Join the lottery during every stream and win some ez money 🎱 (costs ${Lottery.COST} coins)`,
-                },
-                {
-                  name: "/trap",
-                  value:
-                    "Trap the number in the counting section, with a chance to win some coins 🪤 (costs 10% of the last counted number)",
-                },
-              ]),
-
-            new CustomEmbed()
               .setColor(0x6c1af0)
               .setTitle("Actions 🛝")
               .setDescription(
