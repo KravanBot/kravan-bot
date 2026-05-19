@@ -422,7 +422,16 @@ const commands = [
         .setMinValue(1)
         .setMaxValue(50),
     ),
+
+  new SlashCommandBuilder()
+    .setName("time-table")
+    .setDescription("Get the weekly time table"),
+
+  new SlashCommandBuilder()
+    .setName("schedule")
+    .setDescription("Get the weekly schedule"),
 ].map((cmd) => cmd.toJSON());
+
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
 
 const rest = new REST({ version: "10" }).setToken(TOKEN);
@@ -606,8 +615,10 @@ client.once("clientReady", async () => {
                   value: live.title,
                 },
                 {
-                  name: "<:valorant:1478018219192356874> Game",
-                  value: `${live.game_name}\n\u200b\n\u200b${new Array(5)
+                  name: "🕹️ Games",
+                  value: `<:valorant:1478018219192356874> Valorant\n<a:puffercarrot:1385075573390442649> Sabnautica 2\n\u200b\n\u200b${new Array(
+                    5,
+                  )
                     .fill(
                       "<a:Raven_Jam:1387726635268182127><a:RavenTwerk:1388053524893401201>",
                     )
@@ -1714,6 +1725,21 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         break;
       }
+
+      case "time-table":
+      case "schedule":
+        await interaction.reply({
+          files: [
+            new AttachmentBuilder(
+              await fs.readFile("./assets/time-table.png"),
+              {
+                name: "time-table.png",
+              },
+            ),
+          ],
+        });
+
+        break;
     }
   } catch (e: any) {
     console.log(e.message);
