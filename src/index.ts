@@ -17,6 +17,7 @@ import {
   ActivityType,
   AttachmentBuilder,
   MessageCreateOptions,
+  ApplicationCommandOptionType,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -111,13 +112,13 @@ const commands = [
 
   new SlashCommandBuilder()
     .setName("counting-details")
-    .setDescription("Replies with the current count and the highest record"),
+    .setDescription(
+      "Sends the current count, the current event (counting events are listed in the Actions). If you are unsure what number should you count next, use this command",
+    ),
 
   new SlashCommandBuilder()
     .setName("net-worth")
-    .setDescription(
-      "Get someone's net worth (if not mentioned, it's your net worth)",
-    )
+    .setDescription("Check how fat someone's wallet is 💰")
     .addUserOption((option) =>
       option
         .setName("target")
@@ -796,34 +797,62 @@ client.on("interactionCreate", async (interaction: Interaction) => {
   try {
     switch (interaction.commandName) {
       case "kraa":
+        const command_types = [
+          {
+            title: "Free Commands 😁",
+            description:
+              "Commands that dont need any money (cuz im generous 😇)",
+            color: 0x05b2f7,
+            categories: {
+              "Streaming 📹": ["shedule", "time-table"],
+              "Fun 🥳": ["meme", "rate", "flame"],
+              "Money 💸": [
+                "net-worth",
+                "superiors",
+                "daily",
+                "steal",
+                "jackpot",
+              ],
+              "Items 👟": ["store", "give", "inventory", "wear", "mini-me"],
+              "Counting 🔢": ["counting-details"],
+            },
+          },
+          {
+            title: "Paid Commands 💸",
+            description:
+              "Commands that do cost money (ill send u my paypal 😊)",
+            color: 0xf1c232,
+            categories: {
+              "Streaming 📹": ["lottery"],
+              "Fun 🥳": ["duel", "gamble", "hide-n-seek"],
+              "Money 💸": [
+                "donate",
+                "deposit",
+                "withdraw",
+                "sell",
+                "fbi",
+                "bribe",
+              ],
+              "Items 👟": ["buy"],
+              "Counting 🔢": ["trap"],
+            },
+          },
+        ];
+
         await interaction.reply({
           embeds: [
-            new CustomEmbed()
-              .setColor(0x05b2f7)
-              .setTitle("Free Commands 😁")
-              .setDescription(
-                "Commands that dont need any money (cuz im generous 😇)",
-              )
-              .setFields([
-                {
-                  name: "/kraa",
-                  value: "I mean u get the exact same message as rn 🫠",
-                },
-                {
-                  name: "/counting-details",
-                  value:
-                    "Sending the current count, the current event (counting events are listed in the Actions). If you are unsure what number should you count next, use this command 🙂",
-                },
-                // {
-                //   name: "/wall-of-shame",
-                //   value:
-                //     "anything bad u dummies do goes here, including:\n- all the people that destroyed counting sequence ❌\n- number of times goober smashed his head against the toilet 🚽",
-                // },
-                {
-                  name: "/net-worth",
-                  value: "Check how fat ur wallet is 💰",
-                },
-              ]),
+            ...command_types.map(({ title, description, color, categories }) =>
+              new CustomEmbed()
+                .setColor(color)
+                .setTitle(title)
+                .setDescription(description)
+                .setFields(
+                  Object.entries(categories).map(([key, value]) => ({
+                    name: key,
+                    value: value.join(", "),
+                  })),
+                ),
+            ),
             new CustomEmbed()
               .setColor(0xf1c232)
               .setTitle("Paid Commands 💸")
@@ -847,7 +876,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                 {
                   name: "/trap",
                   value:
-                    "Trap the number in the counting section, with a chance to win some coins 🪤 (costs 10% of the last counted money)",
+                    "Trap the number in the counting section, with a chance to win some coins 🪤 (costs 10% of the last counted number)",
                 },
               ]),
 
