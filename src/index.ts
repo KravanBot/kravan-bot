@@ -113,7 +113,7 @@ const commands = [
   new SlashCommandBuilder()
     .setName("counting-details")
     .setDescription(
-      "Sends the current count, the current event (counting events are listed in the Actions). If you are unsure what number should you count next, use this command",
+      "Sends the current count and the current event (counting events are listed in the Actions)",
     ),
 
   new SlashCommandBuilder()
