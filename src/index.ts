@@ -835,7 +835,7 @@ const help_embeds = [
       ),
   ),
   new CustomEmbed()
-    .setColor(0x6c1af0)
+    .setColor(0xf78b31)
     .setTitle("Actions 🛝")
     .setDescription("Kravan actions besides the commands (tecnologia)")
     .setFields([
@@ -895,10 +895,15 @@ client.on("interactionCreate", async (interaction: Interaction) => {
   try {
     switch (interaction.commandName) {
       case "kraa":
-        console.log("hey");
-
         await interaction.reply({
-          content: "Test",
+          embeds: [
+            new CustomEmbed()
+              .setTitle("KRAAAA 🐦‍⬛")
+              .setDescription(
+                "Welcome to the Next! click on the buttons below and get along quickly in the server 😄",
+              )
+              .setColor(0x6c1af0),
+          ],
           components: [
             new ActionRowBuilder<ButtonBuilder>().addComponents(
               ...help_embeds.map((embed, idx) =>
@@ -1952,6 +1957,8 @@ client.on("interactionCreate", async (interaction) => {
           help_embeds.at(parseInt(interaction.customId.split("-").at(-1)!))!,
         ],
       });
+
+      await interaction.deferUpdate();
     }
   }
 });
