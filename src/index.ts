@@ -18,6 +18,9 @@ import {
   AttachmentBuilder,
   MessageCreateOptions,
   ApplicationCommandOptionType,
+  ButtonBuilder,
+  ActionRowBuilder,
+  ButtonStyle,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -791,123 +794,119 @@ client.on("guildMemberRemove", async (member) => {
   await updateNumOfMembers(member.guild.id, -1);
 });
 
+const command_types = [
+  {
+    title: "Free Commands 😁",
+    description: "Commands that dont need any money (cuz im generous 😇)",
+    color: 0x05b2f7,
+    categories: {
+      "Streaming 📹": ["shedule", "time-table"],
+      "Fun 🥳": ["meme", "rate", "flame"],
+      "Money 💸": ["net-worth", "superiors", "daily", "steal", "jackpot"],
+      "Items 👟": ["store", "give", "inventory", "wear", "mini-me"],
+      "Counting 🔢": ["counting-details"],
+    },
+  },
+  {
+    title: "Paid Commands 💸",
+    description: "Commands that do cost money (ill send u my paypal 😊)",
+    color: 0xf1c232,
+    categories: {
+      "Streaming 📹": ["lottery"],
+      "Fun 🥳": ["duel", "gamble", "hide-n-seek"],
+      "Money 💸": ["donate", "deposit", "withdraw", "sell", "fbi", "bribe"],
+      "Items 👟": ["buy"],
+      "Counting 🔢": ["trap"],
+    },
+  },
+];
+
+const help_embeds = [
+  ...command_types.map(({ title, description, color, categories }) =>
+    new CustomEmbed()
+      .setColor(color)
+      .setTitle(title)
+      .setDescription(description)
+      .setFields(
+        Object.entries(categories).map(([key, value]) => ({
+          name: key,
+          value: value.join(", "),
+        })),
+      ),
+  ),
+  new CustomEmbed()
+    .setColor(0x6c1af0)
+    .setTitle("Actions 🛝")
+    .setDescription("Kravan actions besides the commands (tecnologia)")
+    .setFields([
+      {
+        name: "Counting 🔢",
+        value:
+          "- Whenever u count, u get a coin 🪙\n - If a number is trapped, you can count the next number just normally, or count the trapped number again. If you win, you get 20% of the number to ur pocket. If not, the person who trapped gets 20% and you get public humiliation 😔",
+      },
+      {
+        name: "Reverse 🔙",
+        value:
+          "You must count in reverse order (pretty straight forward u a dummy if u did not understand)\n\u200b",
+        inline: true,
+      },
+      {
+        name: "7 Boom 💥",
+        value:
+          "If the number you want to count has 7 in it or is a multiplier of 7, you MUST write 'boom' and not the actual number\n\u200b",
+        inline: true,
+      },
+      {
+        name: "Leveling 🔼",
+        value:
+          "Whenever you go up a level, you get 10% of the new level straight to ur pocket 💵",
+      },
+    ]),
+
+  new CustomEmbed()
+    .setColor(0xffffff)
+    .setTitle("Creators 🃏")
+    .setDescription("(aka created the bot furcefully by ranni)")
+    .setFields([
+      {
+        name: "Coder 💻",
+        value: `${userMention(
+          "609097048662343700",
+        )} (yes guys no AI was used pls appreciate me 🥹🙏)`,
+      },
+      {
+        name: "Masterminds 🧠",
+        value: `${userMention("1260205513795174434")} ${userMention(
+          "609097048662343700",
+        )} ${userMention("133282052350017536")}`,
+      },
+      {
+        name: "Contributers ⛏️",
+        value: `${userMention("1260205513795174434")} ${userMention(
+          "133282052350017536",
+        )} ${userMention("617091659758436516")} (basically gambled too much)`,
+      },
+    ]),
+];
+
 client.on("interactionCreate", async (interaction: Interaction) => {
   if (!interaction.isChatInputCommand()) return;
 
   try {
     switch (interaction.commandName) {
       case "kraa":
-        const command_types = [
-          {
-            title: "Free Commands 😁",
-            description:
-              "Commands that dont need any money (cuz im generous 😇)",
-            color: 0x05b2f7,
-            categories: {
-              "Streaming 📹": ["shedule", "time-table"],
-              "Fun 🥳": ["meme", "rate", "flame"],
-              "Money 💸": [
-                "net-worth",
-                "superiors",
-                "daily",
-                "steal",
-                "jackpot",
-              ],
-              "Items 👟": ["store", "give", "inventory", "wear", "mini-me"],
-              "Counting 🔢": ["counting-details"],
-            },
-          },
-          {
-            title: "Paid Commands 💸",
-            description:
-              "Commands that do cost money (ill send u my paypal 😊)",
-            color: 0xf1c232,
-            categories: {
-              "Streaming 📹": ["lottery"],
-              "Fun 🥳": ["duel", "gamble", "hide-n-seek"],
-              "Money 💸": [
-                "donate",
-                "deposit",
-                "withdraw",
-                "sell",
-                "fbi",
-                "bribe",
-              ],
-              "Items 👟": ["buy"],
-              "Counting 🔢": ["trap"],
-            },
-          },
-        ];
-
         await interaction.reply({
-          embeds: [
-            ...command_types.map(({ title, description, color, categories }) =>
-              new CustomEmbed()
-                .setColor(color)
-                .setTitle(title)
-                .setDescription(description)
-                .setFields(
-                  Object.entries(categories).map(([key, value]) => ({
-                    name: key,
-                    value: value.join(", "),
-                  })),
-                ),
+          content: "Test",
+          components: [
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+              ...help_embeds.map((embed, idx) =>
+                new ButtonBuilder()
+                  .setCustomId(`help-embed-${idx}`)
+                  .setLabel(embed.data.title!)
+                  .setStyle(ButtonStyle.Primary)
+                  .setEmoji("1478017597516681387"),
+              ),
             ),
-            new CustomEmbed()
-              .setColor(0x6c1af0)
-              .setTitle("Actions 🛝")
-              .setDescription(
-                "Kravan actions besides the commands (tecnologia)",
-              )
-              .setFields([
-                {
-                  name: "Counting 🔢",
-                  value:
-                    "- Whenever u count, u get a coin 🪙\n - If a number is trapped, you can count the next number just normally, or count the trapped number again. If you win, you get 20% of the number to ur pocket. If not, the person who trapped gets 20% and you get public humiliation 😔",
-                },
-                {
-                  name: "Reverse 🔙",
-                  value:
-                    "You must count in reverse order (pretty straight forward u a dummy if u did not understand)\n\u200b",
-                  inline: true,
-                },
-                {
-                  name: "7 Boom 💥",
-                  value:
-                    "If the number you want to count has 7 in it or is a multiplier of 7, you MUST write 'boom' and not the actual number\n\u200b",
-                  inline: true,
-                },
-                {
-                  name: "Leveling 🔼",
-                  value:
-                    "Whenever you go up a level, you get 10% of the new level straight to ur pocket 💵",
-                },
-              ]),
-
-            new CustomEmbed()
-              .setColor(0xffffff)
-              .setTitle("Creators 🃏")
-              .setDescription("(aka created the bot furcefully by ranni)")
-              .setFields([
-                {
-                  name: "Coder 💻",
-                  value: `${userMention(
-                    "609097048662343700",
-                  )} (yes guys no AI was used pls appreciate me 🥹🙏)`,
-                },
-                {
-                  name: "Masterminds 🧠",
-                  value: `${userMention("1260205513795174434")} ${userMention(
-                    "609097048662343700",
-                  )} ${userMention("133282052350017536")}`,
-                },
-                {
-                  name: "Contributers ⛏️",
-                  value: `${userMention("1260205513795174434")} ${userMention(
-                    "133282052350017536",
-                  )} ${userMention("617091659758436516")} (basically gambled too much)`,
-                },
-              ]),
           ],
         });
 
@@ -1750,194 +1749,209 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 client.on("interactionCreate", async (interaction) => {
   if (!interaction.isButton()) return;
 
-  if (interaction.channelId != "1476252282134986814") return;
+  switch (interaction.channelId) {
+    case "1476252282134986814": {
+      const fields = interaction.message?.embeds[0]?.data.fields;
 
-  const fields = interaction.message?.embeds[0]?.data.fields;
+      if (!fields) return;
 
-  if (!fields) return;
+      const [username, content] = fields.map((field) => field.value);
 
-  const [username, content] = fields.map((field) => field.value);
+      if (!username || !content) return;
 
-  if (!username || !content) return;
+      switch (interaction.customId) {
+        case "accept": {
+          if (
+            username.startsWith("<@") &&
+            !interaction.message.attachments.size
+          ) {
+            const member = ranni_guild!.members.cache.get(
+              username.replace("<@", "").replace(">", ""),
+            );
 
-  switch (interaction.customId) {
-    case "accept": {
-      if (username.startsWith("<@") && !interaction.message.attachments.size) {
-        const member = ranni_guild!.members.cache.get(
-          username.replace("<@", "").replace(">", ""),
-        );
+            if (!member) return;
 
-        if (!member) return;
+            const getCanvas = async (
+              fontSize = 28,
+              maxWidth = 700,
+              padding = 20,
+              lineGap = 6,
+            ) => {
+              const fontFamily = "Inter";
 
-        const getCanvas = async (
-          fontSize = 28,
-          maxWidth = 700,
-          padding = 20,
-          lineGap = 6,
-        ) => {
-          const fontFamily = "Inter";
+              // -------------------------
+              // Resolve user + role color
+              // -------------------------
+              const username = member.displayName;
 
-          // -------------------------
-          // Resolve user + role color
-          // -------------------------
-          const username = member.displayName;
+              const roleColor =
+                member instanceof GuildMember &&
+                member.displayHexColor !== "#000000"
+                  ? member.displayHexColor
+                  : "#ffffff";
 
-          const roleColor =
-            member instanceof GuildMember &&
-            member.displayHexColor !== "#000000"
-              ? member.displayHexColor
-              : "#ffffff";
+              // avatar URL (high quality)
+              const avatarURL = member.displayAvatarURL({
+                extension: "png",
+                size: 256,
+              });
 
-          // avatar URL (high quality)
-          const avatarURL = member.displayAvatarURL({
-            extension: "png",
-            size: 256,
-          });
+              // -------------------------
+              // Measure text
+              // -------------------------
+              const measureCanvas = createCanvas(1, 1);
+              const measureCtx = measureCanvas.getContext("2d");
 
-          // -------------------------
-          // Measure text
-          // -------------------------
-          const measureCanvas = createCanvas(1, 1);
-          const measureCtx = measureCanvas.getContext("2d");
+              measureCtx.font = `${fontSize}px ${fontFamily}`;
 
-          measureCtx.font = `${fontSize}px ${fontFamily}`;
+              const avatarSize = 64;
+              const textStartX = padding + avatarSize + 16;
 
-          const avatarSize = 64;
-          const textStartX = padding + avatarSize + 16;
+              const words = content.split(" ");
+              const lines: string[] = [];
 
-          const words = content.split(" ");
-          const lines: string[] = [];
+              let currentLine = "";
 
-          let currentLine = "";
+              for (const word of words) {
+                const test = currentLine ? `${currentLine} ${word}` : word;
 
-          for (const word of words) {
-            const test = currentLine ? `${currentLine} ${word}` : word;
+                const allowedWidth = maxWidth - textStartX - padding;
 
-            const allowedWidth = maxWidth - textStartX - padding;
+                if (measureCtx.measureText(test).width > allowedWidth) {
+                  lines.push(currentLine);
+                  currentLine = word;
+                } else {
+                  currentLine = test;
+                }
+              }
 
-            if (measureCtx.measureText(test).width > allowedWidth) {
-              lines.push(currentLine);
-              currentLine = word;
-            } else {
-              currentLine = test;
-            }
+              if (currentLine) lines.push(currentLine);
+
+              const metrics = measureCtx.measureText("M");
+              const lineHeight =
+                metrics.actualBoundingBoxAscent +
+                metrics.actualBoundingBoxDescent +
+                lineGap;
+
+              const usernameHeight = fontSize + 4;
+
+              const height =
+                padding * 2 + usernameHeight + lines.length * lineHeight;
+
+              // -------------------------
+              // Create canvas
+              // -------------------------
+              const canvas = createCanvas(maxWidth, Math.ceil(height));
+              const ctx = canvas.getContext("2d");
+
+              ctx.font = `${fontSize}px ${fontFamily}`;
+              ctx.textBaseline = "top";
+
+              // Discord dark background
+              ctx.fillStyle = "#313338";
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+              // -------------------------
+              // Draw avatar
+              // -------------------------
+              const avatar = await loadImage(avatarURL);
+
+              const avatarX = padding;
+              const avatarY = padding;
+
+              // circular avatar
+              ctx.save();
+              ctx.beginPath();
+              ctx.arc(
+                avatarX + avatarSize / 2,
+                avatarY + avatarSize / 2,
+                avatarSize / 2,
+                0,
+                Math.PI * 2,
+              );
+              ctx.closePath();
+              ctx.clip();
+
+              ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
+              ctx.restore();
+
+              // -------------------------
+              // Username
+              // -------------------------
+              ctx.fillStyle = roleColor;
+              ctx.fillText(username, textStartX, padding);
+
+              // -------------------------
+              // Message text
+              // -------------------------
+              ctx.fillStyle = "#dbdee1";
+
+              let y = padding + usernameHeight;
+
+              for (const line of lines) {
+                ctx.fillText(line, textStartX, y);
+                y += lineHeight;
+              }
+
+              return canvas;
+            };
+
+            return await Flame.acceptFlameRequest(
+              getCanvas,
+              interaction,
+              member.displayName,
+              content,
+              [member.id],
+            );
           }
 
-          if (currentLine) lines.push(currentLine);
+          const modal = new ModalBuilder()
+            .setCustomId("flames")
+            .setTitle("Who does it flame?");
 
-          const metrics = measureCtx.measureText("M");
-          const lineHeight =
-            metrics.actualBoundingBoxAscent +
-            metrics.actualBoundingBoxDescent +
-            lineGap;
+          const flames_label = new LabelBuilder()
+            .setLabel("Who does it flame?")
+            .setDescription("Enter the user ID of the person it flames")
+            .setUserSelectMenuComponent(
+              new UserSelectMenuBuilder()
+                .setCustomId("flames_select")
+                .setPlaceholder("Select the user it flames")
+                .setMinValues(1)
+                .setMaxValues(5),
+            );
 
-          const usernameHeight = fontSize + 4;
+          modal.addComponents(flames_label);
 
-          const height =
-            padding * 2 + usernameHeight + lines.length * lineHeight;
+          await interaction.showModal(modal);
 
-          // -------------------------
-          // Create canvas
-          // -------------------------
-          const canvas = createCanvas(maxWidth, Math.ceil(height));
-          const ctx = canvas.getContext("2d");
+          break;
+        }
 
-          ctx.font = `${fontSize}px ${fontFamily}`;
-          ctx.textBaseline = "top";
+        case "reject":
+          await interaction.message.delete();
 
-          // Discord dark background
-          ctx.fillStyle = "#313338";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-          // -------------------------
-          // Draw avatar
-          // -------------------------
-          const avatar = await loadImage(avatarURL);
-
-          const avatarX = padding;
-          const avatarY = padding;
-
-          // circular avatar
-          ctx.save();
-          ctx.beginPath();
-          ctx.arc(
-            avatarX + avatarSize / 2,
-            avatarY + avatarSize / 2,
-            avatarSize / 2,
-            0,
-            Math.PI * 2,
+          await Flame.sendFlameLog(
+            {
+              username,
+              content,
+            },
+            false,
+            interaction.user.id,
           );
-          ctx.closePath();
-          ctx.clip();
 
-          ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
-          ctx.restore();
-
-          // -------------------------
-          // Username
-          // -------------------------
-          ctx.fillStyle = roleColor;
-          ctx.fillText(username, textStartX, padding);
-
-          // -------------------------
-          // Message text
-          // -------------------------
-          ctx.fillStyle = "#dbdee1";
-
-          let y = padding + usernameHeight;
-
-          for (const line of lines) {
-            ctx.fillText(line, textStartX, y);
-            y += lineHeight;
-          }
-
-          return canvas;
-        };
-
-        return await Flame.acceptFlameRequest(
-          getCanvas,
-          interaction,
-          member.displayName,
-          content,
-          [member.id],
-        );
+          break;
       }
-
-      const modal = new ModalBuilder()
-        .setCustomId("flames")
-        .setTitle("Who does it flame?");
-
-      const flames_label = new LabelBuilder()
-        .setLabel("Who does it flame?")
-        .setDescription("Enter the user ID of the person it flames")
-        .setUserSelectMenuComponent(
-          new UserSelectMenuBuilder()
-            .setCustomId("flames_select")
-            .setPlaceholder("Select the user it flames")
-            .setMinValues(1)
-            .setMaxValues(5),
-        );
-
-      modal.addComponents(flames_label);
-
-      await interaction.showModal(modal);
-
       break;
     }
+    default: {
+      if (!interaction.customId.startsWith("help-embed")) break;
 
-    case "reject":
-      await interaction.message.delete();
-
-      await Flame.sendFlameLog(
-        {
-          username,
-          content,
-        },
-        false,
-        interaction.user.id,
-      );
-
-      break;
+      await interaction.message.edit({
+        embeds: [
+          help_embeds.at(parseInt(interaction.customId.split("-").at(-1)!))!,
+        ],
+      });
+    }
   }
 });
 
