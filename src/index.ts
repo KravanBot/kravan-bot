@@ -902,9 +902,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
               ...help_embeds.map((embed, idx) =>
                 new ButtonBuilder()
                   .setCustomId(`help-embed-${idx}`)
-                  .setLabel(embed.data.title!.split(" ").slice(1).join(" ")!)
-                  .setStyle(ButtonStyle.Secondary)
-                  .setEmoji(embed.data.title!.split(" ")[0]!),
+                  .setLabel(embed.data.title!)
+                  .setStyle(ButtonStyle.Secondary),
               ),
             ),
           ],
