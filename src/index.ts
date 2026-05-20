@@ -895,6 +895,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
   try {
     switch (interaction.commandName) {
       case "kraa":
+        console.log("hey");
+
         await interaction.reply({
           content: "Test",
           components: [
