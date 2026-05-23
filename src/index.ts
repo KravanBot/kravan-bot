@@ -723,7 +723,7 @@ client.once("clientReady", async () => {
                   {
                     name: "👤 Creator",
                     value: (() => {
-                      const value = pending_clips.get(url) ?? creator_name;
+                      const value = pending_clips.get(url) || creator_name;
                       pending_clips.delete(url);
 
                       return value;
@@ -2304,13 +2304,6 @@ client.on("guildMemberAdd", async (member) => {
       .at(-2)
       ?.split("/")
       .at(-1) ?? "0",
-  );
-
-  console.log(
-    (await welcome_channel.messages.fetch({ limit: 1 }))
-      ?.at(0)
-      ?.embeds.at(0)
-      ?.image?.url.split("."),
   );
 
   if (isNaN(last_used_img)) last_used_img = 0;
