@@ -876,7 +876,7 @@ const help_embeds = [
       .setFields(
         Object.entries(categories).map(([key, value]) => ({
           name: key,
-          value: value.join(", "),
+          value: value.map((el) => `\`${el}\``).join(" "),
         })),
       ),
   ),
