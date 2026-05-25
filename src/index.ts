@@ -338,8 +338,8 @@ const commands = [
     ),
 
   new SlashCommandBuilder()
-    .setName("sell")
-    .setDescription("Sell your gems and get coins")
+    .setName("convert")
+    .setDescription("convert your gems and get coins")
     .addNumberOption((option) =>
       option
         .setName("amount")
@@ -434,6 +434,10 @@ const commands = [
   new SlashCommandBuilder()
     .setName("schedule")
     .setDescription("Get the weekly schedule"),
+
+  new SlashCommandBuilder()
+    .setName("social-media")
+    .setDescription("Get all of the social media links"),
 ].map((cmd) => cmd.toJSON());
 
 let welcome_imgs_order: number[] | null = null;
@@ -842,27 +846,86 @@ client.on("guildMemberRemove", async (member) => {
 
 const command_types = [
   {
-    title: "Free Commands 😁",
-    description: "Commands that dont need any money (cuz im generous 😇)",
+    title: "Command List 😁",
+    description:
+      "Here is a list of all commands, followed by a `/`\n\nFor any questions, please tag a <@&1310967646136565770>",
     color: 0x05b2f7,
     categories: {
-      "Streaming 📹": ["shedule", "time-table"],
-      "Fun 🥳": ["meme", "rate", "flame"],
-      "Money 💸": ["net-worth", "superiors", "daily", "steal", "jackpot"],
-      "Items 👟": ["store", "give", "inventory", "wear", "mini-me"],
-      "Counting 🔢": ["counting-details"],
-    },
-  },
-  {
-    title: "Paid Commands 💸",
-    description: "Commands that do cost money (ill send u my paypal 😊)",
-    color: 0xf1c232,
-    categories: {
-      "Streaming 📹": ["lottery"],
-      "Fun 🥳": ["duel", "gamble", "hide-n-seek"],
-      "Money 💸": ["donate", "deposit", "withdraw", "sell", "fbi", "bribe"],
-      "Items 👟": ["buy"],
-      "Counting 🔢": ["trap"],
+      "📹 Streaming": ["shedule", "time-table", "social-media"],
+      "🎖️ Ranking": ["net-worth", "superiors", "rank", "top"],
+      "💸 Economy": [
+        "daily",
+        "donate",
+        "deposit",
+        "withdraw",
+        "store",
+        "buy",
+        "give",
+        "convert",
+      ],
+      "🎰 Gambling": [
+        "gamble",
+        "steal",
+        "fbi",
+        "bribe",
+        "hide-n-seek",
+        "trivia",
+      ],
+      "🌱 Animals": ["zoo", "hunt", "sell", "sacrafice", "lootbox"],
+      "🥳 Fun": [
+        "meme",
+        "rate",
+        "flame",
+        "mini-me",
+        "wear",
+        "inventory",
+        "counting-details",
+        "trap",
+      ],
+      "🫂 Social": ["cookie", "ship", "curse", "uwuify", "marry"],
+      "😃 Emotes": [
+        "blush",
+        "cry",
+        "dance",
+        "pout",
+        "shrug",
+        "sleepy",
+        "smile",
+        "smug",
+        "thumbsup",
+        "thinking",
+        "triggered",
+        "teehee",
+        "love",
+        "thonking",
+        "scoff",
+        "happy",
+        "thumbs",
+        "grin",
+      ],
+      "🎬 Actions": [
+        "cuddle",
+        "hug",
+        "kiss",
+        "nom",
+        "pat",
+        "poke",
+        "slap",
+        "stare",
+        "highfive",
+        "bite",
+        "greet",
+        "punch",
+        "handholding",
+        "tickle",
+        "kill",
+        "hold",
+        "pats",
+        "wave",
+        "boop",
+        "snuggle",
+        "bully",
+      ],
     },
   },
 ];
@@ -942,14 +1005,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
     switch (interaction.commandName) {
       case "kraa":
         await interaction.reply({
-          embeds: [
-            new CustomEmbed()
-              .setTitle("KRAAAA 🐦‍⬛")
-              .setDescription(
-                "Welcome to the Next! click on the buttons below and get along quickly in the server 😄",
-              )
-              .setColor(0x6c1af0),
-          ],
+          embeds: [help_embeds[0]!],
           components: [
             new ActionRowBuilder<ButtonBuilder>().addComponents(
               ...help_embeds.map((embed, idx) =>
@@ -1519,7 +1575,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         break;
       }
 
-      case "sell": {
+      case "convert": {
         await validateNotInJail(interaction.user.id);
 
         const current_balance = await getUserCoins(interaction.user.id);
@@ -1787,6 +1843,20 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                 name: "time-table.png",
               },
             ),
+          ],
+        });
+
+        break;
+
+      case "social-media":
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle("ㅤㅤㅤFollow for more content!")
+              .setDescription(
+                "ㅤㅤㅤㅤ\nㅤㅤㅤㅤ<:Discord:1508507371700355213>│[The Nest](https://discord.com/invite/rannisnest)ㅤㅤㅤㅤ\nㅤㅤㅤㅤ<:Twitch:1508507689888776192>│[ranniria Twitch](https://www.twitch.tv/ranniria)ㅤㅤㅤㅤ\nㅤㅤㅤㅤ<:TikTok:1391249483131654247>│[ranniria TikTok](https://www.tiktok.com/@ranniria)ㅤㅤㅤㅤ\nㅤㅤㅤㅤ<:Twitter:1508517556321910794>│[ranniria Twitter](https://x.com/ranniriia)ㅤㅤㅤㅤ\nㅤㅤㅤㅤ<:Youtube:1505559546905493675>│[ranniria YouTube](https://www.youtube.com/@ranniria)ㅤㅤㅤㅤ\nㅤㅤㅤㅤ<:Instagram:1508507952515121152>│[ranniria Instagram](https://www.instagram.com/ranni.ria/)ㅤㅤㅤㅤ\n",
+              )
+              .setColor(0x4b23eb),
           ],
         });
 
