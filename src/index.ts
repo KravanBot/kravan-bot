@@ -21,6 +21,7 @@ import {
   ButtonBuilder,
   ActionRowBuilder,
   ButtonStyle,
+  ComponentType,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -438,6 +439,46 @@ const commands = [
   new SlashCommandBuilder()
     .setName("social-media")
     .setDescription("Get all of the social media links"),
+
+  new SlashCommandBuilder()
+    .setName("8ball")
+    .setDescription("Your personal prophet")
+    .addStringOption((option) =>
+      option
+        .setName("question")
+        .setDescription("Well, your question")
+        .setMinLength(2)
+        .setMaxLength(50)
+        .setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("ship")
+    .setDescription("Ship two members together!")
+    .addUserOption((option) =>
+      option
+        .setName("user1")
+        .setDescription("The first user")
+        .setRequired(true),
+    )
+    .addUserOption((option) =>
+      option
+        .setName("user2")
+        .setDescription("The second user")
+        .setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("define")
+    .setDescription("Get a definition of a term")
+    .addStringOption((option) =>
+      option
+        .setName("term")
+        .setDescription("The term to get definitions of")
+        .setMinLength(2)
+        .setMaxLength(20)
+        .setRequired(true),
+    ),
 ].map((cmd) => cmd.toJSON());
 
 let welcome_imgs_order: number[] | null = null;
@@ -865,6 +906,7 @@ const command_types = [
       ],
       "🎰 Gambling": [
         "gamble",
+        "coinflip",
         "steal",
         "fbi",
         "bribe",
@@ -873,6 +915,7 @@ const command_types = [
       ],
       "🌱 Animals": ["zoo", "hunt", "sell", "sacrafice", "lootbox"],
       "🥳 Fun": [
+        "8ball",
         "meme",
         "rate",
         "flame",
@@ -1861,6 +1904,153 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         });
 
         break;
+
+      case "8ball":
+        const question = interaction.options.getString("question", true);
+
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle(
+                getRandomFromArray([
+                  "Absolutely!",
+                  "Hell nah",
+                  "Yeah",
+                  "I don't think so",
+                  "I'm not sure",
+                  "Were u doubting it?",
+                  "No way",
+                ]),
+              )
+              .setDescription(`__Question:__ ${question}`)
+              .setColor(0xa73bff)
+              .setImage(
+                "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMWoxZWV0NGtlajQ0czByYmh2amY0Y2MxbHNuOWMwMnprZnBuc3FlZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o72F5tx9CEhSDxonC/giphy.gif",
+              ),
+          ],
+        });
+
+        break;
+
+      case "ship":
+        const user1 = interaction.options.getUser("user1", true);
+        const user2 = interaction.options.getUser("user2", true);
+
+        if (user1.id == user2.id)
+          return await interaction.reply({
+            content: "You cant enter the same user twice dummy",
+            ephemeral: true,
+          });
+
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle(
+                `${user1.username.slice(0, user1.username.length / 2)}${user2.username.slice(user2.username.length / 2)}`,
+              )
+              .setDescription(
+                `What a cute name for ${userMention(user1.id)} and ${userMention(user2.id)} 💞`,
+              )
+              .setColor(0xf73156)
+              .setImage(
+                "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExeWZ3cDZiZWFjMnZiaDh5c3RoNmU5d3ZteDFla3Jjc2ZjODVmMWdpciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/t8xgPfC5oNIRMrNooe/giphy.gif",
+              ),
+          ],
+        });
+
+        break;
+
+      case "define": {
+        await interaction.deferReply();
+        const term = interaction.options.getString("term", true);
+        const res = await fetch(
+          `https://api.urbandictionary.com/v0/define?term=${encodeURIComponent(term)}`,
+        );
+        const data = (
+          (await res.json()) as {
+            list: {
+              word: string;
+              definition: string;
+              example: string;
+              author: string;
+              thumbs_up: number;
+              thumbs_down: number;
+              permalink: string;
+              defid: number;
+              written_on: string;
+            }[];
+          }
+        ).list.slice(0, 4);
+
+        if (data.length === 0) {
+          await interaction.editReply({
+            content: `No definitions found for **${term}** :(`,
+          });
+          break;
+        }
+
+        let page = 0;
+
+        const buildEmbed = (index: number) =>
+          new CustomEmbed()
+            .setTitle(term)
+            .setDescription(
+              `${data[index]!.definition}\n\n__Examples:__\n${data[index]!.example}`,
+            )
+            .setFooter({ text: `Definition ${index + 1} of ${data.length}` })
+            .setImage(
+              "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTZ3Z3Z6NTE5dDA3Znpvdzc3OXlueHNka21kY21ndzJrbHpqN285OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WoWm8YzFQJg5i/giphy.gif",
+            )
+            .setColor(0x03befc);
+
+        const buildRow = (index: number) =>
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setCustomId("prev")
+              .setLabel("⬅️ Previous")
+              .setStyle(ButtonStyle.Secondary)
+              .setDisabled(index === 0),
+            new ButtonBuilder()
+              .setCustomId("next")
+              .setLabel("Next ➡️")
+              .setStyle(ButtonStyle.Secondary)
+              .setDisabled(index === data.length - 1),
+          );
+
+        const message = await interaction.editReply({
+          embeds: [buildEmbed(page)],
+          components: [buildRow(page)],
+        });
+
+        const collector = message.createMessageComponentCollector({
+          componentType: ComponentType.Button,
+          time: 5 * 60 * 1000,
+        });
+
+        collector.on("collect", async (btnInteraction) => {
+          if (btnInteraction.user.id !== interaction.user.id) {
+            await btnInteraction.reply({
+              content: "These buttons aren't for you.",
+              ephemeral: true,
+            });
+            return;
+          }
+
+          if (btnInteraction.customId === "prev") page--;
+          if (btnInteraction.customId === "next") page++;
+
+          await btnInteraction.update({
+            embeds: [buildEmbed(page)],
+            components: [buildRow(page)],
+          });
+        });
+
+        collector.on("end", async () => {
+          await interaction.editReply({ components: [] });
+        });
+
+        break;
+      }
     }
   } catch (e: any) {
     console.log(e.message);
