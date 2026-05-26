@@ -521,6 +521,10 @@ const commands = [
         ])
         .setRequired(true),
     ),
+
+  new SlashCommandBuilder()
+    .setName("checklist")
+    .setDescription("Get your checklist of the day"),
 ].map((cmd) => cmd.toJSON());
 
 let welcome_imgs_order: number[] | null = null;
@@ -2149,7 +2153,9 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         const result = getRandomFromArray(["heads", "tails"]);
         const won = choice == result;
 
-        await interaction.editReply(`Flipping the coin... 🪙`);
+        const msg = `${interaction.user.displayName} spent <:justacoin:1508806637362610287> 1 and chose ${choice}\nThe coin spins...`;
+
+        await interaction.editReply(`${msg} <a:coinflip:1508805014162767932>`);
 
         await new Promise<void>((res) => {
           setTimeout(() => {
@@ -2160,12 +2166,54 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await addCoins(interaction.user.id, won ? bet : -bet);
 
         await interaction.editReply(
-          `${
-            won ? "NICE!!! YOU WON 🤑🤑" : "Theres always next time... 😶‍🌫️😶‍🌫️"
-          }\n\nThe coin landed on ${result}\nYou can't end on a ${won ? "win" : "loss"}, can you?`,
+          `${msg} <:justacoin:1508806637362610287> ${won ? `and you won 🪙 ${bet * 2}!!` : "and you lost it all... :c"}`,
         );
 
         break;
+      }
+
+      case "checklist": {
+        await interaction.deferReply();
+
+        const last_date = (
+          await prisma.user.findUnique({
+            select: {
+              last_date: true,
+            },
+            where: {
+              id: interaction.user.id,
+            },
+          })
+        )?.last_date;
+
+        const checklist: {
+          daily: boolean;
+        } = {
+          daily: last_date
+            ? moment(last_date).isSame(moment().utc(), "day")
+            : false,
+        };
+
+        const descriptions: Record<keyof typeof checklist, string> = {
+          daily: "Claim today's daily",
+        };
+
+        await interaction.editReply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle("📋 Checklist 📋")
+              .setDescription(
+                `\u200b
+                ${Object.entries(checklist)
+                  .map(
+                    ([key, value]) =>
+                      `${value ? "✅" : "⬛"} ${descriptions[key as keyof typeof checklist]}`,
+                  )
+                  .join("\n")}\n\n🎁 Reward: (lootbox)`,
+              )
+              .setColor(0x62d435),
+          ],
+        });
       }
     }
   } catch (e: any) {
