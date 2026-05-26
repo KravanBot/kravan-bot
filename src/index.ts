@@ -514,9 +514,9 @@ const commands = [
     .addStringOption((option) =>
       option
         .setName("choice")
-        .setDescription("Head or tails?")
+        .setDescription("Heads or tails?")
         .setChoices([
-          { name: "Head", value: "head" },
+          { name: "Heads", value: "heads" },
           { name: "Tails", value: "tails" },
         ])
         .setRequired(true),
@@ -2146,28 +2146,24 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         }
 
         const choice = interaction.options.getString("choice", true);
-        const result = getRandomFromArray(["head", "tails"]);
+        const result = getRandomFromArray(["heads", "tails"]);
         const won = choice == result;
+
+        await interaction.editReply(`Flipping the coin... 🪙`);
+
+        await new Promise<void>((res) => {
+          setTimeout(() => {
+            res();
+          }, 2000);
+        });
 
         await addCoins(interaction.user.id, won ? bet : -bet);
 
-        await interaction.editReply({
-          embeds: [
-            new CustomEmbed()
-              .setTitle(
-                won
-                  ? "NICE!!! YOU WON 🤑🤑"
-                  : "Theres always next time... 😶‍🌫️😶‍🌫️",
-              )
-              .setDescription(
-                `The coin landed on ${result}\nYou can't end on a ${won ? "win" : "loss"}, can you?`,
-              )
-              .setColor(0xffb330)
-              .setImage(
-                "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjBzd3Q2OTltOHk1dDl3a2E3am1sZGpkMzB0OGxpZXlpeDFzMnMxciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/F6hBGv4XTrq72jqzLk/giphy.gif",
-              ),
-          ],
-        });
+        await interaction.editReply(
+          `${
+            won ? "NICE!!! YOU WON 🤑🤑" : "Theres always next time... 😶‍🌫️😶‍🌫️"
+          }\n\nThe coin landed on ${result}\nYou can't end on a ${won ? "win" : "loss"}, can you?`,
+        );
 
         break;
       }
