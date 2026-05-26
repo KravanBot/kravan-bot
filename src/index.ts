@@ -492,6 +492,10 @@ const commands = [
         .setMaxLength(50)
         .setRequired(true),
     ),
+
+  new SlashCommandBuilder()
+    .setName("roll")
+    .setDescription("Roll a 6 sided dice"),
 ].map((cmd) => cmd.toJSON());
 
 let welcome_imgs_order: number[] | null = null;
@@ -2069,6 +2073,24 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         const message = interaction.options.getString("message");
 
         await interaction.reply(owo(message));
+
+        break;
+      }
+
+      case "roll": {
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle(
+                `🎲 You rolled ${Math.floor(Math.random() * 6) + 1}!! 🎲`,
+              )
+              .setDescription("What does that mean? idk")
+              .setColor(0xeb3446)
+              .setImage(
+                "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHpsa3UydGppMHVhZXNjMGZzdzJmNm92MHl0Z2lyd24yeWE4ZGptcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/90XuzSWPb6gBa3ciRv/giphy.gif",
+              ),
+          ],
+        });
 
         break;
       }
