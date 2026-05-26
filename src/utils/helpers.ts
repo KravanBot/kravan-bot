@@ -71,3 +71,9 @@ export const validateNotInJail = async (id: string) => {
       ),
     );
 };
+
+export const generateSnowflake = (date: Date) => {
+  const DISCORD_EPOCH = 1420070400000n;
+  const timestamp = BigInt(date.getTime());
+  return ((timestamp - DISCORD_EPOCH) << 22n).toString();
+};

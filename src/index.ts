@@ -64,7 +64,11 @@ import { Leveling } from "./actions/leveling.js";
 import { configDotenv } from "dotenv";
 import { Steal } from "./actions/steal.js";
 import { Currency, ItemId, Store } from "./actions/store.js";
-import { getRandomFromArray, validateNotInJail } from "./utils/helpers.js";
+import {
+  generateSnowflake,
+  getRandomFromArray,
+  validateNotInJail,
+} from "./utils/helpers.js";
 import { Meme } from "./actions/meme.js";
 import { MiniMe } from "./actions/minime.js";
 import { Flame } from "./actions/flame.js";
@@ -2186,16 +2190,40 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           })
         )?.last_date;
 
+        const counting_channel = ranni_guild?.channels.cache.get(
+          "1236751657086484587",
+        );
+
+        if (!counting_channel?.isSendable()) return;
+
         const checklist: {
           daily: boolean;
+          count: boolean;
         } = {
           daily: last_date
             ? moment(last_date).isSame(moment().utc(), "day")
             : false,
+          count:
+            (
+              await counting_channel.messages.fetch({
+                after: generateSnowflake(
+                  moment().utc().startOf("day").toDate(),
+                ),
+              })
+            ).filter(
+              (msg) =>
+                msg.author.id == interaction.user.id &&
+                msg.reactions.cache.some(
+                  (reaction) =>
+                    reaction.emoji.name == "✅" &&
+                    reaction.users.cache.has(client.user!.id),
+                ),
+            ).size >= 1,
         };
 
         const descriptions: Record<keyof typeof checklist, string> = {
           daily: "Claim today's daily",
+          count: "Count 5 numbers in <#1236751657086484587>",
         };
 
         await interaction.editReply({
