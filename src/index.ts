@@ -77,6 +77,7 @@ import { Twitch } from "./actions/twitch.js";
 import { StreamerBot } from "./actions/streamerbot.js";
 import fs from "fs/promises";
 import { Logger } from "./actions/logger.js";
+import owo from "@zuzak/owo";
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
@@ -477,6 +478,18 @@ const commands = [
         .setDescription("The term to get definitions of")
         .setMinLength(2)
         .setMaxLength(20)
+        .setRequired(true),
+    ),
+
+  new SlashCommandBuilder()
+    .setName("uwuify")
+    .setDescription("Transform a message to an uwu form")
+    .addStringOption((option) =>
+      option
+        .setName("message")
+        .setDescription("The message to transform")
+        .setMinLength(2)
+        .setMaxLength(50)
         .setRequired(true),
     ),
 ].map((cmd) => cmd.toJSON());
@@ -2048,6 +2061,14 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         collector.on("end", async () => {
           await interaction.editReply({ components: [] });
         });
+
+        break;
+      }
+
+      case "uwuify": {
+        const message = interaction.options.getString("message");
+
+        await interaction.reply(owo(message));
 
         break;
       }
