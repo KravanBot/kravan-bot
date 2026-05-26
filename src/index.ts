@@ -761,7 +761,7 @@ client.once("clientReady", async () => {
                 },
                 {
                   name: "🕹️ Games",
-                  value: `<:valorant:1478018219192356874> Valorant\n<a:puffercarrot:1385075573390442649> Sabnautica 2\n\u200b\n\u200b${new Array(
+                  value: `<:valorant:1478018219192356874> Valorant\n\u200b\n\u200b${new Array(
                     5,
                   )
                     .fill(
