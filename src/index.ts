@@ -145,7 +145,8 @@ const commands = [
         .setName("bet")
         .setDescription("min 1 coin")
         .setRequired(true)
-        .setMinValue(1),
+        .setMinValue(1)
+        .setMaxValue(500_000_000),
     ),
 
   new SlashCommandBuilder()
@@ -156,7 +157,8 @@ const commands = [
         .setName("bet")
         .setDescription("min 1 coin")
         .setRequired(true)
-        .setMinValue(1),
+        .setMinValue(1)
+        .setMaxValue(500_000_000),
     ),
 
   new SlashCommandBuilder()
@@ -191,6 +193,7 @@ const commands = [
         .setName("amount")
         .setDescription("The amount you want to donate (>= 10)")
         .setMinValue(10)
+        .setMaxValue(500_000_000)
         .setRequired(true),
     ),
 
@@ -496,6 +499,28 @@ const commands = [
   new SlashCommandBuilder()
     .setName("roll")
     .setDescription("Roll a 6 sided dice"),
+
+  new SlashCommandBuilder()
+    .setName("coinflip")
+    .setDescription("Gamble on a coin flip")
+    .addNumberOption((option) =>
+      option
+        .setName("bet")
+        .setDescription("min 1 coin")
+        .setRequired(true)
+        .setMinValue(1)
+        .setMaxValue(50_000_000),
+    )
+    .addStringOption((option) =>
+      option
+        .setName("choice")
+        .setDescription("Head or tails?")
+        .setChoices([
+          { name: "Head", value: "head" },
+          { name: "Tails", value: "tails" },
+        ])
+        .setRequired(true),
+    ),
 ].map((cmd) => cmd.toJSON());
 
 let welcome_imgs_order: number[] | null = null;
@@ -2094,10 +2119,62 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         break;
       }
+
+      case "coinflip": {
+        await interaction.deferReply();
+
+        await validateNotInJail(interaction.user.id);
+
+        const balance = await getUserCoins(interaction.user.id);
+
+        const bet = Math.max(
+          Math.min(
+            Math.floor(interaction.options.getNumber("bet", true)),
+            balance.coins,
+          ),
+          1,
+        );
+
+        if (!(await hasEnoughCoins(interaction.user.id, bet))) {
+          await interaction.editReply({
+            content: "U A BROKE MF U CANT BET THIS MUCH",
+            embeds: [],
+            components: [],
+            files: [],
+          });
+          return;
+        }
+
+        const choice = interaction.options.getString("choice", true);
+        const result = getRandomFromArray(["head", "tails"]);
+        const won = choice == result;
+
+        await addCoins(interaction.user.id, won ? bet : -bet);
+
+        await interaction.editReply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle(
+                won
+                  ? "NICE!!! YOU WON 🤑🤑"
+                  : "Theres always next time... 😶‍🌫️😶‍🌫️",
+              )
+              .setDescription(
+                `The coin landed on ${result}\nYou can't end on a ${won ? "win" : "loss"}, can you?`,
+              )
+              .setColor(0xffb330)
+              .setImage(
+                "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExZjBzd3Q2OTltOHk1dDl3a2E3am1sZGpkMzB0OGxpZXlpeDFzMnMxciZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/F6hBGv4XTrq72jqzLk/giphy.gif",
+              ),
+          ],
+        });
+
+        break;
+      }
     }
   } catch (e: any) {
-    console.log(e.message);
-    await interaction.reply(JSON.parse(e.message));
+    if (interaction.replied) await interaction.editReply(JSON.parse(e.message));
+    else await interaction.reply(JSON.parse(e.message));
   }
 });
 
