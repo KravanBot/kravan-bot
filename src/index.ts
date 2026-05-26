@@ -2218,7 +2218,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                     reaction.emoji.name == "✅" &&
                     reaction.users.cache.has(client.user!.id),
                 ),
-            ).size >= 1,
+            ).size >= 5,
         };
 
         const descriptions: Record<keyof typeof checklist, string> = {
