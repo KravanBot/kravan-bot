@@ -42,6 +42,9 @@ export enum ItemId {
   PIKACHU,
   GAMBLING_BOOST_15M,
   GAMBLING_BOOST_30M,
+
+  BEER,
+  KEBAB,
 }
 
 export enum Currency {
@@ -201,7 +204,19 @@ export class Store {
       amount: 100,
       currency: Currency.GEM,
     })
-    .set(ItemId.END_MASK, null);
+    .set(ItemId.END_MASK, null)
+    .set(ItemId.BEER, {
+      name: "🍺 Beer",
+      description: "A good cup of bear",
+      amount: 100,
+      currency: Currency.COIN,
+    })
+    .set(ItemId.KEBAB, {
+      name: "🥙 Kebab",
+      description: "A nice kebab meal",
+      amount: 100,
+      currency: Currency.COIN,
+    });
 
   static getStoreEmbeds() {
     const convertToFields = (arr: ItemId[]) =>
@@ -229,6 +244,8 @@ export class Store {
             ItemId.DIAMOND,
             ItemId.GAMBLING_BOOST_15M,
             ItemId.GAMBLING_BOOST_30M,
+            ItemId.BEER,
+            ItemId.KEBAB,
           ]),
         ),
 

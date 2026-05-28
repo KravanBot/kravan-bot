@@ -2229,7 +2229,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         await interaction.editReply({
           embeds: [
             new CustomEmbed()
-              .setTitle("📋 Checklist 📋")
+              .setAuthor({
+                name: `${interaction.user.displayName}'s Checklist`,
+                iconURL:
+                  interaction.user.avatarURL() ??
+                  "https://preview.redd.it/the-new-discord-default-profile-pictures-v0-tbhgxr7adj7f1.png?width=1024&format=png&auto=webp&s=681455786feb3bb43479cc5d684dd3a3ff664a20",
+              })
               .setDescription(
                 `\u200b
                 ${Object.entries(checklist)
@@ -2237,7 +2242,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                     ([key, value]) =>
                       `${value ? "✅" : "⬛"} ${descriptions[key as keyof typeof checklist]}`,
                   )
-                  .join("\n")}\n\n🎁 Reward: (lootbox)`,
+                  .join("\n")}`,
               )
               .setColor(0x62d435),
           ],
