@@ -483,25 +483,30 @@ export const addItem = async (id: string, value: number, quantity: number) => {
 
   if (updated_arr.length > 100) return false;
 
+  const update_last_dates = {
+    last_beer:
+      value == ItemId.BEER
+        ? moment().utc().startOf("day").toDate()
+        : (existing?.last_beer ?? null),
+    last_kebab:
+      value == ItemId.KEBAB
+        ? moment().utc().startOf("day").toDate()
+        : (existing?.last_kebab ?? null),
+  };
+
   await prisma.user.upsert({
     create: {
       id,
       items: {
         set: updated_arr,
       },
-      last_beer:
-        value == ItemId.BEER
-          ? moment().utc().startOf("day").toDate()
-          : (existing?.last_beer ?? null),
-      last_kebab:
-        value == ItemId.KEBAB
-          ? moment().utc().startOf("day").toDate()
-          : (existing?.last_kebab ?? null),
+      ...update_last_dates,
     },
     update: {
       items: {
         set: updated_arr,
       },
+      ...update_last_dates,
     },
     where: {
       id,

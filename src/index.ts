@@ -2270,15 +2270,17 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       }
 
       case "kebab": {
+        await interaction.deferReply();
+
         const last_kebab = await getLastKebab(interaction.user.id);
         const today = moment().utc().startOf("day");
 
         if (last_kebab && !moment(last_kebab).isBefore(today))
-          return await interaction.reply(
+          return await interaction.editReply(
             `You already got today's kebab fatty!\n\nYou can claim your next kebab <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`,
           );
 
-        await interaction.reply(
+        await interaction.editReply(
           `You got a ${Store.ITEMS.get(ItemId.KEBAB)?.name}!\n\nYou can claim your next kebab <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`,
         );
 
@@ -2288,15 +2290,17 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       }
 
       case "beer": {
+        await interaction.deferReply();
+
         const last_beer = await getLastBeer(interaction.user.id);
         const today = moment().utc().startOf("day");
 
         if (last_beer && !moment(last_beer).isBefore(today))
-          return await interaction.reply(
+          return await interaction.editReply(
             `You already got today's beer drunky!\n\nYou can claim your next beer <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`,
           );
 
-        await interaction.reply(
+        await interaction.editReply(
           `You got a ${Store.ITEMS.get(ItemId.BEER)?.name}!\n\nYou can claim your next beer <t:${Math.floor(moment().utc().add(1, "day").startOf("day").valueOf() / 1000)}:R>`,
         );
 
