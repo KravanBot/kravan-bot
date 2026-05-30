@@ -12,6 +12,16 @@ type ChecklistT = {
   of: Date;
 };
 
+type QuestT = Partial<{
+  donate: number;
+  meme: number;
+  meal: number;
+  pet: number;
+  gamble: number;
+}> & {
+  of: Date;
+};
+
 const connectionString = `${process.env.DATABASE_URL}`;
 
 const adapter = new PrismaPg({ connectionString });
@@ -883,6 +893,12 @@ export const getLastBeer = async (id: string) => {
 export const getChecklist: (id: string) => Promise<ChecklistT> = async (
   id: string,
 ) => {
+  const default_checklist = {
+    participate: false,
+    send: false,
+    of: moment().utc().startOf("day").toDate(),
+  };
+
   const checklist = ((
     await prisma.user.findUnique({
       select: {
@@ -892,19 +908,11 @@ export const getChecklist: (id: string) => Promise<ChecklistT> = async (
         id,
       },
     })
-  )?.checklist ?? {
-    participate: false,
-    send: false,
-    of: moment().utc().startOf("day").toDate(),
-  }) as ChecklistT;
+  )?.checklist ?? default_checklist) as ChecklistT;
 
   return checklist && moment(checklist.of).isSame(moment().utc().startOf("day"))
     ? checklist
-    : {
-        participate: false,
-        send: false,
-        of: moment().utc().startOf("day").toDate(),
-      };
+    : default_checklist;
 };
 
 export const setChecklist = async (
@@ -923,6 +931,91 @@ export const setChecklist = async (
     },
     update: {
       checklist: new_checklist,
+    },
+    where: {
+      id,
+    },
+  });
+};
+
+export const getQuest: (id: string) => Promise<QuestT> = async (id: string) => {
+  const options: Partial<QuestT> = {
+    donate: 0,
+    meme: 0,
+    meal: 0,
+    pet: 0,
+    gamble: 0,
+  };
+
+  const random_options = Object.keys(options)
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+
+  const picked_options = Object.fromEntries(
+    random_options.map((k) => [k, options[k as keyof typeof options]]),
+  );
+
+  const default_quest = {
+    ...picked_options,
+    of: moment().utc().startOf("day").toDate(),
+  };
+
+  const quest = ((
+    await prisma.user.findUnique({
+      select: {
+        quest: true,
+      },
+      where: {
+        id,
+      },
+    })
+  )?.quest ?? null) as QuestT | null;
+
+  const final_quest =
+    quest && moment(quest.of).isSame(moment().utc().startOf("day"))
+      ? quest
+      : default_quest;
+
+  if (JSON.stringify(quest) !== JSON.stringify(final_quest))
+    await prisma.user.upsert({
+      create: {
+        id,
+        quest: final_quest,
+      },
+      update: {
+        quest: final_quest,
+      },
+      where: {
+        id,
+      },
+    });
+
+  return final_quest;
+};
+
+export const setQuest = async (id: string, new_values: Partial<QuestT>) => {
+  const quest = await getQuest(id);
+  let new_quest = quest;
+
+  for (const [key, value] of Object.entries(new_values))
+    if (key in quest && typeof value == "number")
+      new_quest = {
+        ...new_quest,
+        [key]:
+          (quest[
+            key as "donate" | "meme" | "meal" | "pet" | "gamble"
+          ]! as number) + value,
+      };
+
+  if (JSON.stringify(quest) == JSON.stringify(new_quest)) return;
+
+  await prisma.user.upsert({
+    create: {
+      id,
+      quest: new_quest,
+    },
+    update: {
+      quest: new_quest,
     },
     where: {
       id,

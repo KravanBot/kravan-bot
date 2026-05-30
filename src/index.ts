@@ -41,6 +41,7 @@ import {
   getLastKebab,
   getLastSteal,
   getMinime,
+  getQuest,
   getTop5Richest,
   getUserCoins,
   hasEnoughCoins,
@@ -533,6 +534,10 @@ const commands = [
   new SlashCommandBuilder()
     .setName("checklist")
     .setDescription("Get your checklist of the day"),
+
+  new SlashCommandBuilder()
+    .setName("quest")
+    .setDescription("Get your quest of the day"),
 
   new SlashCommandBuilder().setName("kebab").setDescription("Cook a kebab"),
   new SlashCommandBuilder().setName("beer").setDescription("Make a beer"),
@@ -2313,6 +2318,63 @@ client.on("interactionCreate", async (interaction: Interaction) => {
         );
 
         await addItem(interaction.user.id, ItemId.BEER, 1);
+
+        break;
+      }
+
+      case "quest": {
+        await interaction.deferReply();
+
+        const prisma_quest = await getQuest(interaction.user.id);
+
+        const quest: Partial<typeof prisma_quest> = prisma_quest;
+
+        delete quest.of;
+
+        const details: Record<
+          keyof typeof quest,
+          { description: string; max: number } | undefined
+        > = {
+          donate: { description: "Donate 50K to someone!", max: 1 },
+          meme: {
+            description: "Post a meme in <#1310737786843824278>",
+            max: 1,
+          },
+          meal: {
+            description: "Share your meal in <#1393169480984825896>",
+            max: 1,
+          },
+          pet: {
+            description: "Post your pet in <#1310978386688086117>",
+            max: 1,
+          },
+          gamble: { description: "Gamble 25 Times!", max: 25 },
+          of: undefined,
+        };
+
+        await interaction.editReply({
+          embeds: [
+            new CustomEmbed()
+              .setAuthor({
+                name: `${interaction.user.displayName}'s Quest`,
+                iconURL:
+                  interaction.user.avatarURL() ??
+                  "https://preview.redd.it/the-new-discord-default-profile-pictures-v0-tbhgxr7adj7f1.png?width=1024&format=png&auto=webp&s=681455786feb3bb43479cc5d684dd3a3ff664a20",
+              })
+              .setDescription(
+                `${Object.entries(quest)
+                  .map(([key, value], idx) => {
+                    const details_of_key = details[key as keyof typeof quest];
+
+                    if (!details_of_key || typeof value != "number") return "";
+
+                    return `${idx}. **${details_of_key.description}**\n   \`- Reward: \`\n  \`- Progress: [${Math.min(value, details_of_key.max)}/${details_of_key.max}]\``;
+                  })
+                  .join("\n")}`,
+              )
+              .setColor(0x34baeb),
+          ],
+        });
 
         break;
       }
