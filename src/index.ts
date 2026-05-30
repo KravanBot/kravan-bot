@@ -2370,9 +2370,9 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                       `${idx + 1}. **${details_of_key.description}**`,
                       `   \`- Reward:\``,
                       `   \`- Progress: [${Math.min(value, details_of_key.max)}/${details_of_key.max}]\``,
-                    ].join("\n");
+                    ].join("\u200b");
                   })
-                  .join("\n\n")}`,
+                  .join("\n")}`,
               )
               .setColor(0x34baeb),
           ],
