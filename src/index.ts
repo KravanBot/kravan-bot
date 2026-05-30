@@ -2380,8 +2380,18 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       }
     }
   } catch (e: any) {
-    if (interaction.replied) await interaction.editReply(JSON.parse(e.message));
-    else await interaction.reply(JSON.parse(e.message));
+    let data: any;
+
+    try {
+      data = JSON.parse(e.message);
+    } catch {
+      console.log(e);
+      data =
+        "Something went wrong please notify stupid <@609097048662343700> for his poor coding skills";
+    }
+
+    if (interaction.replied) await interaction.editReply(data);
+    else await interaction.reply(data);
   }
 });
 
