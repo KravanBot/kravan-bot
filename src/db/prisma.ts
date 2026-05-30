@@ -6,6 +6,12 @@ import moment from "moment";
 import { JsonObject } from "@prisma/client/runtime/client";
 import { Currency, ItemId, Store } from "../actions/store.js";
 
+type ChecklistT = {
+  participate: boolean;
+  send: boolean;
+  of: Date;
+};
+
 const connectionString = `${process.env.DATABASE_URL}`;
 
 const adapter = new PrismaPg({ connectionString });
@@ -872,6 +878,60 @@ export const getLastBeer = async (id: string) => {
       })
     )?.last_beer ?? null
   );
+};
+
+export const getChecklist: (id: string) => Promise<ChecklistT> = async (
+  id: string,
+) => {
+  const checklist = ((
+    await prisma.user.findUnique({
+      select: {
+        checklist: true,
+      },
+      where: {
+        id,
+      },
+    })
+  )?.checklist ?? {
+    participate: false,
+    send: false,
+    of: moment().utc().startOf("day").toDate(),
+  }) as ChecklistT;
+
+  return checklist && moment(checklist.of).isSame(moment().utc().startOf("day"))
+    ? checklist
+    : {
+        participate: false,
+        send: false,
+        of: moment().utc().startOf("day").toDate(),
+      };
+};
+
+export const setChecklist = async (
+  id: string,
+  new_values: Partial<ChecklistT>,
+) => {
+  const checklist = await getChecklist(id);
+  const new_checklist = { ...checklist, ...new_values };
+
+  if (JSON.stringify(checklist) == JSON.stringify(new_checklist)) return;
+
+  await prisma.user.upsert({
+    create: {
+      id,
+      checklist: {
+        set: new_checklist,
+      },
+    },
+    update: {
+      checklist: {
+        set: new_checklist,
+      },
+    },
+    where: {
+      id,
+    },
+  });
 };
 
 export { prisma };

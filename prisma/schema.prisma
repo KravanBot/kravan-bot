@@ -21,6 +21,7 @@ model User {
   minime Json?
   last_steal Json?
   boost Json?
+  checklist Json?
   can_bribe_in DateTime?
   can_steal_in DateTime?
 }

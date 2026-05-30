@@ -34,6 +34,7 @@ import {
   clearJail,
   getCanBribeIn,
   getCanStealIn,
+  getChecklist,
   getInventory,
   getJackpot,
   getLastBeer,
@@ -51,6 +52,7 @@ import {
   putOnMinime,
   setCanBribeIn,
   setCanStealIn,
+  setChecklist,
   setLastSteal,
   takeCoins,
   takeFromBank,
@@ -1662,6 +1664,11 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           `${userMention(interaction.user.id)} GAVE ${userMention(target.id)} A ${Store.ITEMS.get(item)?.name}!!!`,
         );
 
+        if (item == ItemId.KEBAB || item == ItemId.BEER)
+          await setChecklist(interaction.user.id, {
+            send: true,
+          });
+
         await tryToGetJackpot(interaction.user, interaction.channel!);
 
         break;
@@ -2201,9 +2208,10 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         if (!counting_channel?.isSendable()) return;
 
+        const prisma_checklist = await getChecklist(interaction.user.id);
+
         const checklist: {
           daily: boolean;
-          // count: boolean;
           participate: boolean;
           send: boolean;
           quest: boolean;
@@ -2227,8 +2235,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           //           reaction.users.cache.has(client.user!.id),
           //       ),
           //   ).size >= 5,
-          participate: false,
-          send: false,
+          participate: prisma_checklist.participate,
+          send: prisma_checklist.send,
           quest: false,
         };
 

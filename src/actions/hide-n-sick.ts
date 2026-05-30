@@ -20,6 +20,7 @@ import {
   hasEnoughCoins,
   hasEnoughCurrency,
   hasEnoughGems,
+  setChecklist,
   takeCoins,
   takeCurrency,
   takeGems,
@@ -554,15 +555,22 @@ export class HideAndSeek {
       });
 
       collector.on("end", async () => {
-        if (hiders.size + seekers.size < 2) {
-          for (const id of [
-            ...Array.from(hiders.keys()),
-            ...Array.from(seekers.keys()),
-          ])
+        const all_players = [
+          ...Array.from(hiders.keys()),
+          ...Array.from(seekers.keys()),
+        ];
+
+        if (all_players.length < 2) {
+          for (const id of all_players)
             await addCurrency(id, this.#bet.amount, this.#bet.currency);
 
           return rej();
         }
+
+        for (const id of all_players)
+          await setChecklist(id, {
+            participate: true,
+          });
 
         const seeker = getRandomFromArray(Array.from(seekers.keys()));
 

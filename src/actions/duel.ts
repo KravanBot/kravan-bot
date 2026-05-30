@@ -15,6 +15,7 @@ import {
   getUserCoins,
   hasEnoughCoins,
   isInJail,
+  setChecklist,
   takeCoins,
 } from "../db/prisma.js";
 import { client, tryToGetJackpot } from "../index.js";
@@ -134,6 +135,13 @@ export class Duel {
 
       await addCoins(winner, this.#bet);
       await takeCoins(loser, this.#bet);
+
+      await setChecklist(winner, {
+        participate: true,
+      });
+      await setChecklist(loser, {
+        participate: true,
+      });
 
       await game_msg.edit({
         content: `WOW SO MUCH TENSION!!\n\n${Array.from(answers.entries())

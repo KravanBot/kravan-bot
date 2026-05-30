@@ -11,7 +11,12 @@ import { Currency } from "./store.js";
 import moment from "moment";
 import { CustomEmbed } from "../utils/embed.js";
 import { client, gem_emoji, tryToGetJackpot } from "../index.js";
-import { addCurrency, hasEnoughCurrency, takeCurrency } from "../db/prisma.js";
+import {
+  addCurrency,
+  hasEnoughCurrency,
+  setChecklist,
+  takeCurrency,
+} from "../db/prisma.js";
 import { createCanvas, loadImage } from "@napi-rs/canvas";
 import fs from "fs/promises";
 import path from "path";
@@ -202,12 +207,19 @@ export class Trivia {
       });
 
       collector.on("end", async () => {
-        if (this.#players.size < 2) {
-          for (const id of [...Array.from(this.#players.keys())])
+        const all_players = [...Array.from(this.#players.keys())];
+
+        if (all_players.length < 2) {
+          for (const id of all_players)
             await addCurrency(id, this.#bet.amount, this.#bet.currency);
 
           return rej();
         }
+
+        for (const id of all_players)
+          await setChecklist(id, {
+            participate: true,
+          });
 
         return res();
       });
