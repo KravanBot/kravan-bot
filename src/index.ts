@@ -2309,7 +2309,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                   )
                   .join(
                     "\n",
-                  )}\n${did_finish ? "✅ Nice!! claim today's reward :)" : "⬛ 🎉 Complete your checklist to get a reward!"} `,
+                  )}\n${did_finish ? "✅ 🎉 Nice!! claim today's reward :)" : "⬛ 🎉 Complete your checklist to get a reward!"} `,
               )
               .setColor(0x62d435),
           ],
