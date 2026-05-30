@@ -2270,11 +2270,11 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       }
 
       case "kebab": {
-        const last_kebab = moment(await getLastKebab(interaction.user.id));
+        const last_kebab = await getLastKebab(interaction.user.id);
         const today = moment().utc().startOf("day");
 
-        if (last_kebab && !last_kebab.isBefore(today))
-          await interaction.reply(
+        if (last_kebab && !moment(last_kebab).isBefore(today))
+          return await interaction.reply(
             `You already got today's kebab fatty!\n\nYou can claim your next kebab <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`,
           );
 
@@ -2288,11 +2288,11 @@ client.on("interactionCreate", async (interaction: Interaction) => {
       }
 
       case "beer": {
-        const last_beer = moment(await getLastBeer(interaction.user.id));
+        const last_beer = await getLastBeer(interaction.user.id);
         const today = moment().utc().startOf("day");
 
-        if (last_beer && !last_beer.isBefore(today))
-          await interaction.reply(
+        if (last_beer && !moment(last_beer).isBefore(today))
+          return await interaction.reply(
             `You already got today's beer drunky!\n\nYou can claim your next beer <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`,
           );
 
