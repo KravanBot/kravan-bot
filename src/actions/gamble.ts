@@ -90,10 +90,21 @@ export class Gamble {
   }
 
   #chooseRandomEmoji(): string {
-    const random = Math.floor(Math.random() * 15);
+    let blessings = 0;
+    let curses = 0;
 
-    if (random <= 0) return Gamble.#bad_emoji;
-    if (random <= 1) return Gamble.#good_emoji;
+    const good_emoji_random = Math.floor(
+      Math.random() * Math.max(15 - Math.round(Math.sqrt(blessings * 2)), 8),
+    );
+    const bad_emoji_random = Math.floor(
+      Math.random() * Math.max(15 - Math.round(Math.sqrt(curses * 2)), 8),
+    );
+
+    const is_bad_emoji = bad_emoji_random <= 0;
+    const is_good_emoji = good_emoji_random <= 0;
+
+    if (is_bad_emoji && !is_good_emoji) return Gamble.#bad_emoji;
+    if (is_good_emoji && !is_bad_emoji) return Gamble.#good_emoji;
 
     const emojis = [...Gamble.#default_emojis];
 

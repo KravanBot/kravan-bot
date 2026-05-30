@@ -244,8 +244,6 @@ export class Store {
             ItemId.DIAMOND,
             ItemId.GAMBLING_BOOST_15M,
             ItemId.GAMBLING_BOOST_30M,
-            ItemId.BEER,
-            ItemId.KEBAB,
           ]),
         ),
 

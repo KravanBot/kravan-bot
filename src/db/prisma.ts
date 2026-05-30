@@ -4,7 +4,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { Prisma, PrismaClient } from "@prisma/client";
 import moment from "moment";
 import { JsonObject } from "@prisma/client/runtime/client";
-import { Currency, Store } from "../actions/store.js";
+import { Currency, ItemId, Store } from "../actions/store.js";
 
 const connectionString = `${process.env.DATABASE_URL}`;
 
@@ -469,6 +469,8 @@ export const updateTheft = async (id: string) => {
 export const addItem = async (id: string, value: number, quantity: number) => {
   const existing = await prisma.user.findUnique({
     select: {
+      last_beer: true,
+      last_kebab: true,
       items: true,
     },
     where: {
@@ -487,6 +489,14 @@ export const addItem = async (id: string, value: number, quantity: number) => {
       items: {
         set: updated_arr,
       },
+      last_beer:
+        value == ItemId.BEER
+          ? moment().utc().startOf("day").toDate()
+          : (existing?.last_beer ?? null),
+      last_kebab:
+        value == ItemId.KEBAB
+          ? moment().utc().startOf("day").toDate()
+          : (existing?.last_kebab ?? null),
     },
     update: {
       items: {
@@ -827,6 +837,36 @@ export const setCanStealIn = async (id: string, end_time: Date | null) => {
       id,
     },
   });
+};
+
+export const getLastKebab = async (id: string) => {
+  return (
+    (
+      await prisma.user.findUnique({
+        select: {
+          last_kebab: true,
+        },
+        where: {
+          id,
+        },
+      })
+    )?.last_kebab ?? null
+  );
+};
+
+export const getLastBeer = async (id: string) => {
+  return (
+    (
+      await prisma.user.findUnique({
+        select: {
+          last_beer: true,
+        },
+        where: {
+          id,
+        },
+      })
+    )?.last_beer ?? null
+  );
 };
 
 export { prisma };

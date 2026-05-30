@@ -409,7 +409,6 @@ export class Counting {
         });
 
       try {
-        await this.#last_msg!.reactions.removeAll();
         await this.#last_msg!.react("🪤");
 
         await takeCoins(interaction.user.id, cost);

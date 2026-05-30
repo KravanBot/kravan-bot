@@ -36,6 +36,8 @@ import {
   getCanStealIn,
   getInventory,
   getJackpot,
+  getLastBeer,
+  getLastKebab,
   getLastSteal,
   getMinime,
   getTop5Richest,
@@ -529,6 +531,9 @@ const commands = [
   new SlashCommandBuilder()
     .setName("checklist")
     .setDescription("Get your checklist of the day"),
+
+  new SlashCommandBuilder().setName("kebab").setDescription("Cook a kebab"),
+  new SlashCommandBuilder().setName("beer").setDescription("Make a beer"),
 ].map((cmd) => cmd.toJSON());
 
 let welcome_imgs_order: number[] | null = null;
@@ -2198,33 +2203,45 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         const checklist: {
           daily: boolean;
-          count: boolean;
+          // count: boolean;
+          participate: boolean;
+          send: boolean;
+          quest: boolean;
         } = {
           daily: last_date
             ? moment(last_date).isSame(moment().utc(), "day")
             : false,
-          count:
-            (
-              await counting_channel.messages.fetch({
-                after: generateSnowflake(
-                  moment().utc().startOf("day").toDate(),
-                ),
-              })
-            ).filter(
-              (msg) =>
-                msg.author.id == interaction.user.id &&
-                msg.reactions.cache.some(
-                  (reaction) =>
-                    reaction.emoji.name == "✅" &&
-                    reaction.users.cache.has(client.user!.id),
-                ),
-            ).size >= 5,
+          // count:
+          //   (
+          //     await counting_channel.messages.fetch({
+          //       after: generateSnowflake(
+          //         moment().utc().startOf("day").toDate(),
+          //       ),
+          //     })
+          //   ).filter(
+          //     (msg) =>
+          //       msg.author.id == interaction.user.id &&
+          //       msg.reactions.cache.some(
+          //         (reaction) =>
+          //           reaction.emoji.name == "✅" &&
+          //           reaction.users.cache.has(client.user!.id),
+          //       ),
+          //   ).size >= 5,
+          participate: false,
+          send: false,
+          quest: false,
         };
 
         const descriptions: Record<keyof typeof checklist, string> = {
-          daily: "Claim today's daily",
-          count: "Count 5 numbers in <#1236751657086484587>",
+          daily: "🎁 You can still claim your daily!",
+          // count: "Count 5 numbers in <#1236751657086484587>",
+          participate:
+            "🥇 Particiapte in a minigame! `(duel, hide-n-seek, trivia)`",
+          send: "🥙 Send a <:kebab:1509580422143676427> Kebab or a <:pensivebeer:1509581797967532052> Beer!",
+          quest: "📜 You can still claim a quest!",
         };
+
+        const did_finish = Object.values(checklist).every((value) => !!value);
 
         await interaction.editReply({
           embeds: [
@@ -2236,17 +2253,56 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                   "https://preview.redd.it/the-new-discord-default-profile-pictures-v0-tbhgxr7adj7f1.png?width=1024&format=png&auto=webp&s=681455786feb3bb43479cc5d684dd3a3ff664a20",
               })
               .setDescription(
-                `\u200b
-                ${Object.entries(checklist)
+                `${Object.entries(checklist)
                   .map(
                     ([key, value]) =>
                       `${value ? "✅" : "⬛"} ${descriptions[key as keyof typeof checklist]}`,
                   )
-                  .join("\n")}`,
+                  .join(
+                    "\n",
+                  )}\n${did_finish ? "✅" : "⬛ 🎉 Complete your checklist to get a reward!"} `,
               )
               .setColor(0x62d435),
           ],
         });
+
+        break;
+      }
+
+      case "kebab": {
+        const last_kebab = moment(await getLastKebab(interaction.user.id));
+        const today = moment().utc().startOf("day");
+
+        if (last_kebab && !last_kebab.isBefore(today))
+          await interaction.reply(
+            `You already got today's kebab fatty!\n\nYou can claim your next kebab <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`,
+          );
+
+        await interaction.reply(
+          `You got a ${Store.ITEMS.get(ItemId.KEBAB)?.name}!\n\nYou can claim your next kebab <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`,
+        );
+
+        await addItem(interaction.user.id, ItemId.KEBAB, 1);
+
+        break;
+      }
+
+      case "beer": {
+        const last_beer = moment(await getLastBeer(interaction.user.id));
+        const today = moment().utc().startOf("day");
+
+        if (last_beer && !last_beer.isBefore(today))
+          await interaction.reply(
+            `You already got today's beer drunky!\n\nYou can claim your next beer <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`,
+          );
+
+        await interaction.reply(
+          `You got a ${Store.ITEMS.get(ItemId.BEER)?.name}!\n\nYou can claim your next beer <t:${Math.floor(moment().utc().add(1, "day").startOf("day").valueOf() / 1000)}:R>`,
+        );
+
+        await addItem(interaction.user.id, ItemId.BEER, 1);
+
+        break;
       }
     }
   } catch (e: any) {
@@ -2800,4 +2856,4 @@ client.on("guildMemberAdd", async (member) => {
 
 client.login(TOKEN);
 
-new StreamerBot();
+if (process.env.IS_PRODUCTION) new StreamerBot();
