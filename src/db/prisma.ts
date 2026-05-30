@@ -919,14 +919,10 @@ export const setChecklist = async (
   await prisma.user.upsert({
     create: {
       id,
-      checklist: {
-        set: new_checklist,
-      },
+      checklist: new_checklist,
     },
     update: {
-      checklist: {
-        set: new_checklist,
-      },
+      checklist: new_checklist,
     },
     where: {
       id,
