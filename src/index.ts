@@ -2365,12 +2365,14 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                 `${Object.entries(quest)
                   .map(([key, value], idx) => {
                     const details_of_key = details[key as keyof typeof quest];
-
                     if (!details_of_key || typeof value != "number") return "";
-
-                    return `${idx}. **${details_of_key.description}**\n   \`- Reward: \`\n  \`- Progress: [${Math.min(value, details_of_key.max)}/${details_of_key.max}]\``;
+                    return [
+                      `${idx + 1}. **${details_of_key.description}**`,
+                      `   \`- Reward:\``,
+                      `   \`- Progress: [${Math.min(value, details_of_key.max)}/${details_of_key.max}]\``,
+                    ].join("\n");
                   })
-                  .join("\n")}`,
+                  .join("\n\n")}`,
               )
               .setColor(0x34baeb),
           ],
