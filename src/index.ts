@@ -55,6 +55,7 @@ import {
   setCanStealIn,
   setChecklist,
   setLastSteal,
+  setQuest,
   takeCoins,
   takeFromBank,
   takeGems,
@@ -1274,6 +1275,11 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             to.id,
           )} ${Math.floor(amount * 0.9).toLocaleString()} coins (10% fee) 🪙\n\n(Exucse me im gonna tear up 🥹)`,
         );
+
+        if (amount >= 50_000)
+          await setQuest(interaction.user.id, {
+            donate: 1,
+          });
 
         await tryToGetJackpot(from, interaction.channel!);
 

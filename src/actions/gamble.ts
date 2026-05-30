@@ -16,6 +16,7 @@ import {
   hasEnoughCoins,
   hasItem,
   setBoost,
+  setQuest,
   useItem,
 } from "../db/prisma.js";
 import { getRandomFromArray } from "../utils/helpers.js";
@@ -359,6 +360,10 @@ export class Gamble {
     delta = Math.floor(delta * ((100 + profit_bonus) / 100));
 
     const new_balance = await addCoins(this.#interaction.user.id, delta);
+
+    await setQuest(this.#interaction.user.id, {
+      gamble: 1,
+    });
 
     embeds.push(
       new CustomEmbed()
