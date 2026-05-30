@@ -2368,9 +2368,9 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                     if (!details_of_key || typeof value != "number") return "";
                     return [
                       `${idx + 1}. **${details_of_key.description}**`,
-                      `   \`- Reward:\``,
-                      `   \`- Progress: [${Math.min(value, details_of_key.max)}/${details_of_key.max}]\``,
-                    ].join("\u200b");
+                      `\u200b\u200b\u200b\`- Reward:\``,
+                      `\u200b\u200b\u200b\`- Progress: [${Math.min(value, details_of_key.max)}/${details_of_key.max}]\``,
+                    ].join("\u200b\n");
                   })
                   .join("\n")}`,
               )
