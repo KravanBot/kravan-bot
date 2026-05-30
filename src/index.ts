@@ -51,6 +51,7 @@ import {
   prisma,
   putInJail,
   putOnMinime,
+  QuestT,
   setCanBribeIn,
   setCanStealIn,
   setChecklist,
@@ -112,6 +113,27 @@ export let gem_emoji = { message: "💎", embed: "💎" };
 
 export const current_gambles: Set<string> = new Set();
 export const pending_clips: Map<string, string> = new Map();
+
+const quest_details: Record<
+  keyof QuestT,
+  { description: string; max: number } | undefined
+> = {
+  donate: { description: "Donate 50K to someone!", max: 1 },
+  meme: {
+    description: "Post a meme in <#1310737786843824278>",
+    max: 1,
+  },
+  meal: {
+    description: "Share your meal in <#1393169480984825896>",
+    max: 1,
+  },
+  pet: {
+    description: "Post your pet in <#1310978386688086117>",
+    max: 1,
+  },
+  gamble: { description: "Gamble 25 Times!", max: 25 },
+  of: undefined,
+};
 
 const items_as_string_option = Array.from(Store.ITEMS)
   .filter(([_, data]) => !!data)
@@ -2248,7 +2270,15 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           //   ).size >= 5,
           participate: prisma_checklist.participate,
           send: prisma_checklist.send,
-          quest: false,
+          quest: Object.entries(await getQuest(interaction.user.id)).every(
+            ([key, value]) => {
+              const max = quest_details[key as keyof QuestT]?.max;
+
+              if (!max || typeof value != "number") return false;
+
+              return value >= max;
+            },
+          ),
         };
 
         const descriptions: Record<keyof typeof checklist, string> = {
@@ -2337,27 +2367,6 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         delete quest.of;
 
-        const details: Record<
-          keyof typeof quest,
-          { description: string; max: number } | undefined
-        > = {
-          donate: { description: "Donate 50K to someone!", max: 1 },
-          meme: {
-            description: "Post a meme in <#1310737786843824278>",
-            max: 1,
-          },
-          meal: {
-            description: "Share your meal in <#1393169480984825896>",
-            max: 1,
-          },
-          pet: {
-            description: "Post your pet in <#1310978386688086117>",
-            max: 1,
-          },
-          gamble: { description: "Gamble 25 Times!", max: 25 },
-          of: undefined,
-        };
-
         await interaction.editReply({
           embeds: [
             new CustomEmbed()
@@ -2370,7 +2379,8 @@ client.on("interactionCreate", async (interaction: Interaction) => {
               .setDescription(
                 `${Object.entries(quest)
                   .map(([key, value], idx) => {
-                    const details_of_key = details[key as keyof typeof quest];
+                    const details_of_key =
+                      quest_details[key as keyof typeof quest];
                     if (!details_of_key || typeof value != "number") return "";
                     return [
                       `${idx + 1}. **${details_of_key.description}**`,

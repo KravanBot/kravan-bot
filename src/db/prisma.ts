@@ -12,7 +12,7 @@ type ChecklistT = {
   of: Date;
 };
 
-type QuestT = Partial<{
+export type QuestT = Partial<{
   donate: number;
   meme: number;
   meal: number;
