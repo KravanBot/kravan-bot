@@ -22,6 +22,7 @@ import {
   ActionRowBuilder,
   ButtonStyle,
   ComponentType,
+  ChannelType,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -2954,6 +2955,29 @@ client.on("guildMemberAdd", async (member) => {
     ],
     files: [img],
   });
+});
+
+client.on("threadCreate", async (thread) => {
+  if (!thread.parent || thread.parent.type !== ChannelType.GuildForum) return;
+
+  switch (thread.parent.id) {
+    // animals
+
+    case "1310978386688086117":
+      await setQuest(thread.ownerId, {
+        pet: 1,
+      });
+
+      break;
+
+    // food
+    case "1393169480984825896":
+      await setQuest(thread.ownerId, {
+        meal: 1,
+      });
+
+      break;
+  }
 });
 
 client.login(TOKEN);
