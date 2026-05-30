@@ -2274,6 +2274,9 @@ client.on("interactionCreate", async (interaction: Interaction) => {
             ([key, value]) => {
               const max = quest_details[key as keyof QuestT]?.max;
 
+              console.log(value);
+              console.log(max);
+
               if (!max || typeof value != "number") return false;
 
               return value >= max;
