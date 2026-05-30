@@ -114,7 +114,7 @@ export let gem_emoji = { message: "💎", embed: "💎" };
 export const current_gambles: Set<string> = new Set();
 export const pending_clips: Map<string, string> = new Map();
 
-const quest_details: Record<
+export const quest_details: Record<
   keyof QuestT,
   { description: string; max: number } | undefined
 > = {
@@ -2309,7 +2309,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                   )
                   .join(
                     "\n",
-                  )}\n${did_finish ? "✅" : "⬛ 🎉 Complete your checklist to get a reward!"} `,
+                  )}\n${did_finish ? "✅ Nice!! claim today's reward :)" : "⬛ 🎉 Complete your checklist to get a reward!"} `,
               )
               .setColor(0x62d435),
           ],

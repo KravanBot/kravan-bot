@@ -5,6 +5,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import moment from "moment";
 import { JsonObject } from "@prisma/client/runtime/client";
 import { Currency, ItemId, Store } from "../actions/store.js";
+import { quest_details } from "../index.js";
 
 type ChecklistT = {
   participate: boolean;
@@ -998,14 +999,17 @@ export const setQuest = async (id: string, new_values: Partial<QuestT>) => {
   let new_quest = quest;
 
   for (const [key, value] of Object.entries(new_values))
-    if (key in quest && typeof value == "number")
+    if (key in quest && typeof value == "number") {
+      const new_value =
+        (quest[
+          key as "donate" | "meme" | "meal" | "pet" | "gamble"
+        ]! as number) + value;
+
       new_quest = {
         ...new_quest,
-        [key]:
-          (quest[
-            key as "donate" | "meme" | "meal" | "pet" | "gamble"
-          ]! as number) + value,
+        [key]: Math.min(new_value, quest_details[key as keyof QuestT]!.max),
       };
+    }
 
   if (JSON.stringify(quest) == JSON.stringify(new_quest)) return;
 
