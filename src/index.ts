@@ -3163,8 +3163,6 @@ client.on("interactionCreate", async (interaction) => {
         const slug = slug_parts.join("-");
         const result = flags[slug];
 
-        await interaction.deferUpdate();
-
         if (!result) return;
 
         const formatAnswer = (answer: string) => {
