@@ -77,3 +77,20 @@ export const generateSnowflake = (date: Date) => {
   const timestamp = BigInt(date.getTime());
   return ((timestamp - DISCORD_EPOCH) << 22n).toString();
 };
+
+export const getFlagNameVariants = (name: string) => {
+  const match = name.match(/^(.*?)\s*\(([^)]+)\)\s*(.*)$/);
+
+  if (!match) return [name];
+
+  const before = match[1]?.trim();
+  const inside = match[2]?.trim();
+  const after = match[3]?.trim();
+
+  const variants = [];
+
+  variants.push(after ? `${before} ${after}` : before!);
+  variants.push(after ? `${inside} ${after}` : inside!);
+
+  return variants;
+};

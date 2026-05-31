@@ -23,6 +23,15 @@ import {
   ButtonStyle,
   ComponentType,
   ChannelType,
+  TextInputComponent,
+  TextInputBuilder,
+  TextInputStyle,
+  ChatInputCommandInteraction,
+  CacheType,
+  ButtonInteraction,
+  ActionRow,
+  ButtonComponent,
+  InteractionCollector,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { Duel } from "./actions/duel.js";
@@ -74,6 +83,7 @@ import { Steal } from "./actions/steal.js";
 import { Currency, ItemId, Store } from "./actions/store.js";
 import {
   generateSnowflake,
+  getFlagNameVariants,
   getRandomFromArray,
   validateNotInJail,
 } from "./utils/helpers.js";
@@ -90,6 +100,8 @@ import { StreamerBot } from "./actions/streamerbot.js";
 import fs from "fs/promises";
 import { Logger } from "./actions/logger.js";
 import owo from "@zuzak/owo";
+
+type InteractionT = ChatInputCommandInteraction<CacheType>;
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
@@ -565,7 +577,400 @@ const commands = [
 
   new SlashCommandBuilder().setName("kebab").setDescription("Cook a kebab"),
   new SlashCommandBuilder().setName("beer").setDescription("Make a beer"),
+
+  new SlashCommandBuilder()
+    .setName("flag")
+    .setDescription("Get a random flag and guess it!"),
 ].map((cmd) => cmd.toJSON());
+
+const flags: Record<string, string> = {
+  ad: "Andorra",
+  ae: "United Arab Emirates",
+  af: "Afghanistan",
+  ag: "Antigua and Barbuda",
+  ai: "Anguilla",
+  al: "Albania",
+  am: "Armenia",
+  ao: "Angola",
+  aq: "Antarctica",
+  ar: "Argentina",
+  as: "American Samoa",
+  at: "Austria",
+  au: "Australia",
+  aw: "Aruba",
+  ax: "Åland Islands",
+  az: "Azerbaijan",
+  ba: "Bosnia and Herzegovina",
+  bb: "Barbados",
+  bd: "Bangladesh",
+  be: "Belgium",
+  bf: "Burkina Faso",
+  bg: "Bulgaria",
+  bh: "Bahrain",
+  bi: "Burundi",
+  bj: "Benin",
+  bl: "Saint Barthélemy",
+  bm: "Bermuda",
+  bn: "Brunei",
+  bo: "Bolivia",
+  bq: "Caribbean Netherlands",
+  br: "Brazil",
+  bs: "Bahamas",
+  bt: "Bhutan",
+  bv: "Bouvet Island",
+  bw: "Botswana",
+  by: "Belarus",
+  bz: "Belize",
+  ca: "Canada",
+  cc: "Cocos (Keeling) Islands",
+  cd: "DR Congo",
+  cf: "Central African Republic",
+  cg: "Republic of the Congo",
+  ch: "Switzerland",
+  ci: "Côte d'Ivoire (Ivory Coast)",
+  ck: "Cook Islands",
+  cl: "Chile",
+  cm: "Cameroon",
+  cn: "China",
+  co: "Colombia",
+  cr: "Costa Rica",
+  cu: "Cuba",
+  cv: "Cape Verde",
+  cw: "Curaçao",
+  cx: "Christmas Island",
+  cy: "Cyprus",
+  cz: "Czechia",
+  de: "Germany",
+  dj: "Djibouti",
+  dk: "Denmark",
+  dm: "Dominica",
+  do: "Dominican Republic",
+  dz: "Algeria",
+  ec: "Ecuador",
+  ee: "Estonia",
+  eg: "Egypt",
+  eh: "Western Sahara",
+  er: "Eritrea",
+  es: "Spain",
+  et: "Ethiopia",
+  eu: "European Union",
+  fi: "Finland",
+  fj: "Fiji",
+  fk: "Falkland Islands",
+  fm: "Micronesia",
+  fo: "Faroe Islands",
+  fr: "France",
+  ga: "Gabon",
+  gb: "United Kingdom",
+  "gb-eng": "England",
+  "gb-nir": "Northern Ireland",
+  "gb-sct": "Scotland",
+  "gb-wls": "Wales",
+  gd: "Grenada",
+  ge: "Georgia",
+  gf: "French Guiana",
+  gg: "Guernsey",
+  gh: "Ghana",
+  gi: "Gibraltar",
+  gl: "Greenland",
+  gm: "Gambia",
+  gn: "Guinea",
+  gp: "Guadeloupe",
+  gq: "Equatorial Guinea",
+  gr: "Greece",
+  gs: "South Georgia",
+  gt: "Guatemala",
+  gu: "Guam",
+  gw: "Guinea-Bissau",
+  gy: "Guyana",
+  hk: "Hong Kong",
+  hm: "Heard Island and McDonald Islands",
+  hn: "Honduras",
+  hr: "Croatia",
+  ht: "Haiti",
+  hu: "Hungary",
+  id: "Indonesia",
+  ie: "Ireland",
+  il: "Israel",
+  im: "Isle of Man",
+  in: "India",
+  io: "British Indian Ocean Territory",
+  iq: "Iraq",
+  ir: "Iran",
+  is: "Iceland",
+  it: "Italy",
+  je: "Jersey",
+  jm: "Jamaica",
+  jo: "Jordan",
+  jp: "Japan",
+  ke: "Kenya",
+  kg: "Kyrgyzstan",
+  kh: "Cambodia",
+  ki: "Kiribati",
+  km: "Comoros",
+  kn: "Saint Kitts and Nevis",
+  kp: "North Korea",
+  kr: "South Korea",
+  kw: "Kuwait",
+  ky: "Cayman Islands",
+  kz: "Kazakhstan",
+  la: "Laos",
+  lb: "Lebanon",
+  lc: "Saint Lucia",
+  li: "Liechtenstein",
+  lk: "Sri Lanka",
+  lr: "Liberia",
+  ls: "Lesotho",
+  lt: "Lithuania",
+  lu: "Luxembourg",
+  lv: "Latvia",
+  ly: "Libya",
+  ma: "Morocco",
+  mc: "Monaco",
+  md: "Moldova",
+  me: "Montenegro",
+  mf: "Saint Martin",
+  mg: "Madagascar",
+  mh: "Marshall Islands",
+  mk: "North Macedonia",
+  ml: "Mali",
+  mm: "Myanmar",
+  mn: "Mongolia",
+  mo: "Macau",
+  mp: "Northern Mariana Islands",
+  mq: "Martinique",
+  mr: "Mauritania",
+  ms: "Montserrat",
+  mt: "Malta",
+  mu: "Mauritius",
+  mv: "Maldives",
+  mw: "Malawi",
+  mx: "Mexico",
+  my: "Malaysia",
+  mz: "Mozambique",
+  na: "Namibia",
+  nc: "New Caledonia",
+  ne: "Niger",
+  nf: "Norfolk Island",
+  ng: "Nigeria",
+  ni: "Nicaragua",
+  nl: "Netherlands",
+  no: "Norway",
+  np: "Nepal",
+  nr: "Nauru",
+  nu: "Niue",
+  nz: "New Zealand",
+  om: "Oman",
+  pa: "Panama",
+  pe: "Peru",
+  pf: "French Polynesia",
+  pg: "Papua New Guinea",
+  ph: "Philippines",
+  pk: "Pakistan",
+  pl: "Poland",
+  pm: "Saint Pierre and Miquelon",
+  pn: "Pitcairn Islands",
+  pr: "Puerto Rico",
+  ps: "Palestine",
+  pt: "Portugal",
+  pw: "Palau",
+  py: "Paraguay",
+  qa: "Qatar",
+  re: "Réunion",
+  ro: "Romania",
+  rs: "Serbia",
+  ru: "Russia",
+  rw: "Rwanda",
+  sa: "Saudi Arabia",
+  sb: "Solomon Islands",
+  sc: "Seychelles",
+  sd: "Sudan",
+  se: "Sweden",
+  sg: "Singapore",
+  sh: "Saint Helena, Ascension and Tristan da Cunha",
+  si: "Slovenia",
+  sj: "Svalbard and Jan Mayen",
+  sk: "Slovakia",
+  sl: "Sierra Leone",
+  sm: "San Marino",
+  sn: "Senegal",
+  so: "Somalia",
+  sr: "Suriname",
+  ss: "South Sudan",
+  st: "São Tomé and Príncipe",
+  sv: "El Salvador",
+  sx: "Sint Maarten",
+  sy: "Syria",
+  sz: "Eswatini (Swaziland)",
+  tc: "Turks and Caicos Islands",
+  td: "Chad",
+  tf: "French Southern and Antarctic Lands",
+  tg: "Togo",
+  th: "Thailand",
+  tj: "Tajikistan",
+  tk: "Tokelau",
+  tl: "Timor-Leste",
+  tm: "Turkmenistan",
+  tn: "Tunisia",
+  to: "Tonga",
+  tr: "Turkey",
+  tt: "Trinidad and Tobago",
+  tv: "Tuvalu",
+  tw: "Taiwan",
+  tz: "Tanzania",
+  ua: "Ukraine",
+  ug: "Uganda",
+  um: "United States Minor Outlying Islands",
+  un: "United Nations",
+  us: "United States",
+  uy: "Uruguay",
+  uz: "Uzbekistan",
+  va: "Vatican City (Holy See)",
+  vc: "Saint Vincent and the Grenadines",
+  ve: "Venezuela",
+  vg: "British Virgin Islands",
+  vi: "United States Virgin Islands",
+  vn: "Vietnam",
+  vu: "Vanuatu",
+  wf: "Wallis and Futuna",
+  ws: "Samoa",
+  xk: "Kosovo",
+  ye: "Yemen",
+  yt: "Mayotte",
+  za: "South Africa",
+  zm: "Zambia",
+  zw: "Zimbabwe",
+};
+
+const flag_collectors: Map<
+  string,
+  InteractionCollector<ButtonInteraction<CacheType>>
+> = new Map();
+
+const handleNewFlag = async (
+  interaction: InteractionT | ButtonInteraction<CacheType>,
+) => {
+  const slug = getRandomFromArray(Object.keys(flags))!;
+
+  const embed = new CustomEmbed()
+    .setTitle("GUESS THE FLAG")
+    .setDescription(
+      `Time will expire <t:${Math.floor(moment().utc().add(30, "seconds").valueOf() / 1000)}:R>`,
+    )
+    .setImage(`https://flagcdn.com/h240/${slug}.png`)
+    .setColor(0x80e310);
+
+  const data = {
+    embeds: [embed],
+    components: [
+      new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+          .setCustomId(`flag-${interaction.user.id}-${slug}`)
+          .setLabel("Guess!")
+          .setStyle(ButtonStyle.Success),
+        new ButtonBuilder()
+          .setCustomId(`flag-${interaction.user.id}-skip`)
+          .setLabel("Skip")
+          .setStyle(ButtonStyle.Danger),
+        new ButtonBuilder()
+          .setCustomId(`flag-${interaction.user.id}-${slug}-reveal`)
+          .setLabel("Reveal first letter")
+          .setStyle(ButtonStyle.Secondary),
+      ),
+    ],
+  };
+
+  let msg;
+
+  if (interaction instanceof ButtonInteraction)
+    msg = await interaction.message.edit(data);
+  else msg = await interaction.reply({ ...data, fetchReply: true });
+
+  const collector = msg.createMessageComponentCollector({
+    componentType: ComponentType.Button,
+    time: 30_000,
+    filter: (buttonInteraction) => {
+      if (buttonInteraction.user.id !== interaction.user.id) {
+        buttonInteraction.reply({
+          content: "This button isn't for u dummy",
+          ephemeral: true,
+        });
+        return false;
+      }
+      return true;
+    },
+  });
+
+  collector.on("collect", async (interaction) => {
+    if (interaction.customId.includes("reveal")) {
+      await interaction.message.edit({
+        components: [
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            ...(
+              interaction.message.components[0] as ActionRow<ButtonComponent>
+            ).components
+              .toSpliced(2, 1)
+              .map((button) => new ButtonBuilder(button.data)),
+          ),
+        ],
+      });
+
+      await interaction.reply({
+        content: `The first letter is: ${getFlagNameVariants(flags[slug]!)[0]!.charAt(0)}`,
+        ephemeral: true,
+      });
+
+      return;
+    }
+
+    if (interaction.customId.includes("skip")) {
+      await interaction.deferUpdate();
+
+      collector.stop("skipped");
+
+      handleNewFlag(interaction);
+
+      return;
+    }
+
+    const modal = new ModalBuilder()
+      .setCustomId(`flag-${slug}`)
+      .setTitle("GUESS THE FLAG");
+
+    const text_input = new TextInputBuilder()
+      .setCustomId("flag-answer")
+      .setLabel("What flag is shown?")
+      .setStyle(TextInputStyle.Paragraph)
+      .setPlaceholder("Enter your answer here...")
+      .setMinLength(4)
+      .setMaxLength(60)
+      .setRequired(true);
+
+    modal.addComponents(
+      new ActionRowBuilder<TextInputBuilder>().addComponents(text_input),
+    );
+
+    await interaction.showModal(modal);
+  });
+
+  collector.on("end", async (_, reason) => {
+    flag_collectors.delete(msg.id);
+
+    if (reason == "skipped" || reason == "answered") return;
+
+    await msg.edit({
+      embeds: [
+        new CustomEmbed()
+          .setTitle(`Time expired 😵‍💫`)
+          .setImage(embed.data.image!.url)
+          .setColor(embed.data.color!),
+      ],
+      components: [],
+    });
+  });
+
+  flag_collectors.set(msg.id, collector);
+};
 
 let welcome_imgs_order: number[] | null = null;
 const guilds = [TEST_GUILD_ID, RANNI_GUILD_ID];
@@ -2397,6 +2802,12 @@ client.on("interactionCreate", async (interaction: Interaction) => {
 
         break;
       }
+
+      case "flag": {
+        await handleNewFlag(interaction);
+
+        break;
+      }
     }
   } catch (e: any) {
     let data: any;
@@ -2612,15 +3023,15 @@ client.on("interactionCreate", async (interaction) => {
       break;
     }
     default: {
-      if (!interaction.customId.startsWith("help-embed")) break;
+      if (interaction.customId.startsWith("help-embed")) {
+        await interaction.message.edit({
+          embeds: [
+            help_embeds.at(parseInt(interaction.customId.split("-").at(-1)!))!,
+          ],
+        });
 
-      await interaction.message.edit({
-        embeds: [
-          help_embeds.at(parseInt(interaction.customId.split("-").at(-1)!))!,
-        ],
-      });
-
-      await interaction.deferUpdate();
+        await interaction.deferUpdate();
+      }
     }
   }
 });
@@ -2629,7 +3040,7 @@ client.on("interactionCreate", async (interaction) => {
   if (!interaction.isModalSubmit()) return;
 
   switch (interaction.customId) {
-    case "flames":
+    case "flames": {
       const selected_users =
         interaction.fields.getSelectedUsers("flames_select");
 
@@ -2742,6 +3153,73 @@ client.on("interactionCreate", async (interaction) => {
           : content,
         selected_users.map((user) => user.id),
       );
+
+      break;
+    }
+
+    default: {
+      if (interaction.customId.startsWith("flag")) {
+        const [f, ...slug_parts] = interaction.customId.split("-");
+        const slug = slug_parts.join("-");
+        const result = flags[slug];
+
+        await interaction.deferUpdate();
+
+        if (!result) return;
+
+        const formatAnswer = (answer: string) => {
+          const special_chars: Record<string, string> = {
+            å: "a",
+            ô: "o",
+            ç: "c",
+            é: "e",
+            ã: "a",
+            í: "i",
+          };
+
+          return answer
+            .replace(/[åôçéãí]/g, (char) => special_chars[char] ?? char)
+            .toLowerCase();
+        };
+
+        const valid_answers = getFlagNameVariants(result).map(formatAnswer);
+
+        const answer = formatAnswer(
+          interaction.fields.getTextInputValue("flag-answer"),
+        );
+
+        const is_right = valid_answers.includes(answer);
+
+        if (interaction.message!.components.length <= 0)
+          return await interaction.reply({
+            content: "Time already expired 😵‍💫",
+            ephemeral: true,
+          });
+
+        if (is_right) {
+          flag_collectors.get(interaction.message!.id)?.stop("answered");
+
+          const embed = interaction.message!.embeds[0]!;
+
+          await addCoins(interaction.user.id, 10);
+
+          await interaction.message?.edit({
+            embeds: [
+              new CustomEmbed()
+                .setTitle(`Nice! You guessed correctly 🤩`)
+                .setImage(embed.image!.url)
+                .setColor(embed.color),
+            ],
+            components: [],
+          });
+        }
+
+        await interaction.reply({
+          content: is_right ? "Nice!! You got 🪙 10 coins" : "No dummy 🫨",
+          ephemeral: true,
+        });
+      }
+    }
   }
 });
 

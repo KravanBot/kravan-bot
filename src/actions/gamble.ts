@@ -359,11 +359,13 @@ export class Gamble {
 
     delta = Math.floor(delta * ((100 + profit_bonus) / 100));
 
-    const new_balance = await addCoins(this.#interaction.user.id, delta);
-
-    await setQuest(this.#interaction.user.id, {
-      gamble: 1,
-    });
+    const [new_balance] = await Promise.all([
+      addCoins(this.#interaction.user.id, delta),
+      setQuest(this.#interaction.user.id, {
+        gamble: 1,
+      }),
+      tryToGetJackpot(this.#interaction.user, this.#interaction.channel!),
+    ]);
 
     embeds.push(
       new CustomEmbed()
@@ -404,8 +406,6 @@ export class Gamble {
       ],
       files: attachment ? [attachment] : [],
     });
-
-    await tryToGetJackpot(this.#interaction.user, msg.channel);
 
     current_gambles.delete(this.#interaction.user.id);
 

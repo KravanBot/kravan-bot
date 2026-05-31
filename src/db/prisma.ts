@@ -1000,10 +1000,7 @@ export const setQuest = async (id: string, new_values: Partial<QuestT>) => {
 
   for (const [key, value] of Object.entries(new_values))
     if (key in quest && typeof value == "number") {
-      const new_value =
-        (quest[
-          key as "donate" | "meme" | "meal" | "pet" | "gamble"
-        ]! as number) + value;
+      const new_value = (quest[key as keyof QuestT]! as number) + value;
 
       new_quest = {
         ...new_quest,
