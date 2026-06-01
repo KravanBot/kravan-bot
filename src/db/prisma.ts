@@ -19,6 +19,12 @@ export type QuestT = Partial<{
   meal: number;
   pet: number;
   gamble: number;
+  quote: number;
+  highlight: number;
+  cringe_name: number;
+  art: number;
+  song: number;
+  count: number;
 }> & {
   of: Date;
 };
@@ -946,6 +952,12 @@ export const getQuest: (id: string) => Promise<QuestT> = async (id: string) => {
     meal: 0,
     pet: 0,
     gamble: 0,
+    quote: 0,
+    highlight: 0,
+    cringe_name: 0,
+    art: 0,
+    song: 0,
+    count: 0,
   };
 
   const random_options = Object.keys(options)
