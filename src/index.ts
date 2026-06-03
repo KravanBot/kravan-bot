@@ -2298,6 +2298,14 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           embeds: [
             new CustomEmbed()
               .setTitle("BACKPACK 👜")
+              .setDescription(
+                Array.from(inventory_with_amounts.entries())
+                  .map(
+                    ([item, quantity]) =>
+                      `${Store.ITEMS.get(item)!.name} \`x${quantity.toLocaleString()}\``,
+                  )
+                  .join("\u200b\n"),
+              )
               .setColor(0x85d63a)
               .setFields(
                 Array.from(inventory_with_amounts.entries()).map(
