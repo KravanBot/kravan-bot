@@ -2307,15 +2307,6 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                   .join("\u200b\n"),
               )
               .setColor(0x85d63a)
-              .setFields(
-                Array.from(inventory_with_amounts.entries()).map(
-                  ([item, quantity]) => ({
-                    name: Store.ITEMS.get(item)!.name,
-                    value: `× ${quantity.toLocaleString()}`,
-                    inline: true,
-                  }),
-                ),
-              )
               .setThumbnail(user.avatarURL())
               .setImage(
                 "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2UyNzlnc2k0eXh6YnczamZ5Ynk1YTducHRrMGMzdml2emJ5b3M1NiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/n6yBj4EzqmTHG/giphy.gif",
