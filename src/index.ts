@@ -562,6 +562,8 @@ const actions: EmotesNActionsT = {
   handholding: {
     urls: [
       "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3NHZ6YTl3bnY3dnZuaXZqZHNmZjczNjU2NngwamZpa3NxdXBvbXI4cCZlcD12MV9naWZzX3NlYXJjaCZjdD1n/3o85xIllHU18SKhY40/giphy.gif",
+      "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2NtanZ0bm8wOHM4NXNnYjRhbjFvd2FqYnE0eHpqbnB5d2Zlc205eSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xTiTnB1aEUVOtf7bQA/giphy.gif",
+      "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExZHFsZGpsejNvenB4cmlqcjI2bWgzbmlhdGN2bzR6M2t6emJwN2xzOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8dk3eMHn0Y0Fi/giphy.gif",
     ],
     titles: [
       "{name} holds {target}'s hands, adorable!",
@@ -3275,8 +3277,6 @@ client.on("interactionCreate", async (interaction: Interaction) => {
           const data =
             actions[interaction.commandName] ?? emotes[interaction.commandName];
 
-          const target = interaction.options.getUser("target");
-
           await interaction.reply({
             embeds: [
               new CustomEmbed()
@@ -3285,10 +3285,7 @@ client.on("interactionCreate", async (interaction: Interaction) => {
                     .replace("{name}", interaction.user.displayName)
                     .replace(
                       "{target}",
-                      target
-                        ? (ranni_guild?.members.cache.get(target.displayName)
-                            ?.displayName ?? target!.displayName)
-                        : "",
+                      interaction.options.getUser("target")?.displayName ?? "",
                     ),
                   iconURL:
                     interaction.user.avatarURL() ??
@@ -3801,6 +3798,7 @@ client.on("messageCreate", async (message) => {
           break;
 
         const [title, tags] = last_tiktok_embed.title!.split(/#(.*)/s);
+        const date = new Date(last_tiktok_embed.timestamp!);
 
         await tiktok_announcements_channel.send({
           content: `<@&1505591983681573056>`,
@@ -3823,16 +3821,15 @@ client.on("messageCreate", async (message) => {
               .setColor(0xff0050)
               .setImage(
                 (await yt_announcements_channel.messages.fetch({ limit: 3 }))
-                  .filter(
-                    (el) =>
-                      el.embeds[0]?.fields[0]?.value.trim() == title!.trim(),
+                  .filter((el) =>
+                    moment(el.embeds[0]?.timestamp).isSame(moment(date), "day"),
                   )
                   .at(0)?.embeds[0]?.image?.url ?? last_tiktok_embed.image!.url,
               )
               .setThumbnail(
                 "https://yt3.googleusercontent.com/_GUnYS_dKGOhJFlW4Jd84ARG7vAOPFCtFa_qkqbYMZAO-lxMn5udwi9W7tOXomjCwjOPwwSh=s160-c-k-c0x00ffffff-no-rj",
               )
-              .setTimestamp(new Date(last_tiktok_embed.timestamp!)),
+              .setTimestamp(date),
           ],
         });
 
