@@ -91,14 +91,6 @@ export const ranni_guild: { id: string } & Partial<{
 client.once("clientReady", async () => {
   if (process.env.IS_PRODUCTION === "true") new Logger();
 
-  ranni_guild.activities = {
-    counting: new Counting(),
-    lottery: new Lottery(),
-  };
-
-  new Twitch();
-  new Welcome();
-
   const guild = await client.guilds.fetch(RANNI_GUILD_ID);
 
   if (!guild) return;
@@ -135,6 +127,14 @@ client.once("clientReady", async () => {
   ranni_guild.members = guild.members;
 
   rewardBoosters();
+
+  new Twitch();
+  new Welcome();
+
+  ranni_guild.activities = {
+    counting: new Counting(),
+    lottery: new Lottery()
+  }
 
   console.log("All set!");
 });
