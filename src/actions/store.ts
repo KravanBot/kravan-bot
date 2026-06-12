@@ -219,25 +219,18 @@ export class Store {
     });
 
   static getStoreEmbeds() {
-    const convertToDescription = (description: string, arr: ItemId[]) => {
-      const longest_name = arr.reduce((a: number, b: ItemId) => {
-        const [_, ...name] = Store.ITEMS.get(b)!.name.split(" ");
-
-        return a > (name.join(" ").length ?? 0) ? a : b;
-      }, 0);
-
-      return [
+    const convertToDescription = (description: string, arr: ItemId[]) =>
+      [
         description,
         ...arr.map((id) => {
           const item = this.ITEMS.get(id)!;
 
-          return `**${item!.name.padEnd(longest_name + 2, "ㅤ")}**${item!.currency == Currency.COIN ? "🪙" : "💎"}\`${item!.amount.toLocaleString()}\`\n${item.description}`.replaceAll(
+          return `**${item!.name}**\n${item.description}\n__Price:__ ${item!.currency == Currency.COIN ? "🪙" : "💎"}\`${item!.amount.toLocaleString()}\``.replaceAll(
             "💎",
             ranni_guild.emojis?.gem.embed ?? "💎",
           );
         }),
       ].join("\n\u200b\n\u200b");
-    };
 
     return [
       new CustomEmbed()
