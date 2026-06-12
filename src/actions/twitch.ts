@@ -279,7 +279,7 @@ export class Twitch {
         created_at,
         url,
       } of clips)
-        await ranni_guild.channels?.twitch.send({
+        await ranni_guild.channels?.clips.send({
           embeds: [
             new CustomEmbed()
               .setTitle("🎬 NEW CLIP 🎬")
