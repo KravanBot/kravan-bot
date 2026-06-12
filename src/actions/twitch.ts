@@ -14,7 +14,7 @@ export class Twitch {
   static #BROADCASTER_ID = "1207016011";
   static #token: TwitchToken | null = null;
   static #STREAM_DAYS = [2, 5, 6];
-  static #pending_clips: Map<string, string> = new Map();
+  static pending_clips: Map<string, string> = new Map();
 
   static #last_clip_date = moment().utc();
   static #last_announcement: Message<boolean> | null = null;
@@ -291,9 +291,8 @@ export class Twitch {
                 {
                   name: "👤 Creator",
                   value: (() => {
-                    const value =
-                      Twitch.#pending_clips.get(url) || creator_name;
-                    Twitch.#pending_clips.delete(url);
+                    const value = Twitch.pending_clips.get(url) || creator_name;
+                    Twitch.pending_clips.delete(url);
 
                     return value;
                   })(),

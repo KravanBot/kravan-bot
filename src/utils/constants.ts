@@ -1,13 +1,6 @@
-import {
-  CacheType,
-  ChatInputCommandInteraction,
-  Interaction,
-  SlashCommandBuilder,
-  userMention,
-} from "discord.js";
+import { userMention } from "discord.js";
 import { QuestT } from "../db/prisma.js";
-import { Currency, ItemId, Store } from "../actions/store.js";
-import { Meme } from "../actions/meme.js";
+import { Store } from "../actions/store.js";
 import { CustomEmbed } from "./embed.js";
 import { commands_details, CommandT } from "./commands.js";
 
@@ -774,19 +767,6 @@ export const items_as_string_option = Array.from(Store.ITEMS)
     name: data!.name,
     value: id.toString(),
   }));
-
-export const commands = Object.entries(commands_details).map(
-  ([slug, details]: [string, CommandT]) => {
-    const command = new SlashCommandBuilder()
-      .setName(slug)
-      .setDescription(details.description);
-
-    if (details.addOptionsToCommand)
-      return details.addOptionsToCommand(command).toJSON();
-
-    return command.toJSON();
-  },
-);
 
 const command_types: {
   title: string;

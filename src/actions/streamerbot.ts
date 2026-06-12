@@ -1,9 +1,10 @@
 import { WebSocketServer, WebSocket } from "ws";
 import { Flame } from "./flame.js";
-import { pending_clips, ranni_guild } from "../index.js";
+import { ranni_guild } from "../index.js";
 import { CustomEmbed } from "../utils/embed.js";
 import { ActionRowBuilder, ButtonBuilder } from "@discordjs/builders";
 import { ButtonStyle } from "discord.js";
+import { Twitch } from "./twitch.js";
 
 export class StreamerBot {
   static #PORT = parseInt(process.env.PORT || "8080");
@@ -45,7 +46,7 @@ export class StreamerBot {
         case "newClip": {
           const { username, url } = data;
 
-          pending_clips.set(url, username);
+          Twitch.pending_clips.set(url, username);
 
           break;
         }

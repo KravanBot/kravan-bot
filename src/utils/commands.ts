@@ -1834,7 +1834,10 @@ export const commands_details = {
 
         addOptionsToCommand: (command) =>
           command.addUserOption((option) =>
-            option.setName("target").setDescription("").setRequired(true),
+            option
+              .setName("target")
+              .setDescription("The target of the action")
+              .setRequired(true),
           ),
 
         onTrigger: async (interaction) => {
@@ -1856,3 +1859,16 @@ export const commands_details = {
     {},
   ),
 } satisfies Record<string, CommandT>;
+
+export const commands = Object.entries(commands_details).map(
+  ([slug, details]: [string, CommandT]) => {
+    const command = new SlashCommandBuilder()
+      .setName(slug)
+      .setDescription(details.description);
+
+    if (details.addOptionsToCommand)
+      return details.addOptionsToCommand(command).toJSON();
+
+    return command.toJSON();
+  },
+);

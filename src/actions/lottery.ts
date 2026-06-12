@@ -11,10 +11,11 @@ import {
   diffInMinutes,
   getRandomFromArray,
   truncateNumber,
+  tryToGetJackpot,
 } from "../utils/helpers.js";
 import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
 import { CustomEmbed } from "../utils/embed.js";
-import { client, tryToGetJackpot } from "../index.js";
+import { client } from "../index.js";
 
 type QuestionT = {
   question: string;
