@@ -225,7 +225,7 @@ export class Store {
         ...arr.map((id) => {
           const item = this.ITEMS.get(id)!;
 
-          return `**${item!.name}**\u200b\u200b${item!.currency == Currency.COIN ? "🪙" : "💎"}\`${item!.amount.toLocaleString()})\`\n${item.description}`.replaceAll(
+          return `**${item!.name}**ㅤㅤㅤㅤ${item!.currency == Currency.COIN ? "🪙" : "💎"}\`${item!.amount.toLocaleString()}\`\n${item.description}`.replaceAll(
             "💎",
             ranni_guild.emojis?.gem.embed ?? "💎",
           );
