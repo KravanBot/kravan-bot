@@ -59,12 +59,9 @@ export class StreamerBot {
             ).json()) as any
           ).thumbnail_url as string;
 
-          const MUSIC_CHANNEL_ID = "1446229960741228647";
+          const music_channel = ranni_guild?.channels?.music;
 
-          const music_channel =
-            ranni_guild?.channels.cache.get(MUSIC_CHANNEL_ID);
-
-          if (!music_channel?.isSendable()) return;
+          if (!music_channel) return;
 
           await music_channel.send({
             embeds: [

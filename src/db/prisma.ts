@@ -5,7 +5,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import moment from "moment";
 import { JsonObject } from "@prisma/client/runtime/client";
 import { Currency, ItemId, Store } from "../actions/store.js";
-import { quest_details } from "../index.js";
+import { quest_details } from "../utils/constants.js";
 
 type ChecklistT = {
   participate: boolean;

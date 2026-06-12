@@ -1,4 +1,4 @@
-import { gem_emoji } from "../index.js";
+import { ranni_guild } from "../index.js";
 import { CustomEmbed } from "../utils/embed.js";
 
 export enum ItemId {
@@ -219,89 +219,106 @@ export class Store {
     });
 
   static getStoreEmbeds() {
-    const convertToFields = (arr: ItemId[]) =>
-      arr.map((id) => {
-        const item = this.ITEMS.get(id)!;
+    const convertToDescription = (description: string, arr: ItemId[]) =>
+      [
+        description,
+        ...arr.map((id) => {
+          const item = this.ITEMS.get(id)!;
 
-        return {
-          name: `${item!.name} (${item!.currency == Currency.COIN ? "🪙" : "💎"} ${item!.amount.toLocaleString()})`.replaceAll(
+          return `**${item!.name}**\u200b\u200b${item!.currency == Currency.COIN ? "🪙" : "💎"}\`${item!.amount.toLocaleString()})\`\n${item.description}`.replaceAll(
             "💎",
-            gem_emoji.embed,
-          ),
-          value: `${item!.description}`,
-          inline: true,
-        };
-      });
+            ranni_guild.emojis?.gem.embed ?? "💎",
+          );
+        }),
+      ].join("\n\u200b\n\u200b");
 
     return [
       new CustomEmbed()
-        .setDescription("Items/Perks that u can use (and give)")
-        .setColor(0x8f34eb)
-        .setFields(
-          convertToFields([
+        .setDescription(
+          convertToDescription("Items/Perks that u can use (and give)", [
             ItemId.ALARM,
             ItemId.BOUQUET,
             ItemId.DIAMOND,
             ItemId.GAMBLING_BOOST_15M,
             ItemId.GAMBLING_BOOST_30M,
           ]),
-        ),
+        )
+        .setColor(0x8f34eb),
 
       new CustomEmbed()
-        .setDescription("Drip your mini-me with a shirt")
-        .setColor(0x34c6eb)
-        .setFields(
-          convertToFields([
+        .setDescription(
+          convertToDescription("Drip your mini-me with a shirt", [
             ItemId.BUBI,
             ItemId.KRAVAN_HEART,
             ItemId.PONGO,
             ItemId.PISS_ON_GOOBIE,
           ]),
-        ),
+        )
+        .setColor(0x34c6eb),
 
       new CustomEmbed()
-        .setDescription("Drip your mini-me with some pants")
-        .setColor(0xabff24)
-        .setFields(convertToFields([ItemId.JEANS, ItemId.LEAF])),
-
-      new CustomEmbed()
-        .setDescription("One two buckle your mini-me's shoes")
-        .setColor(0xf5c63b)
-        .setFields(convertToFields([ItemId.RED_SNEAKERS])),
-
-      new CustomEmbed()
-        .setDescription("Put a wig on your mini-me u dont want it to be bald")
-        .setColor(0xfc7830)
-        .setFields(
-          convertToFields([
-            ItemId.MILES_MORALES,
-            ItemId.SOKKA,
-            ItemId.JANE_PORTER,
-            ItemId.TANGLED,
+        .setDescription(
+          convertToDescription("Drip your mini-me with some pants", [
+            ItemId.JEANS,
+            ItemId.LEAF,
           ]),
-        ),
+        )
+        .setColor(0xabff24),
 
       new CustomEmbed()
-        .setDescription("A cute hat/topper for your mini-me")
-        .setColor(0xff443d)
-        .setFields(
-          convertToFields([ItemId.PROPELLER, ItemId.SPROUT, ItemId.PIKACHU]),
-        ),
+        .setDescription(
+          convertToDescription("One two buckle your mini-me's shoes", [
+            ItemId.RED_SNEAKERS,
+          ]),
+        )
+        .setColor(0xf5c63b),
 
       new CustomEmbed()
-        .setDescription("Add your mini-me an expression")
-        .setColor(0xff3665)
-        .setFields(convertToFields([ItemId.BOTOX_LIPS])),
+        .setDescription(
+          convertToDescription(
+            "Put a wig on your mini-me u dont want it to be bald",
+            [
+              ItemId.MILES_MORALES,
+              ItemId.SOKKA,
+              ItemId.JANE_PORTER,
+              ItemId.TANGLED,
+            ],
+          ),
+        )
+        .setColor(0xfc7830),
 
       new CustomEmbed()
-        .setDescription("Wear something on your hand")
-        .setColor(0xff6ed3)
-        .setFields(convertToFields([ItemId.SNAKE])),
+        .setDescription(
+          convertToDescription("A cute hat/topper for your mini-me", [
+            ItemId.PROPELLER,
+            ItemId.SPROUT,
+            ItemId.PIKACHU,
+          ]),
+        )
+        .setColor(0xff443d),
 
       new CustomEmbed()
-        .setDescription("Hide your mini-me's ugly ahh face with a mask")
-        .setColor(0xff78fd)
-        .setFields(convertToFields([ItemId.KRAVAN])),
+        .setDescription(
+          convertToDescription("Add your mini-me an expression", [
+            ItemId.BOTOX_LIPS,
+          ]),
+        )
+        .setColor(0xff3665),
+
+      new CustomEmbed()
+        .setDescription(
+          convertToDescription("Wear something on your hand", [ItemId.SNAKE]),
+        )
+        .setColor(0xff6ed3),
+
+      new CustomEmbed()
+        .setDescription(
+          convertToDescription(
+            "Hide your mini-me's ugly ahh face with a mask",
+            [ItemId.KRAVAN],
+          ),
+        )
+        .setColor(0xff78fd),
     ];
   }
 

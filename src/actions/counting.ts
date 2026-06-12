@@ -11,11 +11,12 @@ import {
   convertToNumber,
   getRandomFromArray,
   goThroughAllMessages,
+  tryToGetJackpot,
   validateNotInJail,
 } from "../utils/helpers.js";
 import { addCoins, hasEnoughCoins, takeCoins } from "../db/prisma.js";
 import { Mutex } from "async-mutex";
-import { client, ranni_guild, tryToGetJackpot } from "../index.js";
+import { client, ranni_guild } from "../index.js";
 
 enum COUNT_EVENT {
   NORMAL = "Normal",
@@ -297,7 +298,7 @@ export class Counting {
 
       await interaction.reply(
         `Last counted number was ${this.#last_number} by ${
-          ranni_guild?.members.cache.get(this.#last_counter_id)?.displayName ??
+          ranni_guild.members?.cache.get(this.#last_counter_id)?.displayName ??
           "someone sneaky that i cant find"
         }${trapped_msg}.\n\n${current_event_msg}`,
       );

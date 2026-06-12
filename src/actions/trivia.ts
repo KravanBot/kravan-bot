@@ -10,7 +10,7 @@ import {
 import { Currency } from "./store.js";
 import moment from "moment";
 import { CustomEmbed } from "../utils/embed.js";
-import { client, gem_emoji, tryToGetJackpot } from "../index.js";
+import { client, ranni_guild } from "../index.js";
 import {
   addCurrency,
   hasEnoughCurrency,
@@ -21,7 +21,7 @@ import { createCanvas, loadImage } from "@napi-rs/canvas";
 import fs from "fs/promises";
 import path from "path";
 import he from "he";
-import { getRandomFromArray } from "../utils/helpers.js";
+import { getRandomFromArray, tryToGetJackpot } from "../utils/helpers.js";
 
 type InteractionT = ChatInputCommandInteraction<CacheType>;
 
@@ -108,7 +108,7 @@ export class Trivia {
                   value:
                     `${this.#bet.currency == Currency.COIN ? "🪙" : "💎"} ${this.#bet.amount}`.replace(
                       "💎",
-                      gem_emoji.embed,
+                      ranni_guild.emojis?.gem.embed ?? "💎",
                     ),
                   inline: true,
                 },
@@ -117,7 +117,7 @@ export class Trivia {
                   value:
                     `${this.#bet.currency == Currency.COIN ? "🪙" : "💎"} ${this.#players.size * this.#bet.amount}`.replace(
                       "💎",
-                      gem_emoji.embed,
+                      ranni_guild.emojis?.gem.embed ?? "",
                     ),
                   inline: true,
                 },
@@ -463,7 +463,7 @@ export class Trivia {
                 winners.size > 0
                   ? `${this.#bet.currency == Currency.COIN ? "🪙" : "💎"} ${prize.toLocaleString()}`.replace(
                       "💎",
-                      gem_emoji.embed,
+                      ranni_guild.emojis?.gem.embed ?? "💎",
                     )
                   : "Better luck next time!",
               inline: true,

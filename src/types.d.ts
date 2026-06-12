@@ -1,8 +1,18 @@
+// import { SlashCommandBuilder } from "discord.js";
+
 declare module "@zuzak/owo" {
-  interface Owo {
+  interface T {
     (word: string): string;
   }
 
-  const owo: Urban;
+  const owo: Owo;
   export = owo;
 }
+
+type EmotesNActionsT = Record<
+  string,
+  {
+    urls: string[];
+    titles: string[];
+  }
+>;

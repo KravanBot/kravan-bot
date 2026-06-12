@@ -7,16 +7,20 @@ import {
   ButtonStyle,
   CacheType,
   ChatInputCommandInteraction,
+  GuildMember,
+  LabelBuilder,
   Message,
+  ModalBuilder,
   ModalSubmitInteraction,
   TextChannel,
   userMention,
+  UserSelectMenuBuilder,
 } from "discord.js";
-import { client } from "../index.js";
+import { client, ranni_guild } from "../index.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import { prisma } from "../db/prisma.js";
 import { CustomEmbed } from "../utils/embed.js";
-import { Canvas } from "@napi-rs/canvas";
+import { Canvas, createCanvas, loadImage } from "@napi-rs/canvas";
 
 type InteractionT = ChatInputCommandInteraction<CacheType>;
 
@@ -460,5 +464,295 @@ export class Flame {
         flames: flames_ids,
       },
     });
+  };
+
+  static handleFlameSubmit = async (
+    interaction: ModalSubmitInteraction<CacheType>,
+  ) => {
+    const selected_users = interaction.fields.getSelectedUsers("flames_select");
+
+    if (selected_users == null) return;
+
+    const fields = interaction.message?.embeds[0]?.data.fields;
+
+    if (!fields) return;
+
+    const [username, content] = fields.map((field) => field.value);
+
+    if (!username || !content) return;
+
+    const getCanvas = async (
+      fontSize = 28,
+      fontFamily = "Inter",
+      padding = 20,
+      maxWidth = 600,
+      lineGap = 8,
+    ) => {
+      const measureCanvas = createCanvas(1, 1);
+      const measureCtx = measureCanvas.getContext("2d");
+
+      measureCtx.font = `${fontSize}px ${fontFamily}`;
+
+      const usernameText = `${username}: `;
+      const usernameWidth = measureCtx.measureText(usernameText).width;
+
+      const words = content.split(" ");
+      const lines: string[] = [];
+
+      let currentLine = "";
+      let isFirstLine = true;
+
+      for (const word of words) {
+        const testLine = currentLine ? `${currentLine} ${word}` : word;
+
+        const allowedWidth = isFirstLine
+          ? maxWidth - usernameWidth - padding * 2
+          : maxWidth - padding * 2;
+
+        const testWidth = measureCtx.measureText(testLine).width;
+
+        if (testWidth > allowedWidth) {
+          lines.push(currentLine);
+          currentLine = word;
+          isFirstLine = false;
+        } else {
+          currentLine = testLine;
+        }
+      }
+
+      if (currentLine) lines.push(currentLine);
+
+      const metrics = measureCtx.measureText("M");
+      const lineHeight =
+        metrics.actualBoundingBoxAscent +
+        metrics.actualBoundingBoxDescent +
+        lineGap;
+
+      const height = padding * 2 + lines.length * lineHeight - lineGap;
+
+      const canvas = createCanvas(maxWidth, Math.ceil(height));
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#18181B";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.font = `${fontSize}px ${fontFamily}`;
+      ctx.textBaseline = "top";
+
+      let y = padding;
+
+      const usernameColor =
+        username == "ranniria"
+          ? "#9452D3"
+          : getRandomFromArray([
+              "#1E90FF",
+              "#8A2BE2",
+              "#ffe600",
+              "#ffe600",
+              "#2E8B57",
+              "#FF69B4",
+              "#FF4500",
+              "#5F9EA0",
+            ])!;
+
+      ctx.fillStyle = usernameColor;
+      ctx.fillText(usernameText, padding, y);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillText(lines[0]!, padding + usernameWidth, y);
+
+      for (let i = 1; i < lines.length; i++) {
+        y += lineHeight;
+        ctx.fillText(lines[i]!, padding, y);
+      }
+
+      return canvas;
+    };
+
+    const attachments = interaction.message?.attachments;
+
+    await Flame.acceptFlameRequest(
+      getCanvas,
+      interaction,
+      username,
+      attachments && attachments.size
+        ? Array.from(attachments.values())
+        : content,
+      selected_users.map((user) => user.id),
+    );
+  };
+
+  static handleOpenModal = async (
+    interaction: ButtonInteraction<CacheType>,
+  ) => {
+    const fields = interaction.message?.embeds[0]?.data.fields;
+
+    if (!fields) return;
+
+    const [username, content] = fields.map((field) => field.value);
+
+    if (!username || !content) return;
+
+    switch (interaction.customId) {
+      case "accept": {
+        if (
+          username.startsWith("<@") &&
+          !interaction.message.attachments.size
+        ) {
+          const member = ranni_guild.members?.cache.get(
+            username.replace("<@", "").replace(">", ""),
+          );
+
+          if (!member) return;
+
+          const getCanvas = async (
+            fontSize = 28,
+            maxWidth = 700,
+            padding = 20,
+            lineGap = 6,
+          ) => {
+            const fontFamily = "Inter";
+
+            const username = member.displayName;
+
+            const roleColor =
+              member instanceof GuildMember &&
+              member.displayHexColor !== "#000000"
+                ? member.displayHexColor
+                : "#ffffff";
+
+            const avatarURL = member.displayAvatarURL({
+              extension: "png",
+              size: 256,
+            });
+
+            const measureCanvas = createCanvas(1, 1);
+            const measureCtx = measureCanvas.getContext("2d");
+
+            measureCtx.font = `${fontSize}px ${fontFamily}`;
+
+            const avatarSize = 64;
+            const textStartX = padding + avatarSize + 16;
+
+            const words = content.split(" ");
+            const lines: string[] = [];
+
+            let currentLine = "";
+
+            for (const word of words) {
+              const test = currentLine ? `${currentLine} ${word}` : word;
+
+              const allowedWidth = maxWidth - textStartX - padding;
+
+              if (measureCtx.measureText(test).width > allowedWidth) {
+                lines.push(currentLine);
+                currentLine = word;
+              } else {
+                currentLine = test;
+              }
+            }
+
+            if (currentLine) lines.push(currentLine);
+
+            const metrics = measureCtx.measureText("M");
+            const lineHeight =
+              metrics.actualBoundingBoxAscent +
+              metrics.actualBoundingBoxDescent +
+              lineGap;
+
+            const usernameHeight = fontSize + 4;
+
+            const height =
+              padding * 2 + usernameHeight + lines.length * lineHeight;
+
+            const canvas = createCanvas(maxWidth, Math.ceil(height));
+            const ctx = canvas.getContext("2d");
+
+            ctx.font = `${fontSize}px ${fontFamily}`;
+            ctx.textBaseline = "top";
+
+            ctx.fillStyle = "#313338";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const avatar = await loadImage(avatarURL);
+
+            const avatarX = padding;
+            const avatarY = padding;
+
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(
+              avatarX + avatarSize / 2,
+              avatarY + avatarSize / 2,
+              avatarSize / 2,
+              0,
+              Math.PI * 2,
+            );
+            ctx.closePath();
+            ctx.clip();
+
+            ctx.drawImage(avatar, avatarX, avatarY, avatarSize, avatarSize);
+            ctx.restore();
+
+            ctx.fillStyle = roleColor;
+            ctx.fillText(username, textStartX, padding);
+
+            ctx.fillStyle = "#dbdee1";
+
+            let y = padding + usernameHeight;
+
+            for (const line of lines) {
+              ctx.fillText(line, textStartX, y);
+              y += lineHeight;
+            }
+
+            return canvas;
+          };
+
+          return await Flame.acceptFlameRequest(
+            getCanvas,
+            interaction,
+            member.displayName,
+            content,
+            [member.id],
+          );
+        }
+
+        const modal = new ModalBuilder()
+          .setCustomId("flames")
+          .setTitle("Who does it flame?");
+
+        const flames_label = new LabelBuilder()
+          .setLabel("Who does it flame?")
+          .setDescription("Enter the user ID of the person it flames")
+          .setUserSelectMenuComponent(
+            new UserSelectMenuBuilder()
+              .setCustomId("flames_select")
+              .setPlaceholder("Select the user it flames")
+              .setMinValues(1)
+              .setMaxValues(5),
+          );
+
+        modal.addComponents(flames_label);
+
+        await interaction.showModal(modal);
+
+        break;
+      }
+
+      case "reject":
+        await interaction.message.delete();
+
+        await Flame.sendFlameLog(
+          {
+            username,
+            content,
+          },
+          false,
+          interaction.user.id,
+        );
+
+        break;
+    }
   };
 }

@@ -18,8 +18,9 @@ import {
   setChecklist,
   takeCoins,
 } from "../db/prisma.js";
-import { client, tryToGetJackpot } from "../index.js";
+import { client } from "../index.js";
 import { CustomEmbed } from "../utils/embed.js";
+import { tryToGetJackpot } from "../utils/helpers.js";
 
 export class Duel {
   static OPTIONS = {

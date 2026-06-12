@@ -19,9 +19,8 @@ import {
   setQuest,
   useItem,
 } from "../db/prisma.js";
-import { getRandomFromArray } from "../utils/helpers.js";
+import { getRandomFromArray, tryToGetJackpot } from "../utils/helpers.js";
 import { CustomEmbed } from "../utils/embed.js";
-import { current_gambles, tryToGetJackpot } from "../index.js";
 import { ItemId, Store } from "./store.js";
 import moment from "moment";
 
@@ -35,6 +34,7 @@ export class Gamble {
     "<a:evilcat:1432751141254467815>",
     "<a:TOAAAD:1385075517904130129>",
   ];
+  static CURRENT_GAMBLES: Set<string> = new Set();
 
   #interaction: InteractionT;
   #bet: number;
@@ -115,7 +115,7 @@ export class Gamble {
   }
 
   async #sendGambleMessage() {
-    current_gambles.add(this.#interaction.user.id);
+    Gamble.CURRENT_GAMBLES.add(this.#interaction.user.id);
 
     const edit = async () => {
       const is_first = this.#revealed == 0;
@@ -209,7 +209,7 @@ export class Gamble {
     }
 
     if (this.#revealed < 0) {
-      current_gambles.delete(this.#interaction.user.id);
+      Gamble.CURRENT_GAMBLES.delete(this.#interaction.user.id);
 
       return await this.#interaction.deleteReply();
     }
@@ -407,7 +407,7 @@ export class Gamble {
       files: attachment ? [attachment] : [],
     });
 
-    current_gambles.delete(this.#interaction.user.id);
+    Gamble.CURRENT_GAMBLES.delete(this.#interaction.user.id);
 
     let clicked = "exit";
 
@@ -430,7 +430,7 @@ export class Gamble {
         break;
 
       case this.#getCustomId("again"):
-        if (current_gambles.has(this.#interaction.user.id)) return;
+        if (Gamble.CURRENT_GAMBLES.has(this.#interaction.user.id)) return;
 
         new Gamble(this.#interaction, this.#time + 1);
 

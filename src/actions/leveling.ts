@@ -2,7 +2,7 @@ import { ComponentType, Message, OmitPartialGroupDMChannel } from "discord.js";
 import { addCoins, addGems } from "../db/prisma.js";
 import { validateNotInJail } from "../utils/helpers.js";
 import { Currency } from "./store.js";
-import { gem_emoji } from "../index.js";
+import { ranni_guild } from "../index.js";
 
 export class Leveling {
   static CHANNEL_ID = "1236751656897478689";
@@ -44,7 +44,7 @@ export class Leveling {
     await message.reply(
       `Nice! u got +${reward.amount} ${reward.type == Currency.COIN ? "coins 🪙" : "gems 💎"} (go gamble what r u waiting for)`.replaceAll(
         "💎",
-        gem_emoji.message,
+        ranni_guild.emojis?.gem.message ?? "💎",
       ),
     );
   }
