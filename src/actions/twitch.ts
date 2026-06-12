@@ -25,8 +25,8 @@ export class Twitch {
 
       Twitch.#token = await Twitch.#getAppToken();
       Twitch.#last_announcement =
-        (await ranni_guild.channels.twitch.messages.fetch({ limit: 5 })).find(
-          (author) => author.id == client.user!.id,
+        (await ranni_guild.channels.twitch.messages.fetch({ limit: 1 })).at(
+          0,
         ) ?? null;
 
       setInterval(async () => {
@@ -220,10 +220,6 @@ export class Twitch {
         ? moment(last_timestamp).isSame(live.started_at)
         : false;
 
-      console.log(last_timestamp);
-      console.log(live.started_at);
-      console.log(moment(last_timestamp).isSame(live.started_at));
-
       const props = {
         content: `<@&1311169420457934848>`,
         embeds: [
@@ -263,10 +259,10 @@ export class Twitch {
         ],
       };
 
-      // Twitch.#last_announcement =
-      //   (has_been_announced
-      //     ? await Twitch.#last_announcement!.edit(props)
-      //     : await ranni_guild.channels?.twitch.send(props)) ?? null;
+      Twitch.#last_announcement =
+        (has_been_announced
+          ? await Twitch.#last_announcement!.edit(props)
+          : await ranni_guild.channels?.twitch.send(props)) ?? null;
     };
 
     const handleClips = async () => {
