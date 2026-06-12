@@ -220,11 +220,11 @@ export class Store {
 
   static getStoreEmbeds() {
     const convertToDescription = (description: string, arr: ItemId[]) => {
-      const longest_name = arr.reduce(
-        (a: number, b: ItemId) =>
-          a > (Store.ITEMS.get(b)?.name.length ?? 0) ? a : b,
-        0,
-      );
+      const longest_name = arr.reduce((a: number, b: ItemId) => {
+        const [_, ...name] = Store.ITEMS.get(b)!.name.split(" ");
+
+        return a > (name.join(" ").length ?? 0) ? a : b;
+      }, 0);
 
       return [
         description,
