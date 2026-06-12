@@ -138,15 +138,15 @@ export const updateNumOfMembers = async (
 };
 
 export const rewardBoosters = async () => {
-  let lastProcessedMonth: number | null = null;
+  let last_month: number = moment().utc().month();
 
   setInterval(async () => {
     const now = moment().utc();
     const currentMonth = now.month();
 
-    if (currentMonth === lastProcessedMonth) return;
+    if (currentMonth === last_month) return;
 
-    lastProcessedMonth = currentMonth;
+    last_month = currentMonth;
 
     if (!ranni_guild.members) return;
 
