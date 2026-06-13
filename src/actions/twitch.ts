@@ -13,7 +13,7 @@ type TwitchToken = {
 export class Twitch {
   static #BROADCASTER_ID = "1207016011";
   static #token: TwitchToken | null = null;
-  static #STREAM_DAYS = [2, 5, 6];
+  static #STREAM_DAYS = [1, 3, 6, 7].map((day) => day - 1);
   static pending_clips: Map<string, string> = new Map();
 
   static #last_clip_date = moment().utc();
@@ -177,7 +177,7 @@ export class Twitch {
         const next_stream_timestamp = moment(embed.timestamp)
           .utc()
           .day(next_stream + (next_stream > timestamp.day() ? 0 : 7))
-          .hour(17)
+          .hour(16)
           .minute(0)
           .second(0);
 
