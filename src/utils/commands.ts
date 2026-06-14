@@ -1735,9 +1735,11 @@ export const commands_details = {
                     quest_details[key as keyof typeof quest];
                   if (!details_of_key || typeof value != "number") return "";
 
+                  const did_finish = value >= details_of_key.max;
+
                   return [
                     `${idx + 1}. **${details_of_key.description}**`,
-                    `\u200b\u200b\u200b\`- Reward:\` ${details_of_key.reward.currency == Currency.COIN ? "🪙" : ranni_guild.emojis?.gem.embed} \`${details_of_key.reward.amount}\``,
+                    `\u200b\u200b\u200b\`- Reward:\` ${did_finish ? `${details_of_key.reward.currency == Currency.COIN ? "🪙" : ranni_guild.emojis?.gem.embed} \`${details_of_key.reward.amount}\`` : "🥳 Collected"}`,
                     `\u200b\u200b\u200b\`- Progress: [${Math.min(value, details_of_key.max)}/${details_of_key.max}]\``,
                   ].join("\u200b\n");
                 })
