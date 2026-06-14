@@ -196,7 +196,7 @@ export class Flag {
 
       const embed = interaction.message!.embeds[0]!;
 
-      await addCoins(interaction.user.id, 10);
+      await addCoins(interaction.user.id, 100);
 
       await interaction.message?.edit({
         embeds: [
@@ -210,7 +210,7 @@ export class Flag {
     }
 
     await interaction.reply({
-      content: is_right ? "Nice!! You got 🪙 10 coins" : "No dummy 🫨",
+      content: is_right ? "Nice!! You got 🪙 100 coins" : "No dummy 🫨",
       ephemeral: true,
     });
   }
