@@ -1739,7 +1739,7 @@ export const commands_details = {
 
                   return [
                     `${idx + 1}. **${details_of_key.description}**`,
-                    `\u200b\u200b\u200b\`- Reward:\` ${did_finish ? "🥳 Collected" : `${details_of_key.reward.currency == Currency.COIN ? "🪙" : ranni_guild.emojis?.gem.embed} ${details_of_key.reward.amount}`}`,
+                    `\u200b\u200b\u200b\`- Reward:\` ${did_finish ? "🥳 Collected" : `${details_of_key.reward.currency == Currency.COIN ? "<a:goldencoin:1311863385922736148>" : ranni_guild.emojis?.gem.embed} ${details_of_key.reward.amount}`}`,
                     `\u200b\u200b\u200b\`- Progress: [${Math.min(value, details_of_key.max)}/${details_of_key.max}]\``,
                   ].join("\u200b\n");
                 })
