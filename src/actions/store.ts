@@ -45,6 +45,8 @@ export enum ItemId {
 
   BEER,
   KEBAB,
+
+  SEASHELLS,
 }
 
 export enum Currency {
@@ -117,6 +119,12 @@ export class Store {
       name: "💦 Piss on goobie",
       description: "Best shirt here fr",
       amount: 5,
+      currency: Currency.GEM,
+    })
+    .set(ItemId.SEASHELLS, {
+      name: "🐚 Seashells",
+      description: "Aloha vibes",
+      amount: 2,
       currency: Currency.GEM,
     })
     .set(ItemId.START_PANTS, null)
@@ -248,6 +256,7 @@ export class Store {
       new CustomEmbed()
         .setDescription(
           convertToDescription("Drip your mini-me with a shirt", [
+            ItemId.SEASHELLS,
             ItemId.BUBI,
             ItemId.KRAVAN_HEART,
             ItemId.PONGO,
