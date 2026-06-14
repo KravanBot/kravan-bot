@@ -174,8 +174,8 @@ export class HideAndSeek {
         y: 289,
       },
       2: {
-        x: 456,
-        y: 237,
+        x: 237,
+        y: 456,
       },
       3: {
         x: 446,

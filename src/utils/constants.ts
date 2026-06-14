@@ -447,11 +447,7 @@ export const actions = {
       "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExeXM4Y2FmMGVuNjVzZGoxNXczdDZ1eXJodDZjbzZ3bjV4N2xyYW01NyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/UIIyMCABbnUAg/giphy.gif",
       "https://media.giphy.com/media/v1.Y2lkPWVjZjA1ZTQ3NXcwaW1wN2dtMHhvbDA3bW9vbW9hYmY1OTl2ZjZsbGw5NTZkczNicyZlcD12MV9naWZzX3NlYXJjaCZjdD1n/vf5RXzqGIWrZu/giphy.gif",
     ],
-    titles: [
-      "{name} tickles {target}! Ha!",
-      "{name} tickles {target}! OwO!",
-      "{name} tickles {target}!",
-    ],
+    titles: ["{name} tickles {target}! Ha!", "{name} tickles {target}!"],
   },
   kill: {
     urls: [
