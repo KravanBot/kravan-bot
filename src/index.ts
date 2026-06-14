@@ -133,8 +133,8 @@ client.once("clientReady", async () => {
 
   ranni_guild.activities = {
     counting: new Counting(),
-    lottery: new Lottery()
-  }
+    lottery: new Lottery(),
+  };
 
   console.log("All set!");
 });
@@ -220,6 +220,17 @@ client.on("interactionCreate", async (interaction) => {
 
 client.on("messageCreate", async (message) => {
   try {
+    const has_link = /https?:\/\/[^\s]+/i.test(message.content);
+    const has_video = message.attachments.some((attachment) =>
+      attachment.contentType?.startsWith("video/"),
+    );
+    const has_img = message.attachments.some((attachment) =>
+      attachment.contentType?.startsWith("image/"),
+    );
+
+    const count = (str: string, char: string) =>
+      (str.match(new RegExp(char, "g")) || []).length;
+
     switch (message.channelId) {
       case Lottery.ANNOUNCEMENTS_CHANNEL_ID:
         // await lottery.handleMessage(message);
@@ -235,6 +246,55 @@ client.on("messageCreate", async (message) => {
         if (message.author.id != Leveling.BOT_ID) return;
 
         await Leveling.handleMessage(message);
+
+        break;
+
+      // quote
+      case "1387347858835116042":
+        const num_of_single_quotes = count(message.content, "'");
+        const num_of_double_quotes = count(message.content, '"');
+
+        if (
+          !(
+            (num_of_single_quotes > 0 && num_of_single_quotes % 2 == 0) ||
+            (num_of_double_quotes > 0 && num_of_double_quotes % 2 == 0)
+          )
+        )
+          break;
+
+        await setQuest(message.author.id, { quote: 1 });
+
+        break;
+
+      // highlight
+      case "1311104580628647939":
+        if (!has_video && !has_link) break;
+
+        await setQuest(message.author.id, { highlight: 1 });
+
+        break;
+
+      // cringe name
+      case "1388117861658267718":
+        if (!has_img) return;
+
+        await setQuest(message.author.id, { cringe_name: 1 });
+
+        break;
+
+      // song
+      case "1446229960741228647":
+        if (!has_link) break;
+
+        await setQuest(message.author.id, { song: 1 });
+
+        break;
+
+      // meme
+      case "1310737786843824278":
+        if (!has_img && !has_video && !has_link) break;
+
+        await setQuest(message.author.id, { meme: 1 });
 
         break;
 

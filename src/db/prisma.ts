@@ -13,22 +13,6 @@ type ChecklistT = {
   of: Date;
 };
 
-export type QuestT = Partial<{
-  donate: number;
-  meme: number;
-  meal: number;
-  pet: number;
-  gamble: number;
-  quote: number;
-  highlight: number;
-  cringe_name: number;
-  art: number;
-  song: number;
-  count: number;
-}> & {
-  of: Date;
-};
-
 const connectionString = `${process.env.DATABASE_URL}`;
 
 const adapter = new PrismaPg({ connectionString });
@@ -1010,17 +994,36 @@ export const setQuest = async (id: string, new_values: Partial<QuestT>) => {
   const quest = await getQuest(id);
   let new_quest = quest;
 
-  for (const [key, value] of Object.entries(new_values))
+  const rewards_for: Set<QuestMissionsT> = new Set();
+
+  for (const entry of Object.entries(new_values)) {
+    const [key, value] = entry as [QuestMissionsT, number];
+
     if (key in quest && typeof value == "number") {
-      const new_value = (quest[key as keyof QuestT]! as number) + value;
+      const new_value = quest[key]! + value;
 
       new_quest = {
         ...new_quest,
-        [key]: Math.min(new_value, quest_details[key as keyof QuestT]!.max),
+        [key]: Math.min(new_value, quest_details[key]!.max),
       };
+
+      if (
+        quest[key]! < quest_details[key]!.max &&
+        new_quest[key]! >= quest_details[key]!.max
+      )
+        rewards_for.add(key);
     }
+  }
 
   if (JSON.stringify(quest) == JSON.stringify(new_quest)) return;
+
+  for (const reward of rewards_for) {
+    const {
+      reward: { amount, currency },
+    } = quest_details[reward]!;
+
+    await addCurrency(id, amount, currency);
+  }
 
   await prisma.user.upsert({
     create: {

@@ -16,3 +16,21 @@ type EmotesNActionsT = Record<
     titles: string[];
   }
 >;
+
+type QuestT = Partial<{
+  donate: number;
+  meme: number;
+  meal: number;
+  pet: number;
+  gamble: number;
+  quote: number;
+  highlight: number;
+  cringe_name: number;
+  art: number;
+  song: number;
+  count: number;
+}> & {
+  of: Date;
+};
+
+type QuestMissionsT = Exclude<keyof QuestT, "of">;

@@ -1,50 +1,104 @@
 import { userMention } from "discord.js";
-import { QuestT } from "../db/prisma.js";
-import { Store } from "../actions/store.js";
+import { Currency, Store } from "../actions/store.js";
 import { CustomEmbed } from "./embed.js";
-import { commands_details, CommandT } from "./commands.js";
+import { commands_details } from "./commands.js";
 
 export const quest_details: Record<
   keyof QuestT,
-  { description: string; max: number } | undefined
+  | {
+      description: string;
+      max: number;
+      reward: { amount: number; currency: Currency };
+    }
+  | undefined
 > = {
-  donate: { description: "Donate 50K to someone!", max: 1 },
+  donate: {
+    description: "Donate 50K to someone!",
+    max: 1,
+    reward: {
+      amount: 5_000,
+      currency: Currency.COIN,
+    },
+  },
   meme: {
     description: "Post a meme in <#1310737786843824278>",
     max: 1,
+    reward: {
+      amount: 10_000,
+      currency: Currency.COIN,
+    },
   },
   meal: {
     description: "Share your meal in <#1393169480984825896>",
     max: 1,
+    reward: {
+      amount: 10_000,
+      currency: Currency.COIN,
+    },
   },
   pet: {
     description: "Post your pet in <#1310978386688086117>",
     max: 1,
+    reward: {
+      amount: 10_000,
+      currency: Currency.COIN,
+    },
   },
-  gamble: { description: "Gamble 25 Times!", max: 25 },
+  gamble: {
+    description: "Gamble 25 Times!",
+    max: 25,
+    reward: {
+      amount: 5_000,
+      currency: Currency.COIN,
+    },
+  },
   quote: {
     description: "Share an inspirational quote in <#1387347858835116042>",
     max: 1,
+    reward: {
+      amount: 10_000,
+      currency: Currency.COIN,
+    },
   },
   highlight: {
     description: "Post your highlight in <#1311104580628647939>",
     max: 1,
+    reward: {
+      amount: 10_000,
+      currency: Currency.COIN,
+    },
   },
   cringe_name: {
     description: "Share a weird name in <#1388117861658267718>",
     max: 1,
+    reward: {
+      amount: 10_000,
+      currency: Currency.COIN,
+    },
   },
   art: {
     description: "Show your art skills in <#1310740233117106306>",
     max: 1,
+    reward: {
+      amount: 10_000,
+      currency: Currency.COIN,
+    },
   },
   song: {
     description: "Share a good song in <#1446229960741228647>",
     max: 1,
+    reward: {
+      amount: 10_000,
+      currency: Currency.COIN,
+    },
   },
   count: {
     description: "count 5 times in <#1236751657086484587>",
     max: 5,
+    reward: {
+      amount: 1_000,
+      currency: Currency.COIN,
+    },
   },
   of: undefined,
 };
