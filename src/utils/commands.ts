@@ -1447,7 +1447,10 @@ export const commands_details = {
         example: string;
       }[];
 
-      if (term.toLowerCase() == "ranni" || term.toLowerCase() == "ranniria") {
+      const is_ranni =
+        term.toLowerCase() == "ranni" || term.toLowerCase() == "ranniria";
+
+      if (is_ranni) {
         data = [
           {
             definition: "BEST STREAMER EVERRRRRR",
@@ -1489,7 +1492,9 @@ export const commands_details = {
               "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXn68hopaLeIuzpo61bwT43RNwYWT01yDiMQ&s",
           })
           .setImage(
-            "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTZ3Z3Z6NTE5dDA3Znpvdzc3OXlueHNka21kY21ndzJrbHpqN285OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WoWm8YzFQJg5i/giphy.gif",
+            is_ranni
+              ? "https://tenor.com/view/chirpy-the-chirpy-the-crow-buff-crow-mongus-the-anime-gif-7148786556733155336"
+              : "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTZ3Z3Z6NTE5dDA3Znpvdzc3OXlueHNka21kY21ndzJrbHpqN285OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WoWm8YzFQJg5i/giphy.gif",
           )
           .setColor(0x03befc);
 
