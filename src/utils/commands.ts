@@ -1493,7 +1493,7 @@ export const commands_details = {
           })
           .setImage(
             is_ranni
-              ? "https://tenor.com/view/chirpy-the-chirpy-the-crow-buff-crow-mongus-the-anime-gif-7148786556733155336"
+              ? "https://media1.tenor.com/m/YzWXf1kq6AgAAAAd/chirpy-the-chirpy-the-crow-buff-crow-mongus-the-anime.gif"
               : "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTZ3Z3Z6NTE5dDA3Znpvdzc3OXlueHNka21kY21ndzJrbHpqN285OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WoWm8YzFQJg5i/giphy.gif",
           )
           .setColor(0x03befc);
