@@ -1486,11 +1486,6 @@ export const commands_details = {
           .setDescription(
             `${data[index]!.definition}\n\n__Examples:__\n${data[index]!.example}`,
           )
-          .setFooter({
-            text: `Responses are taken from urbandictionary.com, if you see anything against the rules skip it, we do not have control over the results`,
-            iconURL:
-              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXn68hopaLeIuzpo61bwT43RNwYWT01yDiMQ&s",
-          })
           .setImage(
             is_ranni
               ? "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExOXdyOW9ncGx2NHp1b2p4aWxoN2pjZTY4bzBxYjZ3NG5kZGJiemhlaSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/PYXFld8AhGu1sHEsRl/giphy.gif"
@@ -1512,8 +1507,17 @@ export const commands_details = {
             .setDisabled(index === data.length - 1),
         );
 
+      const embed = buildEmbed(page);
+
+      if (!is_ranni)
+        embed.setFooter({
+          text: "Responses are taken from urbandictionary.com, if you see anything against the rules skip it, we do not have control over the results",
+          iconURL:
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXn68hopaLeIuzpo61bwT43RNwYWT01yDiMQ&s",
+        });
+
       const message = await interaction.editReply({
-        embeds: [buildEmbed(page)],
+        embeds: [embed],
         components: [buildRow(page)],
       });
 
