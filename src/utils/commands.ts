@@ -1442,24 +1442,31 @@ export const commands_details = {
       await interaction.deferReply();
 
       const term = interaction.options.getString("term", true);
-      const res = await fetch(
-        `https://api.urbandictionary.com/v0/define?term=${encodeURIComponent(term)}`,
-      );
-      const data = (
-        (await res.json()) as {
-          list: {
-            word: string;
-            definition: string;
-            example: string;
-            author: string;
-            thumbs_up: number;
-            thumbs_down: number;
-            permalink: string;
-            defid: number;
-            written_on: string;
-          }[];
-        }
-      ).list.slice(0, 4);
+      let data: {
+        definition: string;
+        example: string;
+      }[];
+
+      if (term.toLowerCase() == "ranni" || term.toLowerCase() == "ranniria") {
+        data = [
+          {
+            definition: "BEST STREAMER EVERRRRRR",
+            example: "Is that [ranni] the streamer??",
+          },
+        ];
+      } else {
+        const res = await fetch(
+          `https://api.urbandictionary.com/v0/define?term=${encodeURIComponent(term)}`,
+        );
+        data = (
+          (await res.json()) as {
+            list: {
+              definition: string;
+              example: string;
+            }[];
+          }
+        ).list.slice(0, 4);
+      }
 
       if (data.length === 0) {
         await interaction.editReply({
@@ -1476,7 +1483,11 @@ export const commands_details = {
           .setDescription(
             `${data[index]!.definition}\n\n__Examples:__\n${data[index]!.example}`,
           )
-          .setFooter({ text: `Definition ${index + 1} of ${data.length}` })
+          .setFooter({
+            text: `Responses are taken from urbandictionary.com, if you see anything against the rules skip it, we do not have control over the results`,
+            iconURL:
+              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXn68hopaLeIuzpo61bwT43RNwYWT01yDiMQ&s",
+          })
           .setImage(
             "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTZ3Z3Z6NTE5dDA3Znpvdzc3OXlueHNka21kY21ndzJrbHpqN285OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WoWm8YzFQJg5i/giphy.gif",
           )
