@@ -1480,8 +1480,8 @@ export const commands_details = {
 
       let page = 0;
 
-      const buildEmbed = (index: number) =>
-        new CustomEmbed()
+      const buildEmbed = (index: number) => {
+        let embed = new CustomEmbed()
           .setTitle(term)
           .setDescription(
             `${data[index]!.definition}\n\n__Examples:__\n${data[index]!.example}`,
@@ -1492,6 +1492,16 @@ export const commands_details = {
               : "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExaTZ3Z3Z6NTE5dDA3Znpvdzc3OXlueHNka21kY21ndzJrbHpqN285OSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/WoWm8YzFQJg5i/giphy.gif",
           )
           .setColor(0x03befc);
+
+        if (!is_ranni)
+          embed = embed.setFooter({
+            text: "Responses are taken from urbandictionary.com, if you see anything against the rules skip it, we do not have control over the results",
+            iconURL:
+              "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXn68hopaLeIuzpo61bwT43RNwYWT01yDiMQ&s",
+          });
+
+        return embed;
+      };
 
       const buildRow = (index: number) =>
         new ActionRowBuilder<ButtonBuilder>().addComponents(
@@ -1507,17 +1517,8 @@ export const commands_details = {
             .setDisabled(index === data.length - 1),
         );
 
-      const embed = buildEmbed(page);
-
-      if (!is_ranni)
-        embed.setFooter({
-          text: "Responses are taken from urbandictionary.com, if you see anything against the rules skip it, we do not have control over the results",
-          iconURL:
-            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSXn68hopaLeIuzpo61bwT43RNwYWT01yDiMQ&s",
-        });
-
       const message = await interaction.editReply({
-        embeds: [embed],
+        embeds: [buildEmbed(page)],
         components: [buildRow(page)],
       });
 
