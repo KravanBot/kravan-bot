@@ -14,7 +14,7 @@ import {
   tryToGetJackpot,
   validateNotInJail,
 } from "../utils/helpers.js";
-import { addCoins, hasEnoughCoins, takeCoins } from "../db/prisma.js";
+import { addCoins, hasEnoughCoins, setQuest, takeCoins } from "../db/prisma.js";
 import { Mutex } from "async-mutex";
 import { client, ranni_guild } from "../index.js";
 
@@ -76,6 +76,9 @@ export class Counting {
       );
       await addCoins(message.author.id, this.#getTrapCost() * 2);
     }
+
+    if (message.author.id != client.user?.id)
+      await setQuest(message.author.id, { count: 1 });
 
     this.#last_number! += dir;
     this.#trapped_by = null;

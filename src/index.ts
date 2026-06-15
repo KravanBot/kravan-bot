@@ -228,8 +228,7 @@ client.on("messageCreate", async (message) => {
       attachment.contentType?.startsWith("image/"),
     );
 
-    const count = (str: string, char: string) =>
-      (str.match(new RegExp(char, "g")) || []).length;
+    const count = (str: string, char: string) => str.split(char).length - 1;
 
     switch (message.channelId) {
       case Lottery.ANNOUNCEMENTS_CHANNEL_ID:
