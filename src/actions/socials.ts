@@ -46,7 +46,12 @@ export class Socials {
       ],
     };
 
-    if (!is_short) payload.content = "<@&1505592084059390044>";
+    if (!is_short) {
+      // for now, dont announce anything thats not a short
+
+      payload.content = "<@&1505592084059390044>";
+      return;
+    }
 
     await ranni_guild.channels.yt.send(payload);
   }
