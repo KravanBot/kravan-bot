@@ -1789,7 +1789,7 @@ export const commands_details = {
       }
 
       await interaction.editReply(
-        `You got a ${Store.ITEMS.get(ItemId.KEBAB)?.name}!\n\nYou can claim your next kebab <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`,
+        `You got a ${Store.ITEMS.get(ItemId.KEBAB)?.name}!\n\nYou can claim your next kebab <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`.replaceAll("🥙", "<:kebab:1509580422143676427>"),
       );
 
       await addItem(interaction.user.id, ItemId.KEBAB, 1);
@@ -1813,7 +1813,7 @@ export const commands_details = {
       }
 
       await interaction.editReply(
-        `You got a ${Store.ITEMS.get(ItemId.BEER)?.name}!\n\nYou can claim your next beer <t:${Math.floor(moment().utc().add(1, "day").startOf("day").valueOf() / 1000)}:R>`,
+        `You got a ${Store.ITEMS.get(ItemId.BEER)?.name}!\n\nYou can claim your next beer <t:${Math.floor(moment().utc().add(1, "day").startOf("day").valueOf() / 1000)}:R>`.replaceAll("🍺", "<:pensivebeer:1509581797967532052>"),
       );
 
       await addItem(interaction.user.id, ItemId.BEER, 1);
