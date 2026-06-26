@@ -702,6 +702,9 @@ export const takeFromMinime = async (
 };
 
 export const claimJackpot = async (id: string) => {
+  // disregarding ranni
+  if (id == "1260205513795174434") return null;
+
   if (Math.floor(Math.random() * 10_000) > 0) return null;
 
   const jackpot = await clearJackpot();

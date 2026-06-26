@@ -9,6 +9,7 @@ import {
   TextChannel,
   ChannelType,
   SendableChannels,
+  AnyThreadChannel,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { setQuest } from "./db/prisma.js";
@@ -24,7 +25,11 @@ import { help_embeds } from "./utils/constants.js";
 import { commands_details, commands } from "./utils/commands.js";
 import { Flag } from "./actions/flag.js";
 import { Welcome } from "./actions/welcome.js";
-import { rewardBoosters, updateNumOfMembers } from "./utils/helpers.js";
+import {
+  messageAttatchments,
+  rewardBoosters,
+  updateNumOfMembers,
+} from "./utils/helpers.js";
 import { Socials } from "./actions/socials.js";
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
@@ -220,13 +225,7 @@ client.on("interactionCreate", async (interaction) => {
 
 client.on("messageCreate", async (message) => {
   try {
-    const has_link = /https?:\/\/[^\s]+/i.test(message.content);
-    const has_video = message.attachments.some((attachment) =>
-      attachment.contentType?.startsWith("video/"),
-    );
-    const has_img = message.attachments.some((attachment) =>
-      attachment.contentType?.startsWith("image/"),
-    );
+    const { has_link, has_video, has_img } = messageAttatchments(message);
 
     const count = (str: string, char: string) => str.split(char).length - 1;
 
@@ -339,12 +338,8 @@ client.on("guildMemberAdd", async (member) => {
   await Welcome.handleNewMember(member);
 });
 
-client.on("threadCreate", async (thread) => {
-  if (!thread.parent || thread.parent.type !== ChannelType.GuildForum) return;
-
-  switch (thread.parent.id) {
-    // animals
-
+const handleQuestInThread = async (thread: AnyThreadChannel) => {
+  switch (thread.parent?.id) {
     case "1310978386688086117":
       await setQuest(thread.ownerId, {
         pet: 1,
@@ -368,6 +363,41 @@ client.on("threadCreate", async (thread) => {
 
       break;
   }
+};
+
+client.on("threadCreate", async (thread) => {
+  if (thread.parent?.type !== ChannelType.GuildForum) return;
+
+  try {
+    const starter_msg = await thread.fetchStarterMessage();
+
+    if (!starter_msg) return;
+
+    const { has_img, has_video } = messageAttatchments(starter_msg);
+
+    if (!has_img && !has_video) return;
+
+    await handleQuestInThread(thread);
+  } catch (error) {
+    console.log(
+      `Failed to fetch starter message on thread ${thread.name}:`,
+      error,
+    );
+  }
+
+  await handleQuestInThread(thread);
+});
+
+client.on("messageCreate", async (message) => {
+  if (!message.channel.isThread()) return;
+
+  if (message.author.id !== message.channel.ownerId) return;
+
+  const { has_video, has_img } = messageAttatchments(message);
+
+  if (!has_video && !has_img) return;
+
+  await handleQuestInThread(message.channel);
 });
 
 client.login(TOKEN);

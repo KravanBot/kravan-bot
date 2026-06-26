@@ -189,3 +189,19 @@ export const rewardBoosters = async () => {
     });
   }, 1000 * 60);
 };
+
+export const messageAttatchments = (message: Message<boolean>) => {
+  const has_link = /https?:\/\/[^\s]+/i.test(message.content);
+  const has_video = message.attachments.some((attachment) =>
+    attachment.contentType?.startsWith("video/"),
+  );
+  const has_img = message.attachments.some((attachment) =>
+    attachment.contentType?.startsWith("image/"),
+  );
+
+  return {
+    has_img,
+    has_video,
+    has_link,
+  };
+};
