@@ -121,9 +121,11 @@ export const takeCoins = async (id: string, amount: number) => {
     new_data.gems -= gems;
   }
 
+  new_data.coins += min;
+
   new_data.gems = Math.max(0, new_data.gems);
   new_data.bank = Math.max(0, new_data.bank);
-  new_data.coins += min;
+  new_data.coins = Math.max(0, new_data.coins);
 
   await prisma.user.upsert({
     select: {

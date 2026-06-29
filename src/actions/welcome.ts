@@ -4,6 +4,7 @@ import { ranni_guild } from "../index.js";
 import { CustomEmbed } from "../utils/embed.js";
 
 export class Welcome {
+  static #PATH = "src/constants/welcome_imgs_order.json";
   static #NUM_OF_IMAGES = 19;
   static #welcome_imgs_order: number[] | null = null;
 
@@ -35,18 +36,12 @@ export class Welcome {
       Welcome.#welcome_imgs_order = shuffle(Welcome.#welcome_imgs_order);
 
       await fs.writeFile(
-        "src/info.json",
-        JSON.stringify(
-          {
-            welcome_imgs_order: Welcome.#welcome_imgs_order,
-          },
-          null,
-          2,
-        ),
+        this.#PATH,
+        JSON.stringify(Welcome.#welcome_imgs_order, null, 2),
       );
     } else {
-      const info = JSON.parse(await fs.readFile("src/info.json", "utf-8"));
-      Welcome.#welcome_imgs_order = info.welcome_imgs_order;
+      const info = JSON.parse((await fs.readFile(this.#PATH, "utf-8")) || "[]");
+      Welcome.#welcome_imgs_order = info;
 
       if (
         !Welcome.#welcome_imgs_order?.length ||
