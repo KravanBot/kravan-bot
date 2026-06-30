@@ -119,10 +119,10 @@ export class KravanCross {
             case "step":
               await interaction.deferUpdate();
 
-              if (Math.floor(Math.random() * 2) == 0)
+              if (Math.floor(Math.random() * 4) == 0)
                 return res(GameResult.LOSE);
 
-              this.#multiplier += 0.5;
+              this.#multiplier += 0.25;
 
               return res(GameResult.CONTINUE);
           }

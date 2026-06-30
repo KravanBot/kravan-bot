@@ -1841,9 +1841,9 @@ export const commands_details = {
       command.addNumberOption((option) =>
         option
           .setName("bet")
-          .setDescription("min 1 coin")
+          .setDescription("min 10 coin")
           .setRequired(true)
-          .setMinValue(1)
+          .setMinValue(10)
           .setMaxValue(500_000_000),
       ),
 
