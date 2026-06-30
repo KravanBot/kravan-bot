@@ -9,7 +9,7 @@ import {
 import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
 import { CustomEmbed } from "../utils/embed.js";
 import moment from "moment";
-import { Canvas, createCanvas, loadImage } from "@napi-rs/canvas";
+import { createCanvas, loadImage } from "@napi-rs/canvas";
 import fs from "fs/promises";
 import path from "path";
 
@@ -23,6 +23,7 @@ export class KravanCross {
   static #MULTIPLIERS = [1, 1.25, 1.5, 2, 2.25, 2.5, 3, 3.5, 4, 5];
   static #NUM_OF_STEPS = KravanCross.#MULTIPLIERS.length;
   static #PATH = "./assets/kravan-cross";
+  static #SCALE = 6;
 
   #bet: number;
   #multiplier: number;
@@ -59,11 +60,13 @@ export class KravanCross {
             ),
           ],
           components: [],
+          files: [],
         });
       } else {
         await interaction.editReply({
           embeds: [new CustomEmbed().setDescription("LOSE")],
           components: [],
+          files: [],
         });
       }
     })();
@@ -182,12 +185,17 @@ export class KravanCross {
     ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
 
     for (let i = 0; i < KravanCross.#NUM_OF_STEPS; i++) {
-      const x = 4 + (cloud.width + 8) * i;
-      const y = 248;
+      const x = KravanCross.#SCALE + (cloud.width + 2 * KravanCross.#SCALE) * i;
+      const y = 62 * KravanCross.#SCALE;
 
       ctx.drawImage(cloud, x, y);
 
-      if (i == current_cloud) ctx.drawImage(kravan, x + 8, y - 8);
+      if (i == current_cloud)
+        ctx.drawImage(
+          kravan,
+          x + 2 * KravanCross.#SCALE,
+          y - 2 * KravanCross.#SCALE,
+        );
     }
 
     return canvas;
