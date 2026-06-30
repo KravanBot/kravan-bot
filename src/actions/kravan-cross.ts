@@ -23,7 +23,7 @@ export class KravanCross {
   static #MULTIPLIERS = [1, 1.25, 1.5, 2, 2.25, 2.5, 3, 3.5, 4, 5];
   static #NUM_OF_STEPS = KravanCross.#MULTIPLIERS.length;
   static #PATH = "./assets/kravan-cross";
-  static #SCALE = 2;
+  static #SCALE = 6;
 
   #bet: number;
   #multiplier: number;
