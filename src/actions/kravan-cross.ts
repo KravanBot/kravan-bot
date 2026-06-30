@@ -16,7 +16,8 @@ enum GameResult {
 }
 
 export class KravanCross {
-  static #NUM_OF_STEPS = 10;
+  static #MULTIPLIERS = [1, 1.25, 1.5, 2, 2.25, 2.5, 3, 3.5, 4, 5];
+  static #NUM_OF_STEPS = KravanCross.#MULTIPLIERS.length;
 
   #bet: number;
   #multiplier: number;
@@ -76,6 +77,8 @@ export class KravanCross {
 
   async #handleGame() {
     for (let i = 0; i < KravanCross.#NUM_OF_STEPS; i++) {
+      this.#multiplier = KravanCross.#MULTIPLIERS[i]!;
+
       const res = await new Promise<GameResult>(async (res) => {
         const components = [
           new ButtonBuilder()
@@ -113,21 +116,19 @@ export class KravanCross {
           switch (interaction.customId) {
             case "cash-out":
               await interaction.deferUpdate();
+              collector.stop("chose");
 
               return res(GameResult.WIN);
 
             case "step":
               await interaction.deferUpdate();
+              collector.stop("chose");
 
-              if (Math.floor(Math.random() * 4) == 0)
+              if (Math.floor(Math.random() * 3) == 0)
                 return res(GameResult.LOSE);
-
-              this.#multiplier += 0.25;
 
               return res(GameResult.CONTINUE);
           }
-
-          collector.stop("chose");
         });
 
         collector.on("end", async (_, reason) => {
