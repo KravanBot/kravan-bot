@@ -1,5 +1,6 @@
 import {
   ActionRowBuilder,
+  AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
   CacheType,
@@ -8,6 +9,9 @@ import {
 import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
 import { CustomEmbed } from "../utils/embed.js";
 import moment from "moment";
+import { Canvas, createCanvas, loadImage } from "@napi-rs/canvas";
+import fs from "fs/promises";
+import path from "path";
 
 enum GameResult {
   WIN,
@@ -18,6 +22,7 @@ enum GameResult {
 export class KravanCross {
   static #MULTIPLIERS = [1, 1.25, 1.5, 2, 2.25, 2.5, 3, 3.5, 4, 5];
   static #NUM_OF_STEPS = KravanCross.#MULTIPLIERS.length;
+  static #PATH = "./assets/kravan-cross";
 
   #bet: number;
   #multiplier: number;
@@ -43,11 +48,18 @@ export class KravanCross {
 
       if (result == GameResult.WIN) {
         await addCoins(
-          interaction.id,
+          interaction.user.id,
           Math.floor(this.#bet * this.#multiplier),
         );
 
-        await this.#cashOut();
+        await interaction.editReply({
+          embeds: [
+            new CustomEmbed().setDescription(
+              `Nice! You cashed out with <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier)} coins!`,
+            ),
+          ],
+          components: [],
+        });
       } else {
         await interaction.editReply({
           embeds: [new CustomEmbed().setDescription("LOSE")],
@@ -95,11 +107,20 @@ export class KravanCross {
               .setStyle(ButtonStyle.Success),
           );
 
+        const canvas = await this.#getCanvas(i);
+
         const msg = await this.#interaction.editReply({
           embeds: [
-            new CustomEmbed().setDescription(
-              `\`Multiplier: x${this.#multiplier}\`\n\`Current Reward:\` <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier).toLocaleString()}\n\nChoose <t:${Math.floor(moment().utc().add(1, "minutes").valueOf() / 1000)}:R>, or default behavior will be cash out`,
-            ),
+            new CustomEmbed()
+              .setDescription(
+                `\`Multiplier: x${this.#multiplier}\`\n\`Current Reward:\` <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier).toLocaleString()}\n\nChoose <t:${Math.floor(moment().utc().add(1, "minutes").valueOf() / 1000)}:R>, or default behavior will be cash out`,
+              )
+              .setImage("attachment://img.jpg"),
+          ],
+          files: [
+            new AttachmentBuilder(canvas.toBuffer("image/png"), {
+              name: "img.jpg",
+            }),
           ],
           components: [
             new ActionRowBuilder<ButtonBuilder>().addComponents(components),
@@ -144,14 +165,31 @@ export class KravanCross {
     return GameResult.WIN;
   }
 
-  async #cashOut() {
-    await this.#interaction.editReply({
-      embeds: [
-        new CustomEmbed().setDescription(
-          `Nice! You cashed out with <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier)} coins!`,
-        ),
-      ],
-      components: [],
-    });
+  async #getCanvas(current_cloud: number) {
+    const bg = await loadImage(
+      await fs.readFile(path.join(KravanCross.#PATH, "bg.png")),
+    );
+    const cloud = await loadImage(
+      await fs.readFile(path.join(KravanCross.#PATH, "cloud.png")),
+    );
+    const kravan = await loadImage(
+      await fs.readFile(path.join(KravanCross.#PATH, "kravan.png")),
+    );
+
+    const canvas = createCanvas(bg.width, bg.height);
+    const ctx = canvas.getContext("2d");
+
+    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+    for (let i = 0; i < KravanCross.#NUM_OF_STEPS; i++) {
+      const x = 4 + (cloud.width + 8) * i;
+      const y = 248;
+
+      ctx.drawImage(cloud, x, y);
+
+      if (i == current_cloud) ctx.drawImage(kravan, x + 8, y - 8);
+    }
+
+    return canvas;
   }
 }
