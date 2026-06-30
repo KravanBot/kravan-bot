@@ -54,28 +54,25 @@ export class Gamble {
     (async () => {
       if (!interaction.replied) await interaction.deferReply();
 
-      const balance = await getUserCoins(interaction.user.id);
-
-      this.#bet = Math.max(
-        Math.min(
-          Math.floor(interaction.options.getNumber("bet", true)),
-          balance.coins,
-        ),
-        1,
-      );
-      this.#show_new_emoji = this.#bet >= 10_000;
-      this.#sequence = this.#chooseSequence();
+      this.#bet = Math.floor(interaction.options.getNumber("bet", true));
 
       if (!(await this.#canGamble())) return;
+
+      this.#show_new_emoji = this.#bet >= 10_000;
+      this.#sequence = this.#chooseSequence();
 
       await this.#sendGambleMessage();
     })();
   }
 
   async #canGamble() {
-    if (!(await hasEnoughCoins(this.#interaction.user.id, this.#bet))) {
+    const balance = await getUserCoins(this.#interaction.user.id);
+
+    this.#bet = Math.min(balance.coins, this.#bet);
+
+    if (this.#bet <= 0) {
       await this.#interaction.editReply({
-        content: "U A BROKE MF U CANT BET THIS MUCH",
+        content: "U A BROKE MF",
         embeds: [],
         components: [],
         files: [],

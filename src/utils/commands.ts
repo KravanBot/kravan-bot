@@ -75,6 +75,7 @@ import { Trivia } from "../actions/trivia.js";
 import fs from "fs/promises";
 import owo from "@zuzak/owo";
 import { Flag } from "../actions/flag.js";
+import { KravanCross } from "../actions/kravan-cross.js";
 
 export type CommandT = {
   description: string;
@@ -1789,7 +1790,10 @@ export const commands_details = {
       }
 
       await interaction.editReply(
-        `You got a ${Store.ITEMS.get(ItemId.KEBAB)?.name}!\n\nYou can claim your next kebab <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`.replaceAll("🥙", "<:kebab:1509580422143676427>"),
+        `You got a ${Store.ITEMS.get(ItemId.KEBAB)?.name}!\n\nYou can claim your next kebab <t:${Math.floor(today.add(1, "day").valueOf() / 1000)}:R>`.replaceAll(
+          "🥙",
+          "<:kebab:1509580422143676427>",
+        ),
       );
 
       await addItem(interaction.user.id, ItemId.KEBAB, 1);
@@ -1813,7 +1817,10 @@ export const commands_details = {
       }
 
       await interaction.editReply(
-        `You got a ${Store.ITEMS.get(ItemId.BEER)?.name}!\n\nYou can claim your next beer <t:${Math.floor(moment().utc().add(1, "day").startOf("day").valueOf() / 1000)}:R>`.replaceAll("🍺", "<:pensivebeer:1509581797967532052>"),
+        `You got a ${Store.ITEMS.get(ItemId.BEER)?.name}!\n\nYou can claim your next beer <t:${Math.floor(moment().utc().add(1, "day").startOf("day").valueOf() / 1000)}:R>`.replaceAll(
+          "🍺",
+          "<:pensivebeer:1509581797967532052>",
+        ),
       );
 
       await addItem(interaction.user.id, ItemId.BEER, 1);
@@ -1825,6 +1832,23 @@ export const commands_details = {
 
     onTrigger: async (interaction) => {
       await Flag.handleNewFlag(interaction);
+    },
+  },
+
+  "kravan-cross": {
+    description: "Help kravan cross the clouds path",
+    addOptionsToCommand: (command) =>
+      command.addNumberOption((option) =>
+        option
+          .setName("bet")
+          .setDescription("min 1 coin")
+          .setRequired(true)
+          .setMinValue(1)
+          .setMaxValue(500_000_000),
+      ),
+
+    onTrigger: async (interaction) => {
+      new KravanCross(interaction);
     },
   },
 
