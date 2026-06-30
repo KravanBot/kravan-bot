@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { addCoins, getUserCoins, takeCoins } from "../db/prisma.js";
 import { CustomEmbed } from "../utils/embed.js";
+import moment from "moment";
 
 enum GameResult {
   WIN,
@@ -94,7 +95,7 @@ export class KravanCross {
         const msg = await this.#interaction.editReply({
           embeds: [
             new CustomEmbed().setDescription(
-              `\`Multiplier: x${this.#multiplier}\`\n\`Current Reward:\` <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier).toLocaleString()}\n\nChoose <t:R>, or default behavior will be cash out`,
+              `\`Multiplier: x${this.#multiplier}\`\n\`Current Reward:\` <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier).toLocaleString()}\n\nChoose <t:${Math.floor(moment().utc().add(1, "minutes").valueOf() / 1000)}:R>, or default behavior will be cash out`,
             ),
           ],
           components: [
@@ -111,12 +112,12 @@ export class KravanCross {
         collector.on("collect", async (interaction) => {
           switch (interaction.customId) {
             case "cash-out":
-              await interaction.deferReply();
+              await interaction.deferUpdate();
 
               return res(GameResult.WIN);
 
             case "step":
-              await interaction.deferReply();
+              await interaction.deferUpdate();
 
               if (Math.floor(Math.random() * 2) == 0)
                 return res(GameResult.LOSE);
