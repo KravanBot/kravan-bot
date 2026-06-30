@@ -55,16 +55,30 @@ export class KravanCross {
 
         await interaction.editReply({
           embeds: [
-            new CustomEmbed().setDescription(
-              `Nice! You cashed out with <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier)} coins!`,
-            ),
+            new CustomEmbed()
+              .setDescription(
+                `Nice! You cashed out with <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier)} coins!`,
+              )
+              .setColor(0x4c65f5)
+              .setImage(
+                "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ25lNXlrM2VqaTBrZGprNTZmdDR4OHFnZDd4dDdwdWs4ZTJpdG9rdiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/PEdNeb9cvC1ZS/giphy.gif",
+              ),
           ],
           components: [],
           files: [],
         });
       } else {
         await interaction.editReply({
-          embeds: [new CustomEmbed().setDescription("LOSE")],
+          embeds: [
+            new CustomEmbed()
+              .setDescription(
+                "Kravan stepped on a shitty cloud... Type of greed they talk about in the bible 🙄",
+              )
+              .setColor(0xf5223e)
+              .setImage(
+                "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGI5eDYxM3hsdjgwb3l3YTBhbHBjYmFkMHh0NHQ1cTdnaTR6aTV5YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/vvwYS15WrMq7S/giphy.gif",
+              ),
+          ],
           components: [],
           files: [],
         });
@@ -118,6 +132,7 @@ export class KravanCross {
               .setDescription(
                 `\`Multiplier: x${this.#multiplier}\`\n\`Current Reward:\` <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier).toLocaleString()}\n\nChoose <t:${Math.floor(moment().utc().add(1, "minutes").valueOf() / 1000)}:R>, or default behavior will be cash out`,
               )
+              .setColor(0x93e5f6)
               .setImage("attachment://img.jpg"),
           ],
           files: [
