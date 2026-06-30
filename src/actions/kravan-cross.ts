@@ -71,9 +71,7 @@ export class KravanCross {
         await interaction.editReply({
           embeds: [
             new CustomEmbed()
-              .setDescription(
-                "Kravan stepped on a shitty cloud... Type of greed they talk about in the bible 🙄",
-              )
+              .setDescription("Type greed they talk about in the bible 🙄")
               .setColor(0xf5223e)
               .setImage(
                 "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGI5eDYxM3hsdjgwb3l3YTBhbHBjYmFkMHh0NHQ1cTdnaTR6aTV5YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/vvwYS15WrMq7S/giphy.gif",
