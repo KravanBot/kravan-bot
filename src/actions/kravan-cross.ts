@@ -161,7 +161,7 @@ export class KravanCross {
               await interaction.deferUpdate();
               collector.stop("chose");
 
-              if (Math.floor(Math.random() * 3) == 0)
+              if (Math.floor(Math.random() * 4) == 0)
                 return res(GameResult.LOSE);
 
               return res(GameResult.CONTINUE);
