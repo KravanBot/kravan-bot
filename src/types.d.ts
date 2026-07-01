@@ -29,8 +29,6 @@ type QuestT = Partial<{
   art: number;
   song: number;
   count: number;
-}> & {
-  of: Date;
-};
+}>;
 
 type QuestMissionsT = Exclude<keyof QuestT, "of">;

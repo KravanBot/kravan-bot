@@ -971,7 +971,11 @@ export const getQuest: (id: string) => Promise<QuestT> = async (id: string) => {
         id,
       },
     })
-  )?.quest ?? null) as QuestT | null;
+  )?.quest ?? null) as
+    | (QuestT & {
+        of: Date;
+      })
+    | null;
 
   const final_quest =
     quest && moment(quest.of).isSame(moment().utc().startOf("day"))
@@ -992,7 +996,11 @@ export const getQuest: (id: string) => Promise<QuestT> = async (id: string) => {
       },
     });
 
-  return final_quest;
+  return Object.entries(final_quest).reduce((prev, [key, val]) => {
+    if (key == "of") return prev;
+
+    return { ...prev, [key]: val };
+  }, {}) as QuestT;
 };
 
 export const setQuest = async (id: string, new_values: Partial<QuestT>) => {

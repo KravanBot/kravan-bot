@@ -8,13 +8,12 @@ import actions_json from "../constants/actions.json" with { type: "json" };
 import flags_json from "../constants/flags.json" with { type: "json" };
 
 export const quest_details: Record<
-  keyof QuestT,
-  | {
-      description: string;
-      max: number;
-      reward: { amount: number; currency: Currency };
-    }
-  | undefined
+  QuestMissionsT,
+  {
+    description: string;
+    max: number;
+    reward: { amount: number; currency: Currency };
+  }
 > = {
   donate: {
     description: "Donate 50K to someone!",
@@ -104,7 +103,6 @@ export const quest_details: Record<
       currency: Currency.COIN,
     },
   },
-  of: undefined,
 };
 
 export const emotes = emotes_json satisfies EmotesNActionsT;

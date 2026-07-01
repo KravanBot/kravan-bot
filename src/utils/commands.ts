@@ -1687,9 +1687,7 @@ export const commands_details = {
         send: prisma_checklist.send,
         quest: Object.entries(await getQuest(interaction.user.id)).every(
           ([key, value]) => {
-            const max = quest_details[key as keyof QuestT]?.max;
-
-            if (!max || typeof value != "number") return true;
+            const max = quest_details[key as QuestMissionsT].max;
 
             return value >= max;
           },
@@ -1737,9 +1735,7 @@ export const commands_details = {
     onTrigger: async (interaction) => {
       await interaction.deferReply();
 
-      const prisma_quest = await getQuest(interaction.user.id);
-      const quest: Partial<typeof prisma_quest> = prisma_quest;
-      delete quest.of;
+      const quest = await getQuest(interaction.user.id);
 
       await interaction.editReply({
         embeds: [
@@ -1753,8 +1749,7 @@ export const commands_details = {
             .setDescription(
               `${Object.entries(quest)
                 .map(([key, value], idx) => {
-                  const details_of_key =
-                    quest_details[key as keyof typeof quest];
+                  const details_of_key = quest_details[key as QuestMissionsT];
                   if (!details_of_key || typeof value != "number") return "";
 
                   const did_finish = value >= details_of_key.max;
