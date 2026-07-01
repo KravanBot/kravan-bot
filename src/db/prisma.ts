@@ -1012,7 +1012,7 @@ export const setQuest = async (id: string, new_values: QuestT) => {
   for (const entry of Object.entries(new_values)) {
     const [key, value] = entry as [QuestMissionsT, number];
 
-    if (!quest[key]) continue;
+    if (quest[key] === undefined) continue;
 
     const new_value = quest[key] + value;
 
@@ -1027,9 +1027,6 @@ export const setQuest = async (id: string, new_values: QuestT) => {
     )
       rewards_for.add(key);
   }
-
-  console.log(quest);
-  console.log(new_quest);
 
   if (JSON.stringify(quest) == JSON.stringify(new_quest)) return;
 
