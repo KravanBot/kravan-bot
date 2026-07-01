@@ -1004,7 +1004,10 @@ export const getQuest: (id: string) => Promise<QuestT> = async (id: string) => {
 };
 
 export const setQuest = async (id: string, new_values: QuestT) => {
-  const quest = { ...(await getQuest(id)), of: moment().utc().toDate() };
+  const quest = {
+    ...(await getQuest(id)),
+    of: moment().utc().startOf("day").toDate(),
+  };
   let new_quest = { ...quest };
 
   const rewards_for: Set<QuestMissionsT> = new Set();
