@@ -158,8 +158,8 @@ const command_types: {
         "bribe",
         "hide-n-seek",
         "trivia",
+        "kravan-cross",
       ],
-      // "🌱 Animals": ["zoo", "hunt", "sell", "sacrafice", "lootbox"],
       "🥳 Fun": [
         "8ball",
         "meme",
