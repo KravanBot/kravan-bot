@@ -1028,8 +1028,10 @@ export const setQuest = async (id: string, new_values: QuestT) => {
       rewards_for.add(key);
   }
 
-  if (JSON.stringify(quest) == JSON.stringify({ ...new_quest, of: quest.of }))
-    return;
+  console.log(quest);
+  console.log(new_quest);
+
+  if (JSON.stringify(quest) == JSON.stringify(new_quest)) return;
 
   for (const reward of rewards_for) {
     const {
