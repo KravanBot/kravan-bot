@@ -1005,7 +1005,7 @@ export const getQuest: (id: string) => Promise<QuestT> = async (id: string) => {
 
 export const setQuest = async (id: string, new_values: QuestT) => {
   const quest = { ...(await getQuest(id)), of: moment().utc().toDate() };
-  let new_quest = quest;
+  let new_quest = { ...quest };
 
   const rewards_for: Set<QuestMissionsT> = new Set();
 
@@ -1022,7 +1022,7 @@ export const setQuest = async (id: string, new_values: QuestT) => {
     };
 
     if (
-      quest[key]! < quest_details[key]!.max &&
+      quest[key] < quest_details[key]!.max &&
       new_quest[key]! >= quest_details[key]!.max
     )
       rewards_for.add(key);
