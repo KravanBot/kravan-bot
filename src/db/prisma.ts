@@ -1003,8 +1003,8 @@ export const getQuest: (id: string) => Promise<QuestT> = async (id: string) => {
   }, {}) as QuestT;
 };
 
-export const setQuest = async (id: string, new_values: Partial<QuestT>) => {
-  const quest = await getQuest(id);
+export const setQuest = async (id: string, new_values: QuestT) => {
+  const quest = { ...(await getQuest(id)), of: moment().utc().toDate() };
   let new_quest = quest;
 
   const rewards_for: Set<QuestMissionsT> = new Set();
@@ -1012,23 +1012,24 @@ export const setQuest = async (id: string, new_values: Partial<QuestT>) => {
   for (const entry of Object.entries(new_values)) {
     const [key, value] = entry as [QuestMissionsT, number];
 
-    if (key in quest && typeof value == "number") {
-      const new_value = quest[key]! + value;
+    if (!quest[key]) continue;
 
-      new_quest = {
-        ...new_quest,
-        [key]: Math.min(new_value, quest_details[key]!.max),
-      };
+    const new_value = quest[key] + value;
 
-      if (
-        quest[key]! < quest_details[key]!.max &&
-        new_quest[key]! >= quest_details[key]!.max
-      )
-        rewards_for.add(key);
-    }
+    new_quest = {
+      ...new_quest,
+      [key]: Math.min(new_value, quest_details[key]!.max),
+    };
+
+    if (
+      quest[key]! < quest_details[key]!.max &&
+      new_quest[key]! >= quest_details[key]!.max
+    )
+      rewards_for.add(key);
   }
 
-  if (JSON.stringify(quest) == JSON.stringify(new_quest)) return;
+  if (JSON.stringify(quest) == JSON.stringify({ ...new_quest, of: quest.of }))
+    return;
 
   for (const reward of rewards_for) {
     const {
