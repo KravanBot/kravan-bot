@@ -1,8 +1,16 @@
-import { Channel, Message, TextChannel, User, userMention } from "discord.js";
+import {
+  Channel,
+  Message,
+  SlashCommandBuilder,
+  TextChannel,
+  User,
+  userMention,
+} from "discord.js";
 import { client, ranni_guild } from "../index.js";
 import { addGems, claimJackpot, isInJail } from "../db/prisma.js";
 import { CustomEmbed } from "./embed.js";
 import moment from "moment";
+import { commands_details, CommandT } from "./commands.js";
 
 export const getRandomFromArray = <T>(arr: T[]): T | null => {
   if (!arr.length) return null;
@@ -205,3 +213,25 @@ export const messageAttatchments = (message: Message<boolean>) => {
     has_link,
   };
 };
+
+export function commandToJson(slug: keyof typeof commands_details) {
+  const details = commands_details[slug] as CommandT;
+
+  const command = new SlashCommandBuilder()
+    .setName(slug)
+    .setDescription(details.description);
+
+  if (details.addOptionsToCommand)
+    return details.addOptionsToCommand(command).toJSON();
+
+  if (slug === "kraa")
+    return command
+      .addStringOption((option) =>
+        option
+          .setName("command")
+          .setDescription("The command you want help with"),
+      )
+      .toJSON();
+
+  return command.toJSON();
+}

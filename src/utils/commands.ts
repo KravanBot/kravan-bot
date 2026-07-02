@@ -1,5 +1,8 @@
 import {
+  _AddUndefinedToPossiblyUndefinedPropertiesOfInterface,
   ActionRowBuilder,
+  APIApplicationCommandOption,
+  ApplicationCommandOptionType,
   AttachmentBuilder,
   ButtonBuilder,
   ButtonStyle,
@@ -22,6 +25,7 @@ import {
   getRandomFromArray,
   validateNotInJail,
   tryToGetJackpot,
+  commandToJson,
 } from "./helpers.js";
 import {
   addCoins,
@@ -116,6 +120,91 @@ export const commands_details = {
     description: "Replies with help for dummies",
 
     onTrigger: async (interaction) => {
+      const command = interaction.options.getString("command") as
+        | keyof typeof commands_details
+        | null;
+
+      if (command) {
+        if (!(command in commands_details)) {
+          interaction.reply({
+            content: "Command doesnt exist <:Raven_Hmm:1386395111864270870>",
+            ephemeral: true,
+          });
+          return;
+        }
+
+        const command_as_json = commandToJson(command);
+
+        let content: string[] = [
+          "Description",
+          "-----------",
+          command_as_json.description,
+        ];
+
+        if (command_as_json.options && command_as_json.options.length)
+          content.push(
+            "",
+            "Options",
+            "-------",
+            command_as_json.options
+              .map((option, idx) => {
+                const option_details = [
+                  `${idx + 1}. ${option.name}${option.required ? "" : " (optional)"}: ${option.description}`,
+                  `   ‣ type: ${ApplicationCommandOptionType[option.type].toLowerCase()}`,
+                ];
+
+                const exclude: Record<keyof typeof option, undefined> = {
+                  name: undefined,
+                  description: undefined,
+                  type: undefined,
+                  name_localizations: undefined,
+                  description_localizations: undefined,
+                  required: undefined,
+                };
+
+                option_details.push(
+                  ...Object.entries(option)
+                    .filter(([key, value]) => {
+                      return !(key in exclude) && value;
+                    })
+                    .map(([key, value]) => {
+                      const convertToString: (value: any) => string = (
+                        value,
+                      ) => {
+                        return typeof value == "number"
+                          ? value.toLocaleString()
+                          : typeof value == "object"
+                            ? Array.isArray(value)
+                              ? value
+                                  .map((value) => convertToString(value))
+                                  .join(", ")
+                              : "name" in value
+                                ? value.name
+                                : JSON.stringify(value)
+                            : value;
+                      };
+
+                      return `   ‣ ${key}: ${convertToString(value)}`;
+                    }),
+                );
+
+                return option_details.join("\n");
+              })
+              .join("\n\n"),
+          );
+
+        await interaction.reply({
+          embeds: [
+            new CustomEmbed()
+              .setTitle(command)
+              .setDescription(`${["\`\`\`", ...content, "\`\`\`"].join("\n")}`)
+              .setColor(0x8832f0),
+          ],
+        });
+
+        return;
+      }
+
       await interaction.reply({
         embeds: [help_embeds[0]!],
         components: [
@@ -1902,15 +1991,6 @@ export const commands_details = {
   ),
 } satisfies Record<string, CommandT>;
 
-export const commands = Object.entries(commands_details).map(
-  ([slug, details]: [string, CommandT]) => {
-    const command = new SlashCommandBuilder()
-      .setName(slug)
-      .setDescription(details.description);
-
-    if (details.addOptionsToCommand)
-      return details.addOptionsToCommand(command).toJSON();
-
-    return command.toJSON();
-  },
+export const commands = Object.entries(commands_details).map(([slug]) =>
+  commandToJson(slug as keyof typeof commands_details),
 );
