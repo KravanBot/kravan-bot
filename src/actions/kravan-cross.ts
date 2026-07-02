@@ -28,11 +28,16 @@ export class KravanCross {
   #bet: number;
   #multiplier: number;
   #interaction: ChatInputCommandInteraction<CacheType>;
+  #time: number;
 
-  constructor(interaction: ChatInputCommandInteraction<CacheType>) {
+  constructor(
+    interaction: ChatInputCommandInteraction<CacheType>,
+    time: number = 0,
+  ) {
     this.#multiplier = 1;
     this.#bet = 0;
     this.#interaction = interaction;
+    this.#time = time;
 
     (async () => {
       this.#multiplier = 1;
@@ -47,13 +52,15 @@ export class KravanCross {
 
       const result: GameResult = await this.#handleGame();
 
+      let msg;
+
       if (result == GameResult.WIN) {
         await addCoins(
           interaction.user.id,
           Math.floor(this.#bet * this.#multiplier),
         );
 
-        await interaction.editReply({
+        msg = await interaction.editReply({
           embeds: [
             new CustomEmbed()
               .setDescription(
@@ -64,11 +71,18 @@ export class KravanCross {
                 "https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExZ25lNXlrM2VqaTBrZGprNTZmdDR4OHFnZDd4dDdwdWs4ZTJpdG9rdiZlcD12MV9naWZzX3NlYXJjaCZjdD1n/PEdNeb9cvC1ZS/giphy.gif",
               ),
           ],
-          components: [],
+          components: [
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+              new ButtonBuilder()
+                .setCustomId(this.#getCustomId("again"))
+                .setLabel("Again")
+                .setStyle(ButtonStyle.Secondary),
+            ),
+          ],
           files: [],
         });
       } else {
-        await interaction.editReply({
+        msg = await interaction.editReply({
           embeds: [
             new CustomEmbed()
               .setDescription("Type greed they talk about in the bible 🙄")
@@ -77,9 +91,42 @@ export class KravanCross {
                 "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExeGI5eDYxM3hsdjgwb3l3YTBhbHBjYmFkMHh0NHQ1cTdnaTR6aTV5YSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/vvwYS15WrMq7S/giphy.gif",
               ),
           ],
-          components: [],
+          components: [
+            new ActionRowBuilder<ButtonBuilder>().addComponents(
+              new ButtonBuilder()
+                .setCustomId(this.#getCustomId("again"))
+                .setLabel("Again")
+                .setStyle(ButtonStyle.Secondary),
+            ),
+          ],
           files: [],
         });
+      }
+
+      let clicked = "exit";
+
+      try {
+        const response = await msg.awaitMessageComponent({
+          filter: (i) => i.user.id === this.#interaction.user.id,
+          time: 60_000,
+        });
+        await response.deferUpdate();
+
+        clicked = response.customId;
+      } catch {}
+
+      switch (clicked) {
+        case "exit":
+          await interaction.editReply({
+            components: [],
+          });
+
+          break;
+
+        case this.#getCustomId("again"):
+          new KravanCross(interaction, time + 1);
+
+          break;
       }
     })();
   }
@@ -212,5 +259,9 @@ export class KravanCross {
     }
 
     return canvas;
+  }
+
+  #getCustomId(id: string) {
+    return `${id}-${this.#time}`;
   }
 }
