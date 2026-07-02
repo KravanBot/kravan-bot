@@ -20,7 +20,7 @@ enum GameResult {
 }
 
 export class KravanCross {
-  static #MULTIPLIERS = [1, 1.25, 1.5, 2, 2.25, 2.5, 3, 3.5, 4, 5];
+  static #MULTIPLIERS = [1, 1.25, 1.5, 2, 2.25, 2.5, 3, 3.5, 4, 4.5, 5];
   static #NUM_OF_STEPS = KravanCross.#MULTIPLIERS.length;
   static #PATH = "./assets/kravan-cross";
   static #SCALE = 6;
@@ -103,9 +103,7 @@ export class KravanCross {
   }
 
   async #handleGame() {
-    for (let i = 0; i < KravanCross.#NUM_OF_STEPS; i++) {
-      this.#multiplier = KravanCross.#MULTIPLIERS[i]!;
-
+    for (let i = 0; i < KravanCross.#NUM_OF_STEPS - 1; i++) {
       const res = await new Promise<GameResult>(async (res) => {
         const components = [
           new ButtonBuilder()
@@ -163,6 +161,8 @@ export class KravanCross {
 
               if (Math.floor(Math.random() * 4) == 0)
                 return res(GameResult.LOSE);
+
+              this.#multiplier = KravanCross.#MULTIPLIERS[i + 1]!;
 
               return res(GameResult.CONTINUE);
           }
