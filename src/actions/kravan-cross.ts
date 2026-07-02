@@ -57,7 +57,7 @@ export class KravanCross {
           embeds: [
             new CustomEmbed()
               .setDescription(
-                `Nice! You cashed out with <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier)} coins!`,
+                `Nice! You cashed out with <a:goldencoin:1311863385922736148> ${Math.floor(this.#bet * this.#multiplier).toLocaleString()} coins!`,
               )
               .setColor(0x4c65f5)
               .setImage(

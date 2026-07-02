@@ -1079,7 +1079,16 @@ export const commands_details = {
         option
           .setName("item")
           .setDescription("The item to put")
-          .setChoices(items_as_string_option.slice(ItemId.START_SHIRTS))
+          .setChoices(
+            items_as_string_option.slice(
+              items_as_string_option.findIndex(
+                ({ value }) => parseInt(value) == ItemId.START_SHIRTS + 1,
+              ),
+              items_as_string_option.findIndex(
+                ({ value }) => parseInt(value) == ItemId.END_MASK - 1,
+              ) + 1,
+            ),
+          )
           .setRequired(true),
       ),
 

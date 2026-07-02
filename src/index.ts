@@ -21,7 +21,7 @@ import { GlobalFonts } from "@napi-rs/canvas";
 import { Twitch } from "./actions/twitch.js";
 import { StreamerBot } from "./actions/streamerbot.js";
 import { Logger } from "./actions/logger.js";
-import { help_embeds } from "./utils/constants.js";
+import { help_embeds, items_as_string_option } from "./utils/constants.js";
 import { commands_details, commands } from "./utils/commands.js";
 import { Flag } from "./actions/flag.js";
 import { Welcome } from "./actions/welcome.js";
@@ -31,6 +31,7 @@ import {
   updateNumOfMembers,
 } from "./utils/helpers.js";
 import { Socials } from "./actions/socials.js";
+import { ItemId } from "./actions/store.js";
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
