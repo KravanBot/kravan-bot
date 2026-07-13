@@ -247,7 +247,7 @@ export const commands_details = {
       slash_interaction,
       button_interaction?: ButtonInteraction<CacheType>,
     ) => {
-      if (!slash_interaction.replied) await slash_interaction.deferReply();
+      if (!slash_interaction?.replied) await slash_interaction.deferReply();
 
       const user =
         ranni_guild.members?.cache.get(
@@ -256,9 +256,9 @@ export const commands_details = {
         slash_interaction.options.getUser("target", false) ??
         slash_interaction.user;
 
-      let interaction = button_interaction ?? slash_interaction;
-
       if (!user) return;
+
+      let interaction = button_interaction ?? slash_interaction;
 
       const data = await getUserCoins(user.id);
 
