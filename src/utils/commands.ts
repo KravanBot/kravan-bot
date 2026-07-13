@@ -242,7 +242,7 @@ export const commands_details = {
       ),
 
     onTrigger: async (interaction) => {
-      await interaction.deferReply();
+      if (!interaction.replied) await interaction.deferReply();
 
       const user =
         interaction.options.getUser("target", false) ?? interaction.user;
@@ -273,6 +273,14 @@ export const commands_details = {
             .setDescription("Elon Musk dis u?")
             .setColor(0xfc9630)
             .setThumbnail(user.avatarURL()),
+        ],
+        components: [
+          new ActionRowBuilder<ButtonBuilder>().addComponents(
+            new ButtonBuilder()
+              .setCustomId(`net-worth-${interaction.user.id}`)
+              .setLabel("🔄 Refresh")
+              .setStyle(ButtonStyle.Secondary),
+          ),
         ],
       });
     },
@@ -1941,6 +1949,8 @@ export const commands_details = {
       ),
 
     onTrigger: async (interaction) => {
+      if (Gamble.CURRENT_GAMBLES.has(interaction.user.id)) return;
+
       new KravanCross(interaction);
     },
   },
