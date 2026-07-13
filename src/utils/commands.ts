@@ -1,17 +1,16 @@
 import {
   _AddUndefinedToPossiblyUndefinedPropertiesOfInterface,
   ActionRowBuilder,
-  APIApplicationCommandOption,
   ApplicationCommandOptionType,
   AttachmentBuilder,
   ButtonBuilder,
-  ButtonInteraction,
   ButtonStyle,
   CacheType,
   ChatInputCommandInteraction,
   ComponentType,
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
+  User,
   userMention,
 } from "discord.js";
 import {
@@ -92,6 +91,8 @@ export type CommandT = {
     interaction: ChatInputCommandInteraction<CacheType>,
     ...args: any[]
   ) => Promise<void>;
+
+  [key: string]: any;
 };
 
 const getActionOrEmoteEmbed = (
@@ -243,26 +244,10 @@ export const commands_details = {
           .setRequired(false),
       ),
 
-    onTrigger: async (
-      slash_interaction,
-      button_interaction?: ButtonInteraction<CacheType>,
-    ) => {
-      let interaction = button_interaction ?? slash_interaction;
-
-      await interaction.deferReply();
-
-      const user =
-        ranni_guild.members?.cache.get(
-          button_interaction?.customId.split("-").at(-1)! ?? "",
-        ) ??
-        slash_interaction.options.getUser("target", false) ??
-        slash_interaction.user;
-
-      if (!user) return;
-
+    getMessage: async (user: User) => {
       const data = await getUserCoins(user.id);
 
-      await interaction.editReply({
+      return {
         embeds: [
           new CustomEmbed()
             .setTitle("NET WORTH 💰")
@@ -290,12 +275,23 @@ export const commands_details = {
         components: [
           new ActionRowBuilder<ButtonBuilder>().addComponents(
             new ButtonBuilder()
-              .setCustomId(`net-worth-${interaction.user.id}`)
+              .setCustomId(`net-worth-${user.id}`)
               .setLabel("🔄 Refresh")
               .setStyle(ButtonStyle.Secondary),
           ),
         ],
-      });
+      };
+    },
+
+    onTrigger: async (interaction) => {
+      await interaction.deferReply();
+
+      const user =
+        interaction.options.getUser("target", false) ?? interaction.user;
+
+      await interaction.editReply(
+        await commands_details["net-worth"].getMessage(user),
+      );
     },
   },
 

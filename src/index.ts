@@ -203,9 +203,15 @@ client.on("interactionCreate", async (interaction) => {
 
         await interaction.deferUpdate();
       } else if (interaction.customId.startsWith("net-worth")) {
-        await commands_details["net-worth"].onTrigger(
-          null as unknown as ChatInputCommandInteraction<CacheType>,
-          interaction,
+        const id = interaction.customId.split("-").at(-1)!;
+
+        if (!ranni_guild.members) return;
+
+        await interaction.message.edit(
+          await commands_details["net-worth"].getMessage(
+            ranni_guild.members.cache.get(id)?.user ??
+              (await ranni_guild.members.fetch(id)).user,
+          ),
         );
       }
     }
