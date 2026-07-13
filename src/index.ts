@@ -195,14 +195,16 @@ client.on("interactionCreate", async (interaction) => {
 
     default: {
       if (interaction.customId.startsWith("help-embed")) {
+        await interaction.deferUpdate();
+
         await interaction.message.edit({
           embeds: [
             help_embeds.at(parseInt(interaction.customId.split("-").at(-1)!))!,
           ],
         });
-
-        await interaction.deferUpdate();
       } else if (interaction.customId.startsWith("net-worth")) {
+        await interaction.deferUpdate();
+
         const id = interaction.customId.split("-").at(-1)!;
 
         if (!ranni_guild.members) return;
