@@ -5,6 +5,7 @@ import {
   ApplicationCommandOptionType,
   AttachmentBuilder,
   ButtonBuilder,
+  ButtonInteraction,
   ButtonStyle,
   CacheType,
   ChatInputCommandInteraction,
@@ -89,6 +90,7 @@ export type CommandT = {
   ) => SlashCommandOptionsOnlyBuilder;
   onTrigger: (
     interaction: ChatInputCommandInteraction<CacheType>,
+    ...args: any[]
   ) => Promise<void>;
 };
 
@@ -241,11 +243,22 @@ export const commands_details = {
           .setRequired(false),
       ),
 
-    onTrigger: async (interaction) => {
-      if (!interaction.replied) await interaction.deferReply();
+    onTrigger: async (
+      slash_interaction,
+      button_interaction?: ButtonInteraction<CacheType>,
+    ) => {
+      if (!slash_interaction.replied) await slash_interaction.deferReply();
 
       const user =
-        interaction.options.getUser("target", false) ?? interaction.user;
+        ranni_guild.members?.cache.get(
+          button_interaction?.customId.split("-").at(-1)! ?? "",
+        ) ??
+        slash_interaction.options.getUser("target", false) ??
+        slash_interaction.user;
+
+      let interaction = button_interaction ?? slash_interaction;
+
+      if (!user) return;
 
       const data = await getUserCoins(user.id);
 

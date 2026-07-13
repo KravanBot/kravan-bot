@@ -203,11 +203,9 @@ client.on("interactionCreate", async (interaction) => {
 
         await interaction.deferUpdate();
       } else if (interaction.customId.startsWith("net-worth")) {
-        if (interaction.user.id !== interaction.customId.split("-").at(-1)!)
-          return;
-
         await commands_details["net-worth"].onTrigger(
-          interaction as unknown as ChatInputCommandInteraction<CacheType>,
+          null as unknown as ChatInputCommandInteraction<CacheType>,
+          interaction,
         );
       }
     }
