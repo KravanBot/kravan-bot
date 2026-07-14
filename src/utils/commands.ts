@@ -1758,7 +1758,7 @@ export const commands_details = {
       const result = getRandomFromArray(["heads", "tails"]);
       const won = choice == result;
 
-      const msg = `${interaction.user.displayName} spent <:justacoin:1508806637362610287> 1 and chose ${choice}\nThe coin spins...`;
+      const msg = `${interaction.user.displayName} spent <:justacoin:1508806637362610287> ${bet} and chose ${choice}\nThe coin spins...`;
 
       await interaction.editReply(`${msg} <a:coinflip:1508805014162767932>`);
 
