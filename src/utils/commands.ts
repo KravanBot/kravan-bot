@@ -1758,7 +1758,7 @@ export const commands_details = {
       const result = getRandomFromArray(["heads", "tails"]);
       const won = choice == result;
 
-      const msg = `${interaction.user.displayName} spent <:justacoin:1508806637362610287> ${bet} and chose ${choice}\nThe coin spins...`;
+      const msg = `${interaction.user.displayName} spent <:justacoin:1508806637362610287> ${bet.toLocaleString()} and chose ${choice}\nThe coin spins...`;
 
       await interaction.editReply(`${msg} <a:coinflip:1508805014162767932>`);
 
@@ -1769,7 +1769,7 @@ export const commands_details = {
       await addCoins(interaction.user.id, won ? bet : -bet);
 
       await interaction.editReply(
-        `${msg} <:justacoin:1508806637362610287> ${won ? `and you won 🪙 ${bet * 2}!!` : "and you lost it all... :c"}`,
+        `${msg} <:justacoin:1508806637362610287> ${won ? `and you won 🪙 ${(bet * 2).toLocaleString()}!!` : "and you lost it all... :c"}`,
       );
     },
   },
