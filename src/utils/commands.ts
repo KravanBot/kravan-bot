@@ -80,6 +80,7 @@ import fs from "fs/promises";
 import owo from "@zuzak/owo";
 import { Flag } from "../actions/flag.js";
 import { KravanCross } from "../actions/kravan-cross.js";
+import { Wordle } from "../actions/wordle.js";
 
 export type CommandT = {
   description: string;
@@ -1961,6 +1962,14 @@ export const commands_details = {
       if (Gamble.CURRENT_GAMBLES.has(interaction.user.id)) return;
 
       new KravanCross(interaction);
+    },
+  },
+
+  wordle: {
+    description: "Guess the 5 letter word",
+
+    onTrigger: async (interaction) => {
+      new Wordle(interaction);
     },
   },
 

@@ -6,6 +6,7 @@ import { commands_details } from "./commands.js";
 import emotes_json from "../constants/emotes.json" with { type: "json" };
 import actions_json from "../constants/actions.json" with { type: "json" };
 import flags_json from "../constants/flags.json" with { type: "json" };
+import words_json from "../constants/words.json" with { type: "json" };
 
 export const quest_details: Record<
   QuestMissionsT,
@@ -243,3 +244,5 @@ export const help_embeds = [
       },
     ]),
 ];
+
+export const words = words_json as string[];
