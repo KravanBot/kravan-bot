@@ -138,6 +138,8 @@ export class Wordle {
           result: this.#getGuessResults(guess),
         });
       } catch (e) {
+        console.log(e);
+
         break;
       }
     }
