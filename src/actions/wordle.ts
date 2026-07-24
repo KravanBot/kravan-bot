@@ -78,7 +78,6 @@ export class Wordle {
 
       const collector = msg.createMessageComponentCollector({
         time: 300_000,
-        max: 1,
         filter: (interaction) =>
           interaction.user.id == this.interaction.user.id,
       });
