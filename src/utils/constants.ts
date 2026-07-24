@@ -169,6 +169,7 @@ const command_types: {
         "inventory",
         "counting-details",
         "trap",
+        "wordle",
       ],
       "🫂 Social": ["ship", "uwuify"],
       "😃 Emotes": Object.keys(emotes) as (keyof typeof emotes)[],

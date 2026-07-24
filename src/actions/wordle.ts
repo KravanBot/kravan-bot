@@ -87,26 +87,24 @@ export class Wordle {
         const guess = (
           await new Promise<string>((res, rej) => {
             collector.on("collect", async (interaction) => {
-              await interaction.deferUpdate();
-
-              const modal = new ModalBuilder()
-                .setCustomId(`wordle_${interaction.id}_${i}`)
-                .setTitle("Wordle");
-
-              const guess_input = new TextInputBuilder()
-                .setCustomId("guess_field")
-                .setLabel("Whats your guess?")
-                .setStyle(TextInputStyle.Short)
-                .setPlaceholder("e.g. Ranni")
-                .setMinLength(5)
-                .setMaxLength(5)
-                .setRequired(true);
-
-              modal.addComponents(guess_input);
-
-              await interaction.showModal(modal);
-
               try {
+                const modal = new ModalBuilder()
+                  .setCustomId(`wordle_${interaction.id}_${i}`)
+                  .setTitle("Wordle");
+
+                const guess_input = new TextInputBuilder()
+                  .setCustomId("guess_field")
+                  .setLabel("Whats your guess?")
+                  .setStyle(TextInputStyle.Short)
+                  .setPlaceholder("e.g. Ranni")
+                  .setMinLength(5)
+                  .setMaxLength(5)
+                  .setRequired(true);
+
+                modal.addComponents(guess_input);
+
+                await interaction.showModal(modal);
+
                 const submission = await interaction.awaitModalSubmit({
                   filter: (int) =>
                     int.customId === `wordle_${interaction.id}_${i}` &&
@@ -122,8 +120,8 @@ export class Wordle {
                 collector.stop("guessed");
 
                 return res(guess);
-              } catch {
-                return rej();
+              } catch (e) {
+                return rej(e);
               }
             });
 
