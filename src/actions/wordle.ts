@@ -125,7 +125,9 @@ export class Wordle {
             });
 
             collector.on("end", (_, reason) => {
-              if (reason === "time") return rej();
+              if (reason == "guessed") return;
+
+              return rej("5 mins passed");
             });
           })
         ).toLowerCase();
