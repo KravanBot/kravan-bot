@@ -11,6 +11,7 @@ import {
 import { words } from "../utils/constants.js";
 import { getRandomFromArray } from "../utils/helpers.js";
 import { CustomEmbed } from "../utils/embed.js";
+import { addCoins } from "../db/prisma.js";
 
 enum ResultE {
   WRONG,
@@ -37,9 +38,9 @@ export class Wordle {
 
   async #takeGuesses() {
     for (let i = 0; i < Wordle.#NUM_OF_GUESSES + 1; i++) {
-      const game_finished =
-        i >= Wordle.#NUM_OF_GUESSES ||
-        this.#guesses.at(-1)?.word === this.#word;
+      const guessed_correctly = this.#guesses.at(-1)?.word === this.#word;
+
+      const game_finished = i >= Wordle.#NUM_OF_GUESSES || guessed_correctly;
 
       const msg = await this.interaction.editReply({
         embeds: [
@@ -69,7 +70,11 @@ export class Wordle {
             ],
       });
 
-      if (game_finished) break;
+      if (game_finished) {
+        if (guessed_correctly) await addCoins(this.interaction.user.id, 1_000);
+
+        break;
+      }
 
       const collector = msg.createMessageComponentCollector({
         time: 300_000,
