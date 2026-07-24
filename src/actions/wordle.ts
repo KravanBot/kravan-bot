@@ -87,6 +87,8 @@ export class Wordle {
         const guess = (
           await new Promise<string>((res, rej) => {
             collector.on("collect", async (interaction) => {
+              await interaction.deferUpdate();
+
               const modal = new ModalBuilder()
                 .setCustomId(`wordle_${interaction.id}_${i}`)
                 .setTitle("Wordle");
@@ -116,6 +118,8 @@ export class Wordle {
                   submission.fields.getTextInputValue("guess_field");
 
                 await submission.deferUpdate();
+
+                collector.stop("guessed");
 
                 return res(guess);
               } catch {
