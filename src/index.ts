@@ -143,7 +143,7 @@ client.once("clientReady", async () => {
     lottery: new Lottery(),
   };
 
-  console.log("All set!");
+  console.log("All set");
 });
 
 client.on("guildCreate", async (guild) => {
