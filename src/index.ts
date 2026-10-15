@@ -33,6 +33,7 @@ import {
   updateNumOfMembers,
 } from "./utils/helpers.js";
 import { Socials } from "./actions/socials.js";
+import { FunFacts } from "./actions/fun-facts.js";
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
@@ -417,4 +418,7 @@ client.on("messageCreate", async (message) => {
 
 client.login(TOKEN);
 
-if (process.env.IS_PRODUCTION) new StreamerBot();
+if (process.env.IS_PRODUCTION) {
+  new StreamerBot();
+  new FunFacts();
+}

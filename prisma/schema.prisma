@@ -36,3 +36,7 @@ model Jackpot {
   coins Int @id @default(0)
   gems Int @default(0)
 }
+
+model Fact {
+  text String @id
+}
