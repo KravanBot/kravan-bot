@@ -5,14 +5,15 @@ import { CustomEmbed } from "../utils/embed.js";
 import { ActionRowBuilder, ButtonBuilder } from "@discordjs/builders";
 import { ButtonStyle } from "discord.js";
 import { Twitch } from "./twitch.js";
+import http from "http";
 
 export class StreamerBot {
-  static #PORT = parseInt(process.env.PORT || "8080");
+  static #PORT = parseInt(process.env.WS_PORT || "12521");
 
   #wss: WebSocketServer;
 
-  constructor() {
-    this.#wss = new WebSocketServer({ port: StreamerBot.#PORT });
+  constructor(server: http.Server) {
+    this.#wss = new WebSocketServer({ server });
 
     this.#wss.on("connection", (ws) => {
       console.log("Streamerbot connected!");

@@ -10,8 +10,6 @@ import {
   ChannelType,
   SendableChannels,
   AnyThreadChannel,
-  ChatInputCommandInteraction,
-  CacheType,
 } from "discord.js";
 import { Counting } from "./actions/counting.js";
 import { setQuest } from "./db/prisma.js";
@@ -34,6 +32,9 @@ import {
 } from "./utils/helpers.js";
 import { Socials } from "./actions/socials.js";
 import { FunFacts } from "./actions/fun-facts.js";
+import express from "express";
+import cors from "cors";
+import http from "http";
 
 GlobalFonts.registerFromPath("./assets/fonts/Inter.ttf", "Inter");
 
@@ -419,6 +420,16 @@ client.on("messageCreate", async (message) => {
 client.login(TOKEN);
 
 if (process.env.IS_PRODUCTION) {
-  new StreamerBot();
-  new FunFacts();
+  const app = express();
+  app.use(cors());
+
+  const server = http.createServer(app);
+
+  new StreamerBot(server);
+  new FunFacts(app);
+
+  const PORT = parseInt(process.env.PORT ?? "8080");
+  server.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 }
