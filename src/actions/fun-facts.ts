@@ -226,38 +226,42 @@ export class FunFacts {
   async #writeNewFacts() {
     const themes = this.#pickRandomThemes(20);
 
-    const response = await this.#ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `Give 5 surprising, verified-true fun facts for each of these themes: ${themes.join("; ")}. For each fact, set "category" to the general category it fits best.`,
-      config: {
-        temperature: 1.2,
-        responseMimeType: "application/json",
-        responseSchema: {
-          type: "array",
-          items: {
-            type: "object",
-            properties: {
-              text: { type: "string" },
-              category: {
-                type: "string",
-                format: "enum",
-                enum: [...FunFacts.#CATEGORIES],
+    try {
+      const response = await this.#ai.models.generateContent({
+        model: process.env.GEMINI_MODEL ?? "gemini-3.5-flash",
+        contents: `Give 5 surprising, verified-true fun facts for each of these themes: ${themes.join("; ")}. For each fact, set "category" to the general category it fits best.`,
+        config: {
+          temperature: 1.2,
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                text: { type: "string" },
+                category: {
+                  type: "string",
+                  format: "enum",
+                  enum: [...FunFacts.#CATEGORIES],
+                },
               },
+              required: ["text", "category"],
             },
-            required: ["text", "category"],
           },
         },
-      },
-    });
+      });
 
-    const new_facts = JSON.parse(response.text ?? "[]");
+      const new_facts = JSON.parse(response.text ?? "[]");
 
-    if (!new_facts.length) return;
+      if (!new_facts.length) return;
 
-    await prisma.fact.deleteMany();
-    await prisma.fact.createMany({
-      data: new_facts,
-    });
+      await prisma.fact.deleteMany();
+      await prisma.fact.createMany({
+        data: new_facts,
+      });
+    } catch (e) {
+      console.log(e);
+    }
   }
 
   #pickRandomThemes(n: number): string[] {
