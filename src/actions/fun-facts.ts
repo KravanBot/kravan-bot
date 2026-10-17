@@ -229,7 +229,7 @@ export class FunFacts {
     try {
       const response = await this.#ai.models.generateContent({
         model: process.env.GEMINI_MODEL ?? "gemini-3.5-flash",
-        contents: `Give 5 surprising, verified-true fun facts for each of these themes: ${themes.join("; ")}. For each fact, set "category" to the general category it fits best.`,
+        contents: `Give 5 surprising, verified-true short fun facts (up to 30 words) for each of these themes: ${themes.join("; ")}. For each fact, set "category" to the general category it fits best.`,
         config: {
           temperature: 1.2,
           responseMimeType: "application/json",

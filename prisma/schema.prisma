@@ -39,4 +39,5 @@ model Jackpot {
 
 model Fact {
   text String @id
+  category String
 }
