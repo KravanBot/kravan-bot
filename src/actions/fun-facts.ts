@@ -225,7 +225,7 @@ export class FunFacts {
     try {
       const response = await this.#ai.models.generateContent({
         model: process.env.GEMINI_MODEL ?? "gemini-3.5-flash",
-        contents: `Give 5 very simple (like telling to a child) surprising, verified-true short fun facts (up to 20 words) for each of these themes: ${themes.join("; ")}. For each fact, set "category" to the general category it fits best. Make the facts sound like a human telling another human a spontanious fun fact they just remembered. Dont use very high vocabulary, make it casual and fun. Dont use exact years/dates, you can replace those with time spans (30 years ago for example) or centuries.`,
+        contents: `Give 5 very simple (like telling to a child) surprising, verified-true short fun facts (up to 20 words) for each of these themes: ${themes.join("; ")}. For each fact, set "category" to the general category it fits best. Make the facts sound like a human telling another human a spontanious fun fact they just remembered. Dont use very high vocabulary, make it casual and fun. Dont use exact years/dates, you can replace those with time spans (30 years ago for example) or centuries. Dont give facts that need context/further explanation. if talking about a name/specie, dont give the actual name that can be long or complicated, you can just say generally what it is (for example, dont say "Aurelia aurita", say moon jellyfish)`,
         config: {
           temperature: 1.2,
           responseMimeType: "application/json",
