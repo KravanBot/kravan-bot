@@ -142,7 +142,7 @@ export class FunFacts {
       this.#writeNewFacts();
     });
 
-    this.#writeNewFacts();
+    // this.#writeNewFacts();
   }
 
   async #writeNewFacts() {

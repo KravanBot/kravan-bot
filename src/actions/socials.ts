@@ -40,7 +40,7 @@ export class Socials {
           .setColor(0xff0000)
           .setImage(last_yt_embed.image!.url)
           .setThumbnail(
-            "https://yt3.googleusercontent.com/_GUnYS_dKGOhJFlW4Jd84ARG7vAOPFCtFa_qkqbYMZAO-lxMn5udwi9W7tOXomjCwjOPwwSh=s160-c-k-c0x00ffffff-no-rj",
+            "https://static-cdn.jtvnw.net/jtv_user_pictures/8ce50db4-fb62-47d3-88df-3958491abeac-profile_image-300x300.png",
           )
           .setTimestamp(new Date(last_yt_embed.timestamp!)),
       ],
@@ -96,7 +96,7 @@ export class Socials {
               .at(0)?.embeds[0]?.image?.url ?? last_tiktok_embed.image!.url,
           )
           .setThumbnail(
-            "https://yt3.googleusercontent.com/_GUnYS_dKGOhJFlW4Jd84ARG7vAOPFCtFa_qkqbYMZAO-lxMn5udwi9W7tOXomjCwjOPwwSh=s160-c-k-c0x00ffffff-no-rj",
+            "https://static-cdn.jtvnw.net/jtv_user_pictures/8ce50db4-fb62-47d3-88df-3958491abeac-profile_image-300x300.png",
           )
           .setTimestamp(date),
       ],

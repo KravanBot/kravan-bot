@@ -251,7 +251,7 @@ export class Twitch {
             ])
             .setColor(0xe4e29e)
             .setThumbnail(
-              "https://static-cdn.jtvnw.net/jtv_user_pictures/03e3d2fb-71a6-4c5a-955d-b28d48908d2f-profile_image-300x300.png",
+              "https://static-cdn.jtvnw.net/jtv_user_pictures/8ce50db4-fb62-47d3-88df-3958491abeac-profile_image-300x300.png",
             )
             .setImage(`${live.thumbnail_url}?t=${Date.now()}`)
             .setTimestamp(moment(live.started_at).toDate())
@@ -307,7 +307,7 @@ export class Twitch {
               .setColor(0xe4e29e)
               .setImage(thumbnail_url)
               .setThumbnail(
-                "https://static-cdn.jtvnw.net/jtv_user_pictures/03e3d2fb-71a6-4c5a-955d-b28d48908d2f-profile_image-300x300.png",
+                "https://static-cdn.jtvnw.net/jtv_user_pictures/8ce50db4-fb62-47d3-88df-3958491abeac-profile_image-300x300.png",
               )
               .setTimestamp(moment(created_at).toDate())
               .setURL(url),
